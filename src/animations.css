@@ -1,0 +1,325 @@
+/* ═══════════════════════════════════════════════════════════
+   F2 FIT FACTORY — ANIMATIONS & MOBILE APP FEEL
+   Import this in index.css or App.jsx
+═══════════════════════════════════════════════════════════ */
+
+/* ── Keyframes ─────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes pulse-gold {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(245,200,66,0); }
+  50%       { opacity: 0.85; box-shadow: 0 0 0 8px rgba(245,200,66,0); }
+}
+
+@keyframes shimmer-sweep {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes barGrow {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ripple {
+  0%   { transform: scale(0); opacity: 0.6; }
+  100% { transform: scale(4); opacity: 0; }
+}
+
+@keyframes bounce-subtle {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-4px); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245,200,66,0.3); }
+  50%       { box-shadow: 0 0 20px 4px rgba(245,200,66,0.15); }
+}
+
+/* ── Animation utility classes ─────────────────────────── */
+.anim-fade-in    { animation: fadeIn 0.4s ease both; }
+.anim-fade-up    { animation: fadeUp 0.45s cubic-bezier(0.22,1,0.36,1) both; }
+.anim-fade-down  { animation: fadeDown 0.4s ease both; }
+.anim-scale-in   { animation: scaleIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
+.anim-slide-right{ animation: slideInRight 0.4s cubic-bezier(0.22,1,0.36,1) both; }
+.anim-slide-left { animation: slideInLeft 0.4s cubic-bezier(0.22,1,0.36,1) both; }
+
+/* Stagger delays */
+.delay-1 { animation-delay: 0.08s; }
+.delay-2 { animation-delay: 0.16s; }
+.delay-3 { animation-delay: 0.24s; }
+.delay-4 { animation-delay: 0.32s; }
+.delay-5 { animation-delay: 0.40s; }
+.delay-6 { animation-delay: 0.48s; }
+
+/* ── Page transition wrapper ───────────────────────────── */
+.page-enter {
+  animation: fadeUp 0.38s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+/* ── Card hover lift ───────────────────────────────────── */
+.card-lift {
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1),
+              border-color 0.2s ease;
+  cursor: pointer;
+}
+.card-lift:active {
+  transform: scale(0.97);
+}
+
+/* ── Tap feedback for mobile ───────────────────────────── */
+.tap-scale {
+  transition: transform 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.tap-scale:active { transform: scale(0.95); }
+
+/* ── Shimmer loading skeleton ─────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--card2) 25%,
+    var(--card3, #282828) 50%,
+    var(--card2) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-sweep 1.4s ease infinite;
+  border-radius: var(--r-sm);
+}
+
+/* ── Gold shimmer text effect ──────────────────────────── */
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    #c9a227 0%,
+    #fcd95b 40%,
+    #f5c842 50%,
+    #fcd95b 60%,
+    #c9a227 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer-sweep 2.5s linear infinite;
+}
+
+/* ── Button press ripple ───────────────────────────────── */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+.btn-ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 10px; height: 10px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 50%;
+  transform: scale(0) translate(-50%,-50%);
+  transform-origin: 0 0;
+}
+.btn-ripple:active::after {
+  animation: ripple 0.5s ease-out;
+}
+
+/* ── Stat card entrance ────────────────────────────────── */
+.stat-enter {
+  animation: scaleIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+/* ── Nav item active indicator ─────────────────────────── */
+.nav-item {
+  transition: background 0.18s ease, color 0.18s ease,
+              border-color 0.18s ease, padding-left 0.18s ease;
+}
+
+/* ── Progress bar animated fill ────────────────────────── */
+.bar-animate {
+  transition: width 0.9s cubic-bezier(0.22,1,0.36,1);
+}
+
+/* ── Bottom nav tap ────────────────────────────────────── */
+.bottom-nav-item {
+  transition: color 0.15s ease, border-top-color 0.15s ease,
+              background 0.15s ease;
+}
+.bottom-nav-item:active {
+  transform: scale(0.92);
+  transition: transform 0.1s ease;
+}
+
+/* ── Slot card tap ─────────────────────────────────────── */
+.slot {
+  transition: border-color 0.18s ease, background 0.18s ease,
+              transform 0.15s ease;
+}
+.slot:active:not(.booked) { transform: scale(0.96); }
+
+/* ── Exercise row tap ──────────────────────────────────── */
+.exercise-row {
+  transition: opacity 0.2s ease, border-color 0.18s ease,
+              background 0.15s ease, transform 0.12s ease;
+}
+.exercise-row:active { transform: scale(0.98); }
+
+/* ── Meal card hover ───────────────────────────────────── */
+.meal-card {
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.meal-card:active { transform: scale(0.99); }
+
+/* ── Table row ─────────────────────────────────────────── */
+tbody tr {
+  transition: background 0.15s ease;
+}
+
+/* ── Form input focus animation ────────────────────────── */
+.form-input {
+  transition: border-color 0.18s ease, background 0.18s ease,
+              box-shadow 0.18s ease;
+}
+
+/* ── Avatar pulse for live status ──────────────────────── */
+.avatar-live::after {
+  content: '';
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 10px; height: 10px;
+  background: var(--green);
+  border-radius: 50%;
+  border: 2px solid var(--dark);
+  animation: glow-pulse 2s ease infinite;
+}
+
+/* ── Floating action button ────────────────────────────── */
+.fab {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-h) + 16px);
+  right: 16px;
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: var(--grad-gold);
+  border: none;
+  color: var(--black);
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(245,200,66,0.35);
+  z-index: 150;
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  animation: scaleIn 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.3s both;
+}
+.fab:active { transform: scale(0.9); }
+
+/* ── Mobile page container ─────────────────────────────── */
+.page-body {
+  padding-bottom: 20px;
+}
+
+/* ── Topbar entrance ───────────────────────────────────── */
+.topbar {
+  animation: fadeDown 0.35s ease both;
+}
+
+/* ── Section title entrance ─────────────────────────────── */
+.section-title {
+  transition: color 0.15s ease;
+}
+
+/* ── Stats grid stagger ────────────────────────────────── */
+.stats-grid .stat-card:nth-child(1) { animation: fadeUp 0.4s ease 0.05s both; }
+.stats-grid .stat-card:nth-child(2) { animation: fadeUp 0.4s ease 0.10s both; }
+.stats-grid .stat-card:nth-child(3) { animation: fadeUp 0.4s ease 0.15s both; }
+.stats-grid .stat-card:nth-child(4) { animation: fadeUp 0.4s ease 0.20s both; }
+
+/* ── Achievement card ──────────────────────────────────── */
+.achievement-card {
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1),
+              border-color 0.2s ease, background 0.2s ease;
+}
+.achievement-card:hover { transform: translateY(-2px); }
+.achievement-card:active { transform: scale(0.96); }
+
+/* ── Leaderboard row entrance ──────────────────────────── */
+.lb-row:nth-child(1) { animation: slideInLeft 0.4s ease 0.05s both; }
+.lb-row:nth-child(2) { animation: slideInLeft 0.4s ease 0.10s both; }
+.lb-row:nth-child(3) { animation: slideInLeft 0.4s ease 0.15s both; }
+.lb-row:nth-child(4) { animation: slideInLeft 0.4s ease 0.20s both; }
+.lb-row:nth-child(5) { animation: slideInLeft 0.4s ease 0.25s both; }
+.lb-row:nth-child(6) { animation: slideInLeft 0.4s ease 0.30s both; }
+
+/* ── Smooth scroll ─────────────────────────────────────── */
+.main-content {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── iOS-style momentum scrolling ─────────────────────── */
+.page-body {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Overscroll color ──────────────────────────────────── */
+html {
+  overscroll-behavior: none;
+  background: var(--black);
+}
+
+/* ── Safe area for iPhone notch/home bar ───────────────── */
+.main-content {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.bottom-nav {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  height: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px));
+}
+.mobile-header {
+  padding-top: env(safe-area-inset-top, 0px);
+  height: calc(var(--mobile-header-h) + env(safe-area-inset-top, 0px));
+}

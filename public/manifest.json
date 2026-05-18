@@ -1,0 +1,15 @@
+{
+  "short_name": "F2 Fit",
+  "name": "F2 Fit Factory — Mandla",
+  "description": "F2 Fit Factory Gym Management App — Mandla's Best Gym",
+  "icons": [
+    { "src": "favicon.ico", "sizes": "64x64 32x32 24x24 16x16", "type": "image/x-icon" },
+    { "src": "logo192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "logo512.png", "type": "image/png", "sizes": "512x512" }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#f5c842",
+  "background_color": "#080808",
+  "orientation": "portrait"
+}
