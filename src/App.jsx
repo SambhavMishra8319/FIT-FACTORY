@@ -354,7 +354,9 @@ import { MemberWorkout, MemberDiet, MemberBCA, MemberSteam, MemberProgress } fro
 import { UpgradePage } from "./components/LockGate";
 
 import "./index.css";
-import "./animations.css";
+// import "./styles/main.css"
+// import "./animations.css";
+import "./styles/base/animations.css";
 import SplashScreen from "./components/SplashScreen";
 import ErrorBoundary from "./components/ErrorBoundary";
 

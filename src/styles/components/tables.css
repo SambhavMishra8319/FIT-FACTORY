@@ -1,0 +1,26 @@
+.table-wrap{
+  overflow:auto;
+
+  border-radius:var(--r-md);
+
+  border:1px solid var(--border);
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+thead{
+  background:var(--card2);
+}
+
+th,
+td{
+  padding:14px;
+  text-align:left;
+}
+
+tbody tr{
+  border-top:1px solid var(--border);
+}

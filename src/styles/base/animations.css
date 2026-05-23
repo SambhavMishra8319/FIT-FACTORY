@@ -323,3 +323,79 @@ html {
   padding-top: env(safe-area-inset-top, 0px);
   height: calc(var(--mobile-header-h) + env(safe-area-inset-top, 0px));
 }
+/* ════════════════════════════════════════════════════════
+   F2 LOGO ANIMATIONS
+════════════════════════════════════════════════════════ */
+
+@keyframes logoReveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.72) translateY(30px);
+    filter: blur(12px);
+  }
+
+  60% {
+    opacity: 1;
+    transform: scale(1.04) translateY(-6px);
+    filter: blur(0px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0px);
+  }
+}
+
+@keyframes logoGlow {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 8px rgba(245,200,66,0.25))
+      drop-shadow(0 0 16px rgba(245,200,66,0.12));
+  }
+
+  50% {
+    filter:
+      drop-shadow(0 0 18px rgba(245,200,66,0.55))
+      drop-shadow(0 0 36px rgba(245,200,66,0.22));
+  }
+}
+
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.f2-logo-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  animation: logoReveal 1s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+.f2-logo {
+  width: min(88vw, 620px);
+  max-width: 100%;
+  object-fit: contain;
+
+  animation:
+    logoGlow 3s ease-in-out infinite,
+    logoFloat 4s ease-in-out infinite;
+
+  will-change: transform, filter;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+  .f2-logo {
+    width: 94vw;
+  }
+}

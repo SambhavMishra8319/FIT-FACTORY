@@ -2,33 +2,67 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import toast from "react-hot-toast";
-import { subscribeMembersSnapshot, deleteMember, addAttendance } from "../firebase/service";
+import {
+  subscribeMembersSnapshot,
+  deleteMember,
+  addAttendance,
+} from "../firebase/service";
 
 const statusBadge = (s) => {
-  if (s === "active")   return <span className="badge badge-green">Active</span>;
-  if (s === "expiring") return <span className="badge badge-red">Expiring</span>;
-  if (s === "inactive") return <span className="badge badge-gray">Inactive</span>;
+  if (s === "active") return <span className="badge badge-green">Active</span>;
+  if (s === "expiring")
+    return <span className="badge badge-red">Expiring</span>;
+  if (s === "inactive")
+    return <span className="badge badge-gray">Inactive</span>;
   return <span className="badge badge-gold">{s}</span>;
 };
 
 export default function Members() {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch]   = useState("");
-  const [filter, setFilter]   = useState("all");
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all");
   const [visible, setVisible] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     // ✅ Realtime listener — updates instantly when admin adds/edits member
-    const unsub = subscribeMembersSnapshot(data => {
-      const now = new Date();
-      const weekLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-      const updated = data.map(m => {
-        if (!m.expiryDate) return m;
-        const exp = new Date(m.expiryDate);
-        const status = exp < now ? "inactive" : exp <= weekLater ? "expiring" : "active";
-        return { ...m, status };
+    const unsub = subscribeMembersSnapshot((data) => {
+      // const now = new Date();
+      // const weekLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      // const updated = data.map(m => {
+      //   if (!m.expiryDate) return m;
+      //   const exp = new Date(m.expiryDate);
+      //   const status = exp < now ? "inactive" : exp <= weekLater ? "expiring" : "active";
+      //   return { ...m, status };
+      // });
+      const todayStr = format(new Date(), "yyyy-MM-dd");
+
+      const weekLater = new Date();
+      weekLater.setDate(weekLater.getDate() + 7);
+
+      const weekLaterStr = format(weekLater, "yyyy-MM-dd");
+
+      const updated = data.map((m) => {
+        if (!m.expiryDate) {
+          return {
+            ...m,
+            status: "inactive",
+          };
+        }
+
+        let status = "active";
+
+        if (m.expiryDate < todayStr) {
+          status = "inactive";
+        } else if (m.expiryDate >= todayStr && m.expiryDate <= weekLaterStr) {
+          status = "expiring";
+        }
+
+        return {
+          ...m,
+          status,
+        };
       });
       setMembers(updated);
       setLoading(false);
@@ -37,7 +71,7 @@ export default function Members() {
     return () => unsub();
   }, []);
 
-  const filtered = members.filter(m => {
+  const filtered = members.filter((m) => {
     const matchSearch =
       m.name?.toLowerCase().includes(search.toLowerCase()) ||
       m.phone?.includes(search) ||
@@ -47,11 +81,18 @@ export default function Members() {
   });
 
   const handleDelete = async (id, name) => {
-    if (!window.confirm(`Remove ${name} from members list? This cannot be undone.`)) return;
+    if (
+      !window.confirm(
+        `Remove ${name} from members list? This cannot be undone.`,
+      )
+    )
+      return;
     try {
       await deleteMember(id);
       toast.success(`${name} removed.`);
-    } catch { toast.error("Delete failed."); }
+    } catch {
+      toast.error("Delete failed.");
+    }
   };
 
   const handleCheckin = async (m) => {
@@ -62,18 +103,23 @@ export default function Members() {
       } else {
         toast.success(`✅ ${m.name} checked in! +10 pts`);
       }
-    } catch { toast.error("Check-in failed."); }
+    } catch {
+      toast.error("Check-in failed.");
+    }
   };
 
   const stats = {
-    total:    members.length,
-    active:   members.filter(m => m.status === "active").length,
-    expiring: members.filter(m => m.status === "expiring").length,
-    inactive: members.filter(m => m.status === "inactive").length,
-    revenue:  members.reduce((s, m) => s + (Number(m.amountPaid) || 0), 0),
+    total: members.length,
+    // active:   members.filter(m => m.status === "active").length,
+    active: members.filter(
+      (m) => m.status === "active" || m.status === "expiring",
+    ).length,
+    expiring: members.filter((m) => m.status === "expiring").length,
+    inactive: members.filter((m) => m.status === "inactive").length,
+    revenue: members.reduce((s, m) => s + (Number(m.amountPaid) || 0), 0),
   };
 
-  const anim = delay => ({
+  const anim = (delay) => ({
     opacity: visible ? 1 : 0,
     transform: visible ? "translateY(0)" : "translateY(14px)",
     transition: `all 0.45s cubic-bezier(0.22,1,0.36,1) ${delay}s`,
@@ -88,20 +134,23 @@ export default function Members() {
             className="search-input"
             placeholder="🔍 Name, phone, ID..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
           />
           <select
             className="form-input"
             style={{ width: "auto", fontSize: 12, padding: "8px 10px" }}
             value={filter}
-            onChange={e => setFilter(e.target.value)}
+            onChange={(e) => setFilter(e.target.value)}
           >
             <option value="all">All</option>
             <option value="active">Active</option>
             <option value="expiring">Expiring</option>
             <option value="inactive">Inactive</option>
           </select>
-          <button className="btn btn-primary btn-sm tap-scale btn-ripple" onClick={() => navigate("/add-member")}>
+          <button
+            className="btn btn-primary btn-sm tap-scale btn-ripple"
+            onClick={() => navigate("/add-member")}
+          >
             + Add
           </button>
         </div>
@@ -111,14 +160,40 @@ export default function Members() {
         {/* Stats */}
         <div className="stats-grid mb-20">
           {[
-            { label: "Active",   value: stats.active,   cls: "s-green", val: "c-green" },
-            { label: "Expiring", value: stats.expiring, cls: "s-red",   val: "c-red"   },
-            { label: "Inactive", value: stats.inactive, cls: "s-gold",  val: "c-gold"  },
-            { label: "Revenue",  value: `₹${(stats.revenue / 1000).toFixed(1)}k`, cls: "s-gold", val: "c-gold" },
+            {
+              label: "Active",
+              value: stats.active,
+              cls: "s-green",
+              val: "c-green",
+            },
+            {
+              label: "Expiring",
+              value: stats.expiring,
+              cls: "s-red",
+              val: "c-red",
+            },
+            {
+              label: "Inactive",
+              value: stats.inactive,
+              cls: "s-gold",
+              val: "c-gold",
+            },
+            {
+              label: "Revenue",
+              value: `₹${(stats.revenue / 1000).toFixed(1)}k`,
+              cls: "s-gold",
+              val: "c-gold",
+            },
           ].map((s, i) => (
-            <div key={i} className={`stat-card ${s.cls}`} style={anim(i * 0.07)}>
+            <div
+              key={i}
+              className={`stat-card ${s.cls}`}
+              style={anim(i * 0.07)}
+            >
               <div className="stat-label">{s.label}</div>
-              <div className={`stat-value ${s.val}`}>{loading ? "—" : s.value}</div>
+              <div className={`stat-value ${s.val}`}>
+                {loading ? "—" : s.value}
+              </div>
             </div>
           ))}
         </div>
@@ -138,104 +213,162 @@ export default function Members() {
             </thead>
             <tbody>
               {loading ? (
-                [1, 2, 3, 4].map(i => (
+                [1, 2, 3, 4].map((i) => (
                   <tr key={i}>
                     <td colSpan={7} style={{ padding: 16 }}>
-                      <div className="skeleton" style={{ height: 14, width: "70%", marginBottom: 6 }} />
-                      <div className="skeleton" style={{ height: 10, width: "40%" }} />
+                      <div
+                        className="skeleton"
+                        style={{ height: 14, width: "70%", marginBottom: 6 }}
+                      />
+                      <div
+                        className="skeleton"
+                        style={{ height: 10, width: "40%" }}
+                      />
                     </td>
                   </tr>
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: "center", color: "var(--muted2)", padding: 40 }}>
+                  <td
+                    colSpan={7}
+                    style={{
+                      textAlign: "center",
+                      color: "var(--muted2)",
+                      padding: 40,
+                    }}
+                  >
                     {members.length === 0
                       ? "No members yet. Add your first member! 💪"
                       : "No members match your search."}
                   </td>
                 </tr>
-              ) : filtered.map((m, i) => (
-                <tr
-                  key={m.id}
-                  style={{
-                    opacity: visible ? 1 : 0,
-                    transition: `opacity 0.35s ease ${0.3 + i * 0.04}s`,
-                  }}
-                >
-                  <td>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <div style={{
-                        width: 32, height: 32, borderRadius: "50%",
-                        background: "var(--grad-gold)", display: "flex",
-                        alignItems: "center", justifyContent: "center",
-                        fontFamily: "var(--font-display)", fontSize: 11,
-                        fontWeight: 700, color: "var(--black)", flexShrink: 0,
-                      }}>
-                        {m.name?.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
+              ) : (
+                filtered.map((m, i) => (
+                  <tr
+                    key={m.id}
+                    style={{
+                      opacity: visible ? 1 : 0,
+                      transition: `opacity 0.35s ease ${0.3 + i * 0.04}s`,
+                    }}
+                  >
+                    <td>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: "50%",
+                            background: "var(--grad-gold)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontFamily: "var(--font-display)",
+                            fontSize: 11,
+                            fontWeight: 700,
+                            color: "var(--black)",
+                            flexShrink: 0,
+                          }}
+                        >
+                          {m.name
+                            ?.split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .slice(0, 2)
+                            .toUpperCase()}
+                        </div>
+                        <div>
+                          <strong>{m.name}</strong>
+                          <div style={{ fontSize: 11, color: "var(--muted2)" }}>
+                            {m.phone}
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <strong>{m.name}</strong>
-                        <div style={{ fontSize: 11, color: "var(--muted2)" }}>{m.phone}</div>
+                    </td>
+                    <td>{m.plan}</td>
+                    <td style={{ fontSize: 12 }}>{m.goal || "—"}</td>
+                    <td
+                      style={{
+                        fontSize: 12,
+                        color:
+                          m.status === "expiring" || m.status === "inactive"
+                            ? "var(--red)"
+                            : "var(--muted2)",
+                      }}
+                    >
+                      {m.expiryDate}
+                    </td>
+                    <td>₹{Number(m.amountPaid || 0).toLocaleString()}</td>
+                    <td>{statusBadge(m.status)}</td>
+                    <td>
+                      <div
+                        style={{ display: "flex", gap: 4, flexWrap: "wrap" }}
+                      >
+                        <button
+                          className="btn btn-outline btn-sm tap-scale"
+                          onClick={() => handleCheckin(m)}
+                          title="Mark attendance"
+                        >
+                          ✓ In
+                        </button>
+                        <button
+                          className="btn btn-primary btn-sm tap-scale"
+                          onClick={() => navigate(`/members/${m.id}/edit`)}
+                          title="Edit member"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="btn btn-danger btn-sm tap-scale"
+                          onClick={() => handleDelete(m.id, m.name)}
+                        >
+                          Del
+                        </button>
                       </div>
-                    </div>
-                  </td>
-                  <td>{m.plan}</td>
-                  <td style={{ fontSize: 12 }}>{m.goal || "—"}</td>
-                  <td style={{
-                    fontSize: 12,
-                    color: m.status === "expiring" || m.status === "inactive"
-                      ? "var(--red)" : "var(--muted2)"
-                  }}>
-                    {m.expiryDate}
-                  </td>
-                  <td>₹{Number(m.amountPaid || 0).toLocaleString()}</td>
-                  <td>{statusBadge(m.status)}</td>
-                  <td>
-                    <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                      <button
-                        className="btn btn-outline btn-sm tap-scale"
-                        onClick={() => handleCheckin(m)}
-                        title="Mark attendance"
-                      >
-                        ✓ In
-                      </button>
-                      <button
-                        className="btn btn-primary btn-sm tap-scale"
-                        onClick={() => navigate(`/members/${m.id}/edit`)}
-                        title="Edit member"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="btn btn-danger btn-sm tap-scale"
-                        onClick={() => handleDelete(m.id, m.name)}
-                      >
-                        Del
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
 
         {/* Summary footer */}
         {!loading && filtered.length > 0 && (
-          <div style={{
-            textAlign: "center", marginTop: 14,
-            fontSize: 12, color: "var(--muted2)",
-            opacity: visible ? 1 : 0, transition: "opacity 0.4s ease 0.5s",
-          }}>
+          <div
+            style={{
+              textAlign: "center",
+              marginTop: 14,
+              fontSize: 12,
+              color: "var(--muted2)",
+              opacity: visible ? 1 : 0,
+              transition: "opacity 0.4s ease 0.5s",
+            }}
+          >
             Showing {filtered.length} of {members.length} members ·{" "}
             <span style={{ color: "var(--gold)" }}>
-              Total: ₹{(members.reduce((s, m) => s + (Number(m.amountPaid) || 0), 0) / 1000).toFixed(1)}k revenue
+              Total: ₹
+              {(
+                members.reduce((s, m) => s + (Number(m.amountPaid) || 0), 0) /
+                1000
+              ).toFixed(1)}
+              k revenue
             </span>
           </div>
         )}
       </div>
 
-      <button className="fab tap-scale btn-ripple" onClick={() => navigate("/add-member")}>+</button>
+      <button
+        className="fab tap-scale btn-ripple"
+        onClick={() => navigate("/add-member")}
+      >
+        +
+      </button>
     </div>
   );
 }

@@ -1,0 +1,39 @@
+.membership-scroll{
+  display:flex;
+  gap:20px;
+
+  overflow-x:auto;
+
+  padding-bottom:12px;
+}
+
+.membership-card{
+  min-width:340px;
+
+  border-radius:28px;
+
+  padding:28px;
+
+  background:linear-gradient(
+    180deg,
+    #171717,
+    #0f0f0f
+  );
+
+  border:1px solid rgba(255,255,255,0.08);
+
+  transition:0.3s ease;
+}
+
+.membership-card:hover{
+  transform:translateY(-4px);
+}
+
+.membership-price{
+  font-size:60px;
+  font-weight:900;
+}
+
+.membership-feature{
+  margin-bottom:14px;
+}

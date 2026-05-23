@@ -1,0 +1,30 @@
+.profile-header{
+  display:flex;
+  align-items:center;
+  gap:20px;
+
+  padding:24px;
+
+  border-radius:24px;
+
+  background:var(--card);
+
+  border:1px solid var(--border);
+}
+
+.avatar{
+  width:70px;
+  height:70px;
+
+  border-radius:50%;
+
+  background:var(--grad-gold);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  color:black;
+
+  font-weight:800;
+}
