@@ -1144,13 +1144,20 @@ body {
 /* ─────────────────────────────────────────
    LAYOUT
 ───────────────────────────────────────── */
-.add-member-layout {
+/* .add-member-layout {
   display: grid;
   grid-template-columns: minmax(420px, 460px) 1fr;
   gap: 22px;
   align-items: start;
+} */
+.add-member-layout{
+  display:grid;
+  grid-template-columns:minmax(320px,420px) minmax(0,1fr);
+  gap:24px;
+  align-items:start;
+  width:100%;
+  overflow:hidden;
 }
-
 /* ─────────────────────────────────────────
    CARD
 ───────────────────────────────────────── */
@@ -1284,6 +1291,10 @@ select.form-input option {
   scroll-snap-type: x mandatory;
 
   scrollbar-width: none;
+   width:100%;
+  overflow-x:auto;
+  overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
 }
 
 .membership-scroll::-webkit-scrollbar {
@@ -1607,7 +1618,7 @@ select.form-input option {
 /* ─────────────────────────────────────────
    RESPONSIVE
 ───────────────────────────────────────── */
-@media (max-width: 1200px) {
+/* @media (max-width: 1200px) {
   .add-member-layout {
     grid-template-columns: 1fr;
   }
@@ -1615,7 +1626,7 @@ select.form-input option {
   .membership-card {
     min-width: 320px;
   }
-}
+} */
 
 @media (max-width: 768px) {
   .page-body {
@@ -1677,24 +1688,174 @@ select.form-input option {
 }
 
 /* APP LAYOUT */
-.app-layout{
+/* =========================================
+   ADD MEMBER RESPONSIVE FIX
+========================================= */
+
+.add-member-layout{
+  display:grid;
+  grid-template-columns:380px minmax(0,1fr);
+  gap:24px;
+  align-items:start;
+  width:100%;
+}
+
+/* LEFT FORM */
+.add-member-layout .card{
+  min-width:0;
+}
+
+/* RIGHT MEMBERSHIP SECTION */
+.membership-scroll{
   display:flex;
-  min-height:100vh;
-  background:#050505;
+  gap:20px;
+
+  width:100%;
+
+  overflow-x:auto;
+  overflow-y:hidden;
+
+  padding-bottom:14px;
+
+  scroll-behavior:smooth;
+  -webkit-overflow-scrolling:touch;
+
+  scrollbar-width:none;
+}
+
+.membership-scroll::-webkit-scrollbar{
+  display:none;
+}
+
+/* MEMBERSHIP CARD */
+.membership-card{
+  flex:0 0 340px;
+
+  width:340px;
+  max-width:340px;
+
+  border-radius:28px;
+  padding:28px;
+
+  background:linear-gradient(180deg,#171717,#0f0f0f);
+
+  border:1px solid rgba(255,255,255,0.08);
+
+  position:relative;
   overflow:hidden;
+
+  transition:0.3s ease;
+}
+
+.membership-card.active{
+  transform:scale(1.02);
 }
 
 /* MAIN CONTENT */
 .main-content{
   flex:1;
   min-width:0;
+  width:100%;
+  overflow-x:hidden;
+}
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width:1100px){
+
+  .add-member-layout{
+    grid-template-columns:1fr;
+  }
+
+  .membership-scroll{
+    width:100%;
+  }
+
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width:768px){
+
+  .main-content{
+    padding:14px;
+  }
+
+  .page-body{
+    padding:0;
+  }
+
+  .add-member-layout{
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+
+  .membership-scroll{
+    margin-left:-4px;
+    padding-left:4px;
+  }
+
+  .membership-card{
+    flex:0 0 85vw;
+
+    width:85vw;
+    min-width:85vw;
+    max-width:85vw;
+
+    padding:24px;
+
+    border-radius:24px;
+  }
+
+  .membership-price{
+    font-size:48px;
+  }
+
+}
+
+/* =========================================
+   SMALL MOBILE
+========================================= */
+
+@media (max-width:480px){
+
+  .membership-card{
+    flex:0 0 90vw;
+
+    width:90vw;
+    min-width:90vw;
+    max-width:90vw;
+
+    padding:20px;
+  }
+
+  .membership-price{
+    font-size:40px;
+  }
+
+}
+/* .app-layout{
+  display:flex;
+  min-height:100vh;
+  background:#050505;
+  overflow:hidden;
+} */
+
+/* MAIN CONTENT */
+/* .main-content{
+  flex:1;
+  min-width:0;
   overflow-y:auto;
   overflow-x:hidden;
   padding:24px;
-}
+} */
 
 /* IMPORTANT */
-*{
+/* *{
   box-sizing:border-box;
 }
 .add-member-grid{
@@ -1702,10 +1863,10 @@ select.form-input option {
   grid-template-columns:380px 1fr;
   gap:24px;
   align-items:start;
-}
+} */
 
 /* RESPONSIVE */
-@media (max-width:1100px){
+/* @media (max-width:1100px){
   .add-member-grid{
     grid-template-columns:1fr;
   }
@@ -1727,6 +1888,7 @@ select.form-input option {
   border-radius:999px;
 }
 .membership-card{
+  width:340px;
   min-width:340px;
   max-width:340px;
   border-radius:28px;
@@ -1743,7 +1905,10 @@ select.form-input option {
   transform:scale(1.02);
 }
 .main-content{
-  width:calc(100vw - 280px);
+  flex:1;
+  min-width:0;
+  width:100%;
+  overflow-x:hidden;
 }
 @media(max-width:900px){
   .main-content{
@@ -1761,4 +1926,393 @@ select.form-input option {
   font-size: 12px;
   margin-top: 6px;
   font-weight: 500;
+} */
+ /* =========================================
+   MEMBERSHIP SCROLL WRAPPER
+========================================= */
+
+.membership-scroll-wrapper{
+  position:relative;
+  width:100%;
+}
+
+/* =========================================
+   FADE EFFECTS
+========================================= */
+
+.membership-scroll-wrapper::before,
+.membership-scroll-wrapper::after{
+  content:'';
+
+  position:absolute;
+  top:0;
+  bottom:0;
+
+  width:60px;
+
+  z-index:5;
+
+  pointer-events:none;
+}
+
+.membership-scroll-wrapper::before{
+  left:0;
+
+  background:linear-gradient(
+    90deg,
+    rgba(8,8,8,0.95),
+    transparent
+  );
+}
+
+.membership-scroll-wrapper::after{
+  right:0;
+
+  background:linear-gradient(
+    270deg,
+    rgba(8,8,8,0.95),
+    transparent
+  );
+}
+
+/* =========================================
+   SCROLL ARROWS
+========================================= */
+
+.scroll-arrow{
+  position:absolute;
+  top:50%;
+
+  transform:translateY(-50%);
+
+  z-index:20;
+
+  width:44px;
+  height:44px;
+
+  border:none;
+  border-radius:50%;
+
+  background:rgba(20,20,20,0.9);
+
+  border:1px solid rgba(255,255,255,0.08);
+
+  color:#facc15;
+
+  font-size:20px;
+  font-weight:700;
+
+  cursor:pointer;
+
+  backdrop-filter:blur(8px);
+
+  transition:0.25s ease;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.scroll-arrow:hover{
+  transform:translateY(-50%) scale(1.08);
+
+  background:#facc15;
+  color:black;
+
+  box-shadow:0 0 20px rgba(250,204,21,0.25);
+}
+
+.scroll-arrow.left{
+  left:10px;
+}
+
+.scroll-arrow.right{
+  right:10px;
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media(max-width:768px){
+
+  .scroll-arrow{
+    width:38px;
+    height:38px;
+
+    font-size:18px;
+  }
+
+  .membership-scroll-wrapper::before,
+  .membership-scroll-wrapper::after{
+    width:35px;
+  }
+
+}
+@keyframes swipeHint{
+  0%{
+    transform:translateX(0);
+  }
+
+  50%{
+    transform:translateX(10px);
+  }
+
+  100%{
+    transform:translateX(0);
+  }
+}
+
+.membership-card:first-child{
+  animation:swipeHint 1.8s ease-in-out 2;
+}
+/* =========================================
+   PREMIUM PULSE EFFECT
+========================================= */
+
+@keyframes pulseGlow {
+
+  0%{
+    box-shadow:
+      0 0 0 rgba(250,204,21,0);
+  }
+
+  50%{
+    box-shadow:
+      0 0 24px rgba(250,204,21,0.45);
+  }
+
+  100%{
+    box-shadow:
+      0 0 0 rgba(250,204,21,0);
+  }
+
+}
+
+.pulse-arrow{
+  animation:pulseGlow 1.8s infinite;
+}
+
+/* =========================================
+   SHIMMER EDGE
+========================================= */
+
+.membership-scroll-wrapper::after{
+  animation:edgeFlash 2.2s infinite;
+}
+
+@keyframes edgeFlash{
+
+  0%{
+    opacity:0.2;
+  }
+
+  50%{
+    opacity:0.9;
+  }
+
+  100%{
+    opacity:0.2;
+  }
+
+}
+.membership-card::after{
+  content:'';
+
+  position:absolute;
+  top:0;
+  left:-120%;
+
+  width:60%;
+  height:100%;
+
+  background:linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.06),
+    transparent
+  );
+
+  transform:skewX(-20deg);
+
+  animation:cardShine 4s infinite;
+}
+
+@keyframes cardShine{
+
+  0%{
+    left:-120%;
+  }
+
+  100%{
+    left:140%;
+  }
+
+
+}
+.membership-scroll-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* EDGE GLOW EFFECT */
+.membership-scroll-wrapper::before,
+.membership-scroll-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 70px;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.membership-scroll-wrapper::before {
+  left: 0;
+  background: linear-gradient(
+    to right,
+    rgba(10,10,10,0.95),
+    transparent
+  );
+}
+
+.membership-scroll-wrapper::after {
+  right: 0;
+  background: linear-gradient(
+    to left,
+    rgba(10,10,10,0.95),
+    transparent
+  );
+}
+
+.membership-scroll {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 8px 50px;
+  scrollbar-width: none;
+}
+
+.membership-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ARROWS */
+.scroll-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  z-index: 5;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: 700;
+
+  background: rgba(255,255,255,0.08);
+  color: white;
+  backdrop-filter: blur(10px);
+
+  transition: all 0.25s ease;
+}
+
+.scroll-arrow:hover {
+  transform: translateY(-50%) scale(1.08);
+  background: rgba(255,255,255,0.18);
+}
+
+.scroll-arrow.left {
+  left: 10px;
+}
+
+.scroll-arrow.right {
+  right: 10px;
+}
+
+/* PULSE EFFECT */
+.pulse-arrow {
+  animation: pulseArrow 1.5s infinite;
+}
+
+@keyframes pulseArrow {
+  0% {
+    transform: translateY(-50%) scale(1);
+    box-shadow: 0 0 0 rgba(255,255,255,0);
+  }
+
+  50% {
+    transform: translateY(-50%) scale(1.12);
+    box-shadow: 0 0 20px rgba(255,255,255,0.35);
+  }
+
+  100% {
+    transform: translateY(-50%) scale(1);
+    box-shadow: 0 0 0 rgba(255,255,255,0);
+  }
+}
+
+/* DESKTOP MEMBERSHIP CARD */
+.membership-card{
+  flex: 0 0 280px;
+
+  width: 280px;
+  max-width: 280px;
+  min-width: 280px;
+
+  min-height: 520px;
+
+  padding: 24px;
+
+  border-radius: 24px;
+
+  background: linear-gradient(
+    180deg,
+    #171717,
+    #0f0f0f
+  );
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  position: relative;
+  overflow: hidden;
+
+  transition: 0.3s ease;
+}
+.membership-price{
+  font-size: 48px;
+}
+
+.membership-feature{
+  font-size: 14px;
+}
+
+.membership-tagline{
+  font-size: 14px;
+}
+
+.membership-btn{
+  padding: 14px;
+  font-size: 14px;
+}
+.membership-scroll{
+  gap: 14px;
+  padding: 8px 40px;
+}
+@media (max-width:768px){
+
+  .membership-card{
+    flex:0 0 85vw;
+
+    width:85vw;
+    min-width:85vw;
+    max-width:85vw;
+
+    padding:24px;
+  }
+
 }
