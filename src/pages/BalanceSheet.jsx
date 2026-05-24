@@ -11,7 +11,7 @@ import {
   ResponsiveContainer, Cell, PieChart, Pie, Legend,
 } from "recharts";
 import { exportToCSV } from "../firebase/service";
-
+import { getPayments } from "../firebase/service";
 // ── Expense categories
 const EXPENSE_CATEGORIES = [
   { label: "Equipment Purchase",   icon: "🏋️", color: "#e63329" },
@@ -46,7 +46,7 @@ export default function BalanceSheet() {
   const [saving, setSaving]       = useState(false);
   const [visible, setVisible]     = useState(false);
   const [deleteId, setDeleteId]   = useState(null);
-
+const [payments, setPayments] = useState([]);
   // Filters
   const [filterMode, setFilterMode] = useState("month"); // "month" | "date" | "all"
   const [filterMonth, setFilterMonth] = useState(format(new Date(), "yyyy-MM"));
@@ -70,20 +70,63 @@ export default function BalanceSheet() {
     setTimeout(() => setVisible(true), 60);
   }, []);
 
-  async function fetchEntries() {
-    setLoading(true);
-    try {
-      const snap = await getDocs(
+  // async function fetchEntries() {
+
+  //   setLoading(true);
+  //   try {
+  //     const snap = await getDocs(
+  //       query(collection(db, "balance_sheet"), orderBy("date", "desc"))
+  //     );
+  //     setEntries(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+  //   } catch (e) {
+  //     console.error(e);
+  //     toast.error("Could not load balance sheet.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
+async function fetchEntries() {
+  setLoading(true);
+  try {
+    const [snap, paySnap] = await Promise.all([
+      getDocs(
         query(collection(db, "balance_sheet"), orderBy("date", "desc"))
-      );
-      setEntries(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    } catch (e) {
-      console.error(e);
-      toast.error("Could not load balance sheet.");
-    } finally {
-      setLoading(false);
-    }
+      ),
+      getPayments(),
+    ]);
+
+    const balanceData = snap.docs.map(d => ({
+      id: d.id,
+      source: "balance_sheet",
+      ...d.data(),
+    }));
+
+    const paymentData = (paySnap || []).map((p, i) => ({
+      id: p.id || `pay_${i}`,
+      source: "payments",
+      type: "income",
+      category: "Membership Fee",
+      description: p.memberName
+        ? `Payment from ${p.memberName}`
+        : "Payment",
+      amount: Number(p.amount) || 0,
+      date: p.date,
+      paymentMode: p.method || "Cash",
+      notes: "",
+    }));
+
+    const merged = [...balanceData, ...paymentData].sort(
+      (a, b) => (b.date || "").localeCompare(a.date || "")
+    );
+
+    setEntries(merged);
+  } catch (e) {
+    console.error(e);
+    toast.error("Could not load balance sheet.");
+  } finally {
+    setLoading(false);
   }
+}
 
   // ── Filter logic
   const filtered = useMemo(() => {

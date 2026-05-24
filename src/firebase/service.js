@@ -130,20 +130,121 @@ export async function bookSteamSlot({ date, slot, memberId, memberName, memberPh
   });
 }
 
-export async function getSteamBookings(date) {
-  const snap = await getDocs(query(collection(db, "steam_bookings"), where("date", "==", date)));
+// export async function getSteamBookings(date) {
+//   const snap = await getDocs(query(collection(db, "steam_bookings"), where("date", "==", date)));
+//   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+// }
+
+// export async function deleteSteamBooking(id) {
+//   return await deleteDoc(doc(db, "steam_bookings", id));
+// }
+
+// export function subscribeSteamBookings(date, callback) {
+//   const q = query(collection(db, "steam_bookings"), where("date", "==", date));
+//   return onSnapshot(q, snap => callback(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
+// }
+// ── STEAM SLOT ADMIN ─────────────────────────────
+
+export async function getSteamSlots() {
+  const snap = await getDocs(
+    query(collection(db, "steam_slots"), orderBy("order", "asc"))
+  );
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+// import {   updateDoc } from "firebase/firestore";
+// import { db } from "./config";
+
+// CREATE SLOT
+// export const createSteamSlot = async (slot) => {
+//   return await addDoc(collection(db, "steamSlots"), {
+//     ...slot,
+//     createdAt: new Date(),
+//   });
+// };
+
+// // DELETE SLOT
+// export const removeSteamSlot = async (id) => {
+//   return await deleteDoc(doc(db, "steamSlots", id));
+// };
+
+// // TOGGLE SLOT (enable/disable)
+// export const toggleSteamSlot = async (id, disabled) => {
+//   return await updateDoc(doc(db, "steamSlots", id), {
+//     disabled,
+//   });
+// };
+
+export const createSteamSlot = async (slot) => {
+  try {
+    const ref = await addDoc(collection(db, "steam_slots"), {
+      ...slot,
+      createdAt: serverTimestamp(),
+    });
+
+    console.log("Slot created with ID:", ref.id);
+    return ref;
+  } catch (err) {
+    console.error("createSteamSlot error:", err);
+    throw err;
+  }
+};
+
+export const removeSteamSlot = async (id) => {
+  return await deleteDoc(doc(db, "steam_slots", id));
+};
+
+export const toggleSteamSlot = async (id, disabled) => {
+  return await updateDoc(doc(db, "steam_slots", id), {
+    disabled,
+  });
+};
+
+
+export function subscribeSteamSlots(callback) {
+  return onSnapshot(
+    query(collection(db, "steam_slots"), orderBy("order", "asc")),
+    snap => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+  );
+}
+
+export async function addSteamSlot(data) {
+  return await addDoc(collection(db, "steam_slots"), {
+    ...data,
+    active: true,
+    createdAt: serverTimestamp(),
+  });
+}
+
+export async function updateSteamSlot(id, data) {
+  return await updateDoc(doc(db, "steam_slots", id), {
+    ...data,
+    updatedAt: serverTimestamp(),
+  });
+}
+export function subscribeSteamBookings(date, callback) {
+  const q = query(
+    collection(db, "steam_bookings"),
+    where("date", "==", date)
+  );
+
+  return onSnapshot(q, snap =>
+    callback(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+  );
 }
 
 export async function deleteSteamBooking(id) {
   return await deleteDoc(doc(db, "steam_bookings", id));
 }
-
-export function subscribeSteamBookings(date, callback) {
-  const q = query(collection(db, "steam_bookings"), where("date", "==", date));
-  return onSnapshot(q, snap => callback(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
+export async function deleteSteamSlot(id) {
+  return await deleteDoc(doc(db, "steam_slots", id));
 }
 
+// export async function toggleSteamSlot(id, active) {
+//   return await updateDoc(doc(db, "steam_slots", id), {
+//     active,
+//     updatedAt: serverTimestamp(),
+//   });
+// }
 // ── ATTENDANCE ─────────────────────────────────────────────
 
 export async function getAttendance() {

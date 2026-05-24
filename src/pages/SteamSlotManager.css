@@ -1,0 +1,39 @@
+.admin-container {
+  padding: 20px;
+}
+
+.card {
+  background: #111;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  color: white;
+}
+
+.slot-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.slot-card {
+  background: #1c1c1c;
+  padding: 12px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.slot-card.active {
+  border-left: 4px solid #00ff88;
+}
+
+.slot-card.inactive {
+  opacity: 0.5;
+  border-left: 4px solid red;
+}
+
+.actions button {
+  margin-left: 5px;
+}

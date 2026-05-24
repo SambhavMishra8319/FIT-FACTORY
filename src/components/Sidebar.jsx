@@ -175,7 +175,7 @@ const navItems = [
       { to: "/analytics",     icon: "📉", label: "Analytics"       },
       { to: "/add-member",    icon: "➕", label: "Add Member"      },
       { to: "/notifications", icon: "🔔", label: "Notifications"   },
-      { to: "/equipment",     icon: "🏋️", label: "Equipment Guide" },
+      { to: "/equipments",     icon: "🏋️", label: "Equipment Guide" },
     ]
   }
 ];
@@ -219,7 +219,7 @@ export function Sidebar() {
     <div className="sidebar">
       <div className="sidebar-logo">
         <div className="logo-f2">F2 FIT<br />FACTORY</div>
-        <div className="logo-tagline">📍 Best Gym in Mandla</div>
+        <div className="logo-tagline">📍 BY Nimesh Mishra</div>
       </div>
       <NavLinks onClose={() => {}} />
       <div className="sidebar-footer">

@@ -7,8 +7,16 @@ import toast from "react-hot-toast";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useMembership } from "../../hooks/useMembership";
 import { LockGate, ExpiryBanner } from "../../components/LockGate";
+// import {
+//   bookSteamSlot, subscribeSteamBookings, deleteSteamBooking,
+//   saveWorkoutLog, getTodayWorkoutLog,
+//   getBCAReadings,
+//   getAchievements, checkAndAwardAchievements,
+//   subscribeLeaderboard,
+// } from "../../firebase/service";
 import {
-  bookSteamSlot, subscribeSteamBookings, deleteSteamBooking,
+  bookSteamSlot, subscribeSteamSlots,
+deleteSteamSlot,
   saveWorkoutLog, getTodayWorkoutLog,
   getBCAReadings,
   getAchievements, checkAndAwardAchievements,
@@ -468,7 +476,8 @@ export function MemberSteam() {
 
   useEffect(() => {
     // ✅ Realtime listener
-    const unsub = subscribeSteamBookings(selectedDate, setBookings);
+    // const unsub = subscribeSteamBookings(selectedDate, setBookings);
+    const unsub = subscribeSteamSlots(selectedDate, setBookings);
     return () => unsub();
   }, [selectedDate]);
 
@@ -499,7 +508,7 @@ export function MemberSteam() {
 
   const cancel = async (id, slot) => {
     if (!window.confirm(`Cancel your ${slot} booking?`)) return;
-    try { await deleteSteamBooking(id); toast.success("Cancelled."); }
+    try { await deleteSteamSlot(id); toast.success("Cancelled."); }
     catch { toast.error("Could not cancel."); }
   };
 

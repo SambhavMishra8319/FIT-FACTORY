@@ -1,5 +1,5 @@
 // ── Equipment Guide ───────────────────────────────────────
-export function Equipment() {
+export default function Equipment() {
   const machines = [
     {
       category: "Cardio",
