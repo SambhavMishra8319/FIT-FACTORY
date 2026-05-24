@@ -2316,3 +2316,19 @@ select.form-input option {
   }
 
 }
+.bottom-nav-item {
+  transition: all 0.2s ease;
+}
+
+.bottom-nav-item.active {
+  transform: translateY(-2px);
+}
+:root {
+  --top-nav-h: 70px;
+  --bottom-nav-h: 80px;
+}
+
+.main-content {
+  padding-top: var(--top-nav-h);
+  padding-bottom: var(--bottom-nav-h);
+}

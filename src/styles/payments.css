@@ -2,8 +2,20 @@
 /* =========================================================
    F2 PAYMENTS PAGE — PREMIUM UI
 ========================================================= */
-
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap');
+:root {
+  --scale: 0.82; /* overall shrink factor */
+}
+
+/* Global text smoothing shrink */
+body {
+  font-size: 14px;
+}
+
+/* helper */
+.small-text { font-size: 12px; }
+.tiny-text { font-size: 10px; }
+
 
 :root {
   --gold: #ffd700;

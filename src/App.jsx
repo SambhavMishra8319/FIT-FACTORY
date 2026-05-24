@@ -126,7 +126,7 @@ function AppRoutes() {
       <Route path="/leaderboard"   element={<AdminLayout><Leaderboard /></AdminLayout>} />
       <Route path="/members"       element={<AdminLayout><Members /></AdminLayout>} />
       <Route path="/members/:id/edit" element={<AdminLayout><EditMember /></AdminLayout>} />
-      <Route path="/payments"      element={<AdminLayout><Payments /></AdminLayout>} />
+<Route path="/payments"      element={<AdminLayout><Payments /></AdminLayout>} />
       <Route path="/add-member"    element={<AdminLayout><AddMember /></AdminLayout>} />
       <Route path="/notifications" element={<AdminLayout><Notifications /></AdminLayout>} />
       <Route path="/analytics"     element={<AdminLayout><Analytics /></AdminLayout>} />

@@ -1,7 +1,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { recordPaymentAndActivate } from "../firebase/service";
 import {
   BarChart,
   Bar,
@@ -30,10 +30,11 @@ import {
   getDocs,
   query,
   where,
-  orderBy,
+  orderBy, addDoc, 
   limit,
+  serverTimestamp 
 } from "firebase/firestore";
-
+import { doc, setDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
 
 import {
@@ -53,7 +54,7 @@ export default function Dashboard() {
 
   const [loading, setLoading] = useState(true);
   const [visible, setVisible] = useState(false);
-
+const [selectedPlans, setSelectedPlans] = useState({});
   // FILTER
   const [expiryFilter, setExpiryFilter] = useState("week");
 
@@ -62,7 +63,54 @@ export default function Dashboard() {
   const today = format(now, "yyyy-MM-dd");
   const thisMonth = format(now, "yyyy-MM");
 
-  // =========================
+
+// const handleAssignPlan = async (user) => {
+//   const plan = selectedPlans[user.id];
+
+//   if (!plan) {
+//     toast.error("Select a plan first");
+//     return;
+//   }
+
+//   try {
+//     console.log("ASSIGN STARTED");
+
+//     // STEP 1: Activate member + payment (BEST METHOD)
+//     await recordPaymentAndActivate(
+//       {
+//         memberId: user.id,
+//         memberName: user.name,
+//         email: user.email,
+//         plan,
+//         amount:
+//           plan === "Monthly"
+//             ? 1499
+//             : plan === "Quarterly"
+//             ? 3999
+//             : 9999,
+//         method: "Admin",
+//       },
+//       user.id,
+//       plan === "Monthly"
+//         ? 1
+//         : plan === "Quarterly"
+//         ? 3
+//         : 12
+//     );
+
+//     toast.success(`${user.name} assigned ${plan}`);
+
+//     // STEP 2: REMOVE from UI instantly
+//     setSignups((prev) =>
+//       prev.filter((u) => u.id !== user.id)
+//     );
+
+//   } catch (err) {
+//     console.error(err);
+//     toast.error("Failed to assign plan");
+//   }
+// };
+//   // =========================
   // FETCH DATA
   // =========================
   useEffect(() => {
@@ -399,7 +447,127 @@ export default function Dashboard() {
         )
     );
   }, [signups, memberEmails]);
+// const handleAssignPlan = async (user) => {
+//   const plan = selectedPlans[user.id];
 
+//   if (!plan) {
+//     toast.error("Select a plan first");
+//     return;
+//   }
+
+//   try {
+//     // create member from signup
+//     // await addDoc(collection(db, "members"), {
+//     //   name: user.name,
+//     //   email: user.email,
+//     //   plan,
+//     //   status: "active",
+//     //   joinedAt: new Date().toISOString(),
+//     //   expiryDate: format(addMonths(new Date(), 1), "yyyy-MM-dd"),
+//     // });
+
+//     toast.success(`${user.name} assigned to ${plan}`);
+
+//     // optional: refresh or remove from UI
+//   } catch (err) {
+//     console.error(err);
+//     toast.error("Failed to assign plan");
+//   }
+// };
+// const handleAssignPlan = async (user) => {
+//   const memberRef = await addDoc(collection(db, "members"), {
+//   name: user.name,
+//   email: user.email,
+//   status: "active",
+//   plan,
+//   createdAt: serverTimestamp(),
+// });
+//   const plan = selectedPlans[user.id];
+
+//   if (!plan) {
+//     toast.error("Select a plan first");
+//     return;
+//   }
+
+//   try {
+//     console.log("ASSIGN STARTED");
+
+//     await recordPaymentAndActivate(
+//   {
+//     memberId: memberRef.id,
+//     memberName: user.name,
+//     email: user.email,
+//     plan,
+//     amount,
+//     method: "Admin",
+//   },
+//   memberRef.id,
+//   planMonths
+// );
+
+//     toast.success(`${user.name} assigned ${plan}`);
+
+//     setSignups(prev => prev.filter(u => u.id !== user.id));
+//   } catch (err) {
+//     console.error(err);
+//     toast.error("Failed to assign plan");
+//   }
+// };
+const handleAssignPlan = async (user) => {
+  const plan = selectedPlans[user.id];
+
+  if (!plan) return toast.error("Select a plan first");
+
+  try {
+    console.log("ASSIGN STARTED");
+
+    const amount =
+      plan === "Monthly"
+        ? 1499
+        : plan === "Quarterly"
+        ? 3999
+        : 9999;
+
+    const planMonths =
+      plan === "Monthly"
+        ? 1
+        : plan === "Quarterly"
+        ? 3
+        : 12;
+
+    // 1. CREATE MEMBER FIRST
+    const memberRef = await addDoc(collection(db, "members"), {
+      name: user.name,
+      email: user.email,
+      status: "active",
+      plan,
+      createdAt: serverTimestamp(),
+    });
+
+    // 2. RECORD PAYMENT + ACTIVATE
+    await recordPaymentAndActivate(
+      {
+        memberId: memberRef.id,
+        memberName: user.name,
+        email: user.email,
+        plan,
+        amount,
+        method: "Admin",
+      },
+      memberRef.id,
+      planMonths
+    );
+
+    toast.success(`${user.name} assigned ${plan}`);
+
+    setSignups((prev) =>
+      prev.filter((u) => u.id !== user.id)
+    );
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to assign plan");
+  }
+};
   // =========================
   // STATS
   // =========================
@@ -641,7 +809,67 @@ export default function Dashboard() {
             )}
           </div>
         </div>
+{/* PENDING CONVERSIONS */}
+<div className="card mb-20" style={anim(0.22)}>
+  <div className="card-title">
+    📲 Pending Conversions ({newAppSignups.length})
+  </div>
 
+  {newAppSignups.length === 0 ? (
+    <div style={{ color: "var(--muted2)", fontSize: 13 }}>
+      No pending signups
+    </div>
+  ) : (
+    newAppSignups.slice(0, 6).map((u) => (
+      <div
+        key={u.id}
+        className="activity-item"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: 10,
+        }}
+      >
+        {/* LEFT */}
+        <div>
+          <div className="activity-text">
+            {u.name || "No Name"}
+          </div>
+          <div className="activity-time">{u.email}</div>
+        </div>
+
+        {/* RIGHT CONTROLS */}
+        <div style={{ display: "flex", gap: 8 }}>
+          {/* PLAN SELECT */}
+          <select
+            className="btn btn-outline btn-sm"
+            value={selectedPlans[u.id] || ""}
+            onChange={(e) =>
+              setSelectedPlans((prev) => ({
+                ...prev,
+                [u.id]: e.target.value,
+              }))
+            }
+          >
+            <option value="">Plan</option>
+            <option value="Monthly">Monthly</option>
+            <option value="Quarterly">Quarterly</option>
+            <option value="Yearly">Yearly</option>
+          </select>
+
+          {/* ASSIGN BUTTON */}
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={() => handleAssignPlan(u)}
+          >
+            Assign
+          </button>
+        </div>
+      </div>
+    ))
+  )}
+</div>
         {/* EXPIRING MEMBERS */}
         <div
           className="section-header mb-12"

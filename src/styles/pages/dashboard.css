@@ -1,4 +1,4 @@
-.stats-grid{
+/* .stats-grid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
   gap:18px;
@@ -17,4 +17,4 @@
 .stat-value{
   font-size:36px;
   font-weight:800;
-}
+} */

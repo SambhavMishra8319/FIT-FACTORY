@@ -1,4 +1,4 @@
-.topbar{
+/* .topbar{
   height:var(--topbar-h);
 
   display:flex;
@@ -16,4 +16,42 @@
   position:sticky;
   top:0;
   z-index:100;
+} */
+ 
+/* ── Topbar ───────────────────────────────────────────── */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(15,15,15,0.95);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  padding: 0 24px;
+  height: var(--topbar-h);
+  display: flex; align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.topbar::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  opacity: 0.4;
+}
+
+.page-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.topbar-right {
+  display: flex; align-items: center;
+  gap: 8px; flex-wrap: wrap;
+  justify-content: flex-end;
 }
