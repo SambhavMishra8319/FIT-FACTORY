@@ -672,29 +672,27 @@ export default function SteamBath() {
           //   </div>
           // );
           return (
-  <div
-    key={`${s.period}-${s.time}`}
-    className={`slot tap-scale ${
-      isBooked ? "booked" : ""
-    } ${isSel ? "selected" : ""}`}
-    onClick={() =>
-      !isBooked &&
-      setSelectedSlot(
-        isSel ? null : `${s.period}-${s.time}`
-      )
-    }
-  >
-    <div className="slot-time">{s.time}</div>
+            <div
+              key={`${s.period}-${s.time}`}
+              className={`slot tap-scale ${
+                isBooked ? "booked" : ""
+              } ${isSel ? "selected" : ""}`}
+              onClick={() =>
+                !isBooked &&
+                setSelectedSlot(isSel ? null : `${s.period}-${s.time}`)
+              }
+            >
+              <div className="slot-time">{s.time}</div>
 
-    {/* EMPTY SLOT */}
-    {!isBooked && (
-      <div className="slot-label">
-        {isSel ? "Selected ✓" : "Available"}
-      </div>
-    )}
+              {/* EMPTY SLOT */}
+              {!isBooked && (
+                <div className="slot-label">
+                  {isSel ? "Selected ✓" : "Available"}
+                </div>
+              )}
 
-    {/* PENDING BOOKING */}
-    {/* {isBooked && booking.status === "pending" && (
+              {/* PENDING BOOKING */}
+              {/* {isBooked && booking.status === "pending" && (
       <>
         <div className="slot-label">
           {isAdmin
@@ -761,104 +759,102 @@ export default function SteamBath() {
         )}
       </>
     )} */}
-    {isBooked && booking.status === "pending" && (
-  <>
-    <div className="slot-label">
-      Pending • {booking.memberName}
-    </div>
+              {isBooked && booking.status === "pending" && (
+                <>
+                  <div className="slot-label">
+                    Pending • {booking.memberName}
+                  </div>
 
-    <div className="slot-actions">
-      <button
-        className="mini-btn approve"
-        onClick={async (e) => {
-          e.stopPropagation();
+                  <div className="slot-actions">
+                    <button
+                      className="mini-btn approve"
+                      onClick={async (e) => {
+                        e.stopPropagation();
 
-          try {
-            await approveSteamBooking(
-              booking.id,
-              booking.date,
-              booking.slot,
-              booking.period
-            );
+                        try {
+                          await approveSteamBooking(
+                            booking.id,
+                            booking.date,
+                            booking.slot,
+                            booking.period,
+                          );
 
-            toast.success("Booking approved");
-          } catch (err) {
-            toast.error(err.message);
-          }
-        }}
-      >
-        Approve
-      </button>
+                          toast.success("Booking approved");
+                        } catch (err) {
+                          toast.error(err.message);
+                        }
+                      }}
+                    >
+                      Approve
+                    </button>
 
-      <button
-        className="mini-btn reject"
-        onClick={async (e) => {
-          e.stopPropagation();
+                    <button
+                      className="mini-btn reject"
+                      onClick={async (e) => {
+                        e.stopPropagation();
 
-          try {
-            await rejectSteamBooking(booking.id);
+                        try {
+                          await rejectSteamBooking(booking.id);
 
-            toast.success("Booking rejected");
-          } catch {
-            toast.error("Reject failed");
-          }
-        }}
-      >
-        Reject
-      </button>
-    </div>
-  </>
-)}
+                          toast.success("Booking rejected");
+                        } catch {
+                          toast.error("Reject failed");
+                        }
+                      }}
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </>
+              )}
 
-    {/* CONFIRMED BOOKING */}
-    {isBooked && booking.status === "confirmed" && (
-      <>
-        <div className="slot-label">
-          {isAdmin
-            ? booking.memberName
-            : "Booked ✓"}
-        </div>
+              {/* CONFIRMED BOOKING */}
+              {isBooked && booking.status === "confirmed" && (
+                <>
+                  <div className="slot-label">
+                    {isAdmin ? booking.memberName : "Booked ✓"}
+                  </div>
 
-        <button
-          className="mini-btn cancel"
-          onClick={(e) => {
-            e.stopPropagation();
+                  <button
+                    className="mini-btn cancel"
+                    onClick={(e) => {
+                      e.stopPropagation();
 
-            handleCancel(
-              booking.id,
-              booking.memberName,
-              booking.slot,
-            );
-          }}
-        >
-          Cancel
-        </button>
-      </>
-    )}
+                      handleCancel(
+                        booking.id,
+                        booking.memberName,
+                        booking.slot,
+                      );
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </>
+              )}
 
-    {/* DELETE CUSTOM SLOT */}
-    {isCustom && !isBooked && (
-      <button
-        style={{
-          marginTop: 5,
-          fontSize: 9,
-          background: "rgba(255,0,0,0.15)",
-          border: "none",
-          color: "red",
-          borderRadius: 3,
-          padding: "2px 6px",
-          cursor: "pointer",
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
-          handleDeleteSlot(s);
-        }}
-      >
-        Delete
-      </button>
-    )}
-  </div>
-);
+              {/* DELETE CUSTOM SLOT */}
+              {isCustom && !isBooked && (
+                <button
+                  style={{
+                    marginTop: 5,
+                    fontSize: 9,
+                    background: "rgba(255,0,0,0.15)",
+                    border: "none",
+                    color: "red",
+                    borderRadius: 3,
+                    padding: "2px 6px",
+                    cursor: "pointer",
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteSlot(s);
+                  }}
+                >
+                  Delete
+                </button>
+              )}
+            </div>
+          );
         })}
       </div>
     );
