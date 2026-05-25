@@ -112,10 +112,18 @@ export async function addBCAReading(data) {
 // ── STEAM BOOKINGS — ATOMIC TRANSACTION ────────────────────
 
 // ✅ FIX #2: runTransaction prevents race condition
-export async function bookSteamSlot({ date, slot, memberId, memberName, memberPhone }) {
+export async function bookSteamSlot({
+  date,
+  slot,
+  period,
+  memberId,
+  memberName,
+  memberPhone
+}) {
   return await runTransaction(db, async (transaction) => {
     // Check slot availability atomically
-    const slotQuery = query(collection(db, "steam_bookings"), where("date", "==", date), where("slot", "==", slot));
+    const slotQuery = query(collection(db, "steam_bookings"), where("date", "==", date),where("slot", "==", slot),
+where("period", "==", period));
     const slotSnap = await getDocs(slotQuery);
     if (!slotSnap.empty) throw new Error("Slot just taken! Please choose another time.");
 
@@ -126,9 +134,10 @@ export async function bookSteamSlot({ date, slot, memberId, memberName, memberPh
 
     const newRef = doc(collection(db, "steam_bookings"));
     // transaction.set(newRef, { date, slot, memberId, memberName, memberPhone, createdAt: serverTimestamp() });
-    transaction.set(newRef, {
+   transaction.set(newRef, {
   date,
   slot,
+  period,
   memberId,
   memberName,
   memberPhone: memberPhone || "",
@@ -446,4 +455,148 @@ export function exportToCSV(data, filename) {
     download: `${filename}_${format(new Date(), "yyyy-MM-dd")}.csv`,
   });
   a.click();
+}
+// export async function requestSteamSlot({
+//   date,
+//   slot,
+//   memberId,
+//   memberName,
+//   memberPhone,
+// }) {
+//   // check member already requested
+//   const existing = await getDocs(
+//     query(
+//       collection(db, "steam_bookings"),
+//       where("date", "==", date),
+//       where("memberId", "==", memberId)
+//     )
+//   );
+
+//   if (!existing.empty) {
+//     throw new Error("You already requested a slot");
+//   }
+
+//   return await addDoc(collection(db, "steam_bookings"), {
+//     date,
+//     slot,
+//     memberId,
+//     memberName,
+//     memberPhone: memberPhone || "",
+
+//     status: "pending",
+
+//     createdAt: serverTimestamp(),
+//   });
+// }
+export async function requestSteamSlot({
+  date,
+  slot,
+  period,
+  memberId,
+  memberName,
+  memberPhone,
+}){
+
+  // member already requested?
+  const existing = await getDocs(
+    query(
+      collection(db, "steam_bookings"),
+      where("date", "==", date),
+      where("memberId", "==", memberId)
+    )
+  );
+
+  if (!existing.empty) {
+    throw new Error("You already requested a slot for this date.");
+  }
+
+  return await addDoc(collection(db, "steam_bookings"), {
+    date,
+    slot,
+     period,
+    memberId,
+    memberName,
+    memberPhone: memberPhone || "",
+
+    status: "pending",
+
+    createdAt: serverTimestamp(),
+  });
+}
+// export async function approveSteamBooking(id, date, slot) {
+
+//   // check already confirmed
+//   const existing = await getDocs(
+//     query(
+//       collection(db, "steam_bookings"),
+//       where("date", "==", date),
+//       where("slot", "==", slot),
+//       where("status", "==", "confirmed")
+//     )
+//   );
+
+//   if (!existing.empty) {
+//     throw new Error("Slot already confirmed");
+//   }
+
+//   await updateDoc(doc(db, "steam_bookings", id), {
+//     status: "confirmed",
+//     approvedAt: serverTimestamp(),
+//   });
+// }
+// export async function approveSteamBooking(  bookingId,
+//   date,
+//   slot,
+//   period) {
+
+//   // check slot already confirmed
+//   const existing = await getDocs(
+//     query(
+//       collection(db, "steam_bookings"),
+//       where("date", "==", date),
+//       where("slot", "==", slot),
+//       where("status", "==", "confirmed")
+//     )
+//   );
+
+//   if (!existing.empty) {
+//     throw new Error("Slot already confirmed");
+//   }
+
+//   await updateDoc(doc(db, "steam_bookings", id), {
+//     status: "confirmed",
+//     approvedAt: serverTimestamp(),
+//   });
+// }
+export async function approveSteamBooking(
+  bookingId,
+  date,
+  slot,
+  period
+) {
+  // check already confirmed
+  const existing = await getDocs(
+  query(
+    collection(db, "steam_bookings"),
+    where("date", "==", date),
+    where("slot", "==", slot),
+    where("period", "==", period),
+    where("status", "==", "confirmed")
+  )
+);
+
+  if (!existing.empty) {
+    throw new Error("Slot already confirmed");
+  }
+
+  await updateDoc(doc(db, "steam_bookings", bookingId), {
+    status: "confirmed",
+    approvedAt: serverTimestamp(),
+  });
+}
+export async function rejectSteamBooking(id) {
+  await updateDoc(doc(db, "steam_bookings", id), {
+    status: "rejected",
+    rejectedAt: serverTimestamp(),
+  });
 }

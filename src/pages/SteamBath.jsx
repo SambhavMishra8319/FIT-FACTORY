@@ -7,8 +7,11 @@ import {
   deleteSteamBooking,
   getAllMembers,
   createSteamSlot,
+  requestSteamSlot,
+  approveSteamBooking,
+  rejectSteamBooking,
   removeSteamSlot,
-  subscribeSteamSlots
+  subscribeSteamSlots,
 } from "../firebase/service";
 
 import { useAuth } from "../context/AuthContext";
@@ -54,13 +57,13 @@ export default function SteamBath() {
       )
       .catch(console.error);
   }, [user, loading]);
-useEffect(() => {
-  const unsub = subscribeSteamSlots((data) => {
-    setCustomSlots(data);
-  });
+  useEffect(() => {
+    const unsub = subscribeSteamSlots((data) => {
+      setCustomSlots(data);
+    });
 
-  return () => unsub();
-}, []);
+    return () => unsub();
+  }, []);
   useEffect(() => {
     if (!selectedDate || !user) return;
 
@@ -72,131 +75,150 @@ useEffect(() => {
     return () => unsub();
   }, [selectedDate, user]);
 
+  // const ALL_AVAILABLE_SLOTS = useMemo(() => {
+  //   return [...ALL_SLOTS, ...customSlots];
+  // }, [customSlots]);
   const ALL_AVAILABLE_SLOTS = useMemo(() => {
-    return [...ALL_SLOTS, ...customSlots];
-  }, [customSlots]);
+    const map = new Map();
 
-  const bookedSlots = bookings.map((b) => b.slot);
+    [...ALL_SLOTS, ...customSlots].forEach((s) => {
+      const key = `${s.period}-${s.time}`;
+
+      if (!map.has(key)) {
+        map.set(key, s);
+      }
+    });
+
+    return Array.from(map.values());
+  }, [customSlots]);
+  // const bookedSlots = bookings.map((b) => b.slot);
+  // const bookedSlots = bookings
+  const occupiedSlots = bookings.filter((b) =>
+    ["pending", "confirmed"].includes(b.status),
+  );
+  const bookedSlots = occupiedSlots.map((b) => `${b.period}-${b.slot}`);
+  //   .filter((b) => b.status === "confirmed" || b.status === "pending")
+  //   .map((b) => `${b.period}-${b.slot}`);
 
   const available = ALL_AVAILABLE_SLOTS.filter(
-    (s) => !bookedSlots.includes(s.time) && !s.disabled,
+    (s) => !bookedSlots.includes(`${s.period}-${s.time}`) && !s.disabled,
   ).length;
 
   const normalizeTime = (t) => t?.trim().toLowerCase();
   const handleAddSlot = async () => {
-  if (!newTime) return toast.error("Select time");
+    if (!newTime) return toast.error("Select time");
 
-  const formattedTime = formatTime12(newTime);
-  const hour = parseInt(newTime.split(":")[0], 10);
+    const formattedTime = formatTime12(newTime);
+    const hour = parseInt(newTime.split(":")[0], 10);
 
-  const autoPeriod = hour < 12 ? "Morning" : "Evening";
+    const autoPeriod = hour < 12 ? "Morning" : "Evening";
 
-  const exists = ALL_AVAILABLE_SLOTS.some(
-    (s) =>
-      s.time.toLowerCase() === formattedTime.toLowerCase() &&
-      s.period === autoPeriod
-  );
+    const exists = ALL_AVAILABLE_SLOTS.some(
+      (s) =>
+        s.time.toLowerCase() === formattedTime.toLowerCase() &&
+        s.period === autoPeriod,
+    );
 
-  if (exists) return toast.error("Slot already exists");
+    if (exists) return toast.error("Slot already exists");
 
-  const slot = {
-    time: formattedTime,
-    period: autoPeriod,
-    disabled: false,
+    const slot = {
+      time: formattedTime,
+      period: autoPeriod,
+      disabled: false,
+    };
+
+    try {
+      await createSteamSlot(slot);
+
+      // setCustomSlots((prev) => {
+      //   const already = prev.some(
+      //     (p) =>
+      //       p.time.toLowerCase() === s.time.toLowerCase() &&
+      //       p.period === slot.period
+      //   );
+      //   if (already) return prev;
+      //   return [...prev, slot];
+      // });
+      setCustomSlots((prev) => {
+        const already = prev.some(
+          (p) =>
+            p.time.toLowerCase() === formattedTime.toLowerCase() &&
+            p.period === autoPeriod,
+        );
+
+        if (already) return prev;
+
+        return [...prev, slot];
+      });
+      setNewTime("");
+      toast.success(`Added in ${autoPeriod}`);
+    } catch (e) {
+      toast.error(e.message || "Failed to create slot");
+    }
   };
+  //   const handleAddSlot = async () => {
+  //     if (!newTime) return toast.error("Select time");
 
-  try {
-    await createSteamSlot(slot);
+  //     const hour = parseInt(newTime.split(":")[0], 10);
 
-    // setCustomSlots((prev) => {
-    //   const already = prev.some(
-    //     (p) =>
-    //       p.time.toLowerCase() === s.time.toLowerCase() &&
-    //       p.period === slot.period
-    //   );
-    //   if (already) return prev;
-    //   return [...prev, slot];
-    // });
-setCustomSlots((prev) => {
-  const already = prev.some(
-    (p) =>
-      p.time.toLowerCase() === formattedTime.toLowerCase() &&
-      p.period === autoPeriod
-  );
+  //     // ❌ validation based on selected period
+  //     if (newPeriod === "Morning" && hour >= 12) {
+  //       return toast.error("Morning slots must be between 1–11 AM");
+  //     }
 
-  if (already) return prev;
+  //     if (newPeriod === "Evening" && hour >= 12) {
+  //       return toast.error(
+  //         "Evening slots must be between 1–11 PM format (use PM logic)",
+  //       );
+  //     }
+  //     const hour = parseInt(newTime.split(":")[0], 10);
+  // const autoPeriod = hour < 12 ? "Morning" : "Evening";
 
-  return [...prev, slot];
-});
-    setNewTime("");
-    toast.success(`Added in ${autoPeriod}`);
-  } catch (e) {
-    toast.error(e.message || "Failed to create slot");
-  }
-};
-//   const handleAddSlot = async () => {
-//     if (!newTime) return toast.error("Select time");
+  //     const formattedTime = formatTime12(newTime);
 
-//     const hour = parseInt(newTime.split(":")[0], 10);
+  //     // const exists = ALL_AVAILABLE_SLOTS.some(
+  //     //   (s) =>
+  //     //     s.time.toLowerCase() === formattedTime.toLowerCase() &&
+  //     //     s.period === newPeriod
+  //     // );
+  // setCustomSlots((prev) => {
+  //   const already = prev.some(
+  //     (p) =>
+  //       p.time.trim().toLowerCase() === formattedTime.trim().toLowerCase() &&
+  //       p.period === newPeriod
+  //   );
 
-//     // ❌ validation based on selected period
-//     if (newPeriod === "Morning" && hour >= 12) {
-//       return toast.error("Morning slots must be between 1–11 AM");
-//     }
+  //   if (already) return prev;
+  //   return [...prev, slot];
+  // });
+  //     if (exists) return toast.error("Slot already exists");
 
-//     if (newPeriod === "Evening" && hour >= 12) {
-//       return toast.error(
-//         "Evening slots must be between 1–11 PM format (use PM logic)",
-//       );
-//     }
-//     const hour = parseInt(newTime.split(":")[0], 10);
-// const autoPeriod = hour < 12 ? "Morning" : "Evening";
+  //     const slot = {
+  //       time: formattedTime,
+  //       period: newPeriod, // 👈 user controls Morning/Evening
+  //       disabled: false,
+  //     };
 
-//     const formattedTime = formatTime12(newTime);
+  //     try {
+  //       await createSteamSlot(slot);
 
-//     // const exists = ALL_AVAILABLE_SLOTS.some(
-//     //   (s) =>
-//     //     s.time.toLowerCase() === formattedTime.toLowerCase() &&
-//     //     s.period === newPeriod
-//     // );
-// setCustomSlots((prev) => {
-//   const already = prev.some(
-//     (p) =>
-//       p.time.trim().toLowerCase() === formattedTime.trim().toLowerCase() &&
-//       p.period === newPeriod
-//   );
+  //       setCustomSlots((prev) => {
+  //         const already = prev.some(
+  //           (p) =>
+  //             p.time.toLowerCase() === formattedTime.toLowerCase() &&
+  //             p.period === newPeriod,
+  //         );
 
-//   if (already) return prev;
-//   return [...prev, slot];
-// });
-//     if (exists) return toast.error("Slot already exists");
+  //         if (already) return prev;
+  //         return [...prev, slot];
+  //       });
 
-//     const slot = {
-//       time: formattedTime,
-//       period: newPeriod, // 👈 user controls Morning/Evening
-//       disabled: false,
-//     };
-
-//     try {
-//       await createSteamSlot(slot);
-
-//       setCustomSlots((prev) => {
-//         const already = prev.some(
-//           (p) =>
-//             p.time.toLowerCase() === formattedTime.toLowerCase() &&
-//             p.period === newPeriod,
-//         );
-
-//         if (already) return prev;
-//         return [...prev, slot];
-//       });
-
-//       setNewTime("");
-//       toast.success(`Added in ${newPeriod}`);
-//     } catch (e) {
-//       toast.error(e.message || "Failed to create slot");
-//     }
-//   };
+  //       setNewTime("");
+  //       toast.success(`Added in ${newPeriod}`);
+  //     } catch (e) {
+  //       toast.error(e.message || "Failed to create slot");
+  //     }
+  //   };
   // const handleAddSlot = async () => {
   //   if (!newTime) return toast.error("Select time");
 
@@ -348,6 +370,7 @@ setCustomSlots((prev) => {
   //     toast.error(e.message || "Failed to delete slot");
   //   }
   // };
+  const isAdmin = user?.role === "admin";
   const handleDeleteSlot = async (slot) => {
     const confirmDelete = window.confirm(
       `Are you sure you want to delete ${slot.time} (${slot.period}) slot?`,
@@ -357,14 +380,10 @@ setCustomSlots((prev) => {
 
     try {
       // await removeSteamSlot(`${slot.period}-${slot.time}`);
-await removeSteamSlot(slot.id);
-      setCustomSlots((prev) =>
-        prev.filter((s) => s.id !== slot.id)
-      );
+      await removeSteamSlot(slot.id);
+      setCustomSlots((prev) => prev.filter((s) => s.id !== slot.id));
 
-      setSlots((prev) =>
-        prev.filter((s) => s.id !== slot.id)
-      );
+      setSlots((prev) => prev.filter((s) => s.id !== slot.id));
       // setCustomSlots((prev) =>
       //   prev.filter(
       //     (s) => `${s.period}-${s.time}` !== `${slot.period}-${slot.time}`,
@@ -382,33 +401,135 @@ await removeSteamSlot(slot.id);
       toast.error(e.message || "Failed to delete slot");
     }
   };
+  // const handleBook = async () => {
+  //   if (!selectedSlot) return toast.error("Select a time slot.");
+  //   if (!selectedMember) return toast.error("Select a member.");
+
+  //   const member = members.find((m) => m.id === selectedMember);
+  //   if (!member) return toast.error("Member not found.");
+
+  //   setSaving(true);
+  //   try {
+  //     await requestSteamSlot({
+  //       date: selectedDate,
+  //       slot: selectedSlot,
+  //       memberId: selectedMember,
+  //       memberName: member.name,
+  //       memberPhone: member.phone,
+  //     });
+
+  //     toast.success(`${member.name} booked ${selectedSlot} 🌫️`);
+  //     setSelectedSlot(null);
+  //     setSelectedMember("");
+  //   } catch (err) {
+  //     toast.error(err.message || "Booking failed. Please try again.");
+  //   } finally {
+  //     setSaving(false);
+  //   }
+  // };
+  //   const handleBook = async () => {
+  //     if (!selectedSlot) {
+  //       return toast.error("Select a time slot.");
+  //     }
+
+  //     if (!selectedMember) {
+  //       return toast.error("Select a member.");
+  //     }
+
+  //     const member = members.find((m) => m.id === selectedMember);
+
+  //     if (!member) {
+  //       return toast.error("Member not found.");
+  //     }
+
+  //     setSaving(true);
+
+  //     try {
+  //       // create pending request
+  //       //       const ref = await requestSteamSlot({
+  //       //         date: selectedDate,
+  //       //         // slot: selectedSlot,
+  //       //         slot: selectedSlot.split("-")[1],
+  //       // period: selectedSlot.split("-")[0],
+  //       //         slot: slotTime,
+  //       // period,
+  //       //         memberId: selectedMember,
+  //       //         memberName: member.name,
+  //       //         memberPhone: member.phone,
+  //       //       });
+  //       // const [period, slotTime] = selectedSlot.split("-");
+  //       setSelectedSlot({
+  //   period: s.period,
+  //   time: s.time,
+  // });
+  // selectedSlot.period
+  // selectedSlot.time
+
+  //       const ref = await requestSteamSlot({
+  //         date: selectedDate,
+  //         slot: slotTime,
+  //         period,
+  //         memberId: selectedMember,
+  //         memberName: member.name,
+  //         memberPhone: member.phone,
+  //       });
+  //       // instantly approve because admin booked it
+  //       // await approveSteamBooking(ref.id, selectedDate, selectedSlot);
+  //       // const [period, slotTime] = selectedSlot.split("-");
+
+  //       await approveSteamBooking(ref.id, selectedDate, slotTime, period);
+  //       toast.success(`${member.name} booked ${selectedSlot} 🌫️`);
+
+  //       setSelectedSlot(null);
+  //       setSelectedMember("");
+  //     } catch (err) {
+  //       toast.error(err.message || "Booking failed.");
+  //     } finally {
+  //       setSaving(false);
+  //     }
+  //   };
   const handleBook = async () => {
-    if (!selectedSlot) return toast.error("Select a time slot.");
-    if (!selectedMember) return toast.error("Select a member.");
+    if (!selectedSlot) {
+      return toast.error("Select a time slot.");
+    }
+
+    if (!selectedMember) {
+      return toast.error("Select a member.");
+    }
 
     const member = members.find((m) => m.id === selectedMember);
-    if (!member) return toast.error("Member not found.");
+
+    if (!member) {
+      return toast.error("Member not found.");
+    }
 
     setSaving(true);
+
     try {
-      await bookSteamSlot({
+      const [period, slotTime] = selectedSlot.split("-");
+
+      const ref = await requestSteamSlot({
         date: selectedDate,
-        slot: selectedSlot,
+        slot: slotTime,
+        period,
         memberId: selectedMember,
         memberName: member.name,
         memberPhone: member.phone,
       });
 
-      toast.success(`${member.name} booked ${selectedSlot} 🌫️`);
+      // auto approve if admin books
+      await approveSteamBooking(ref.id, selectedDate, slotTime, period);
+
+      toast.success(`${member.name} booked ${slotTime} 🌫️`);
+
       setSelectedSlot(null);
       setSelectedMember("");
     } catch (err) {
-      toast.error(err.message || "Booking failed. Please try again.");
+      toast.error(err.message || "Booking failed.");
     } finally {
       setSaving(false);
     }
   };
-
   const handleCancel = async (bookingId, memberName, slot) => {
     if (!window.confirm(`Cancel ${memberName}'s booking at ${slot}?`)) return;
 
@@ -435,78 +556,309 @@ await removeSteamSlot(slot.id);
     return (
       <div className="slot-grid mb-16">
         {slots.map((s) => {
-          const booking = bookings.find((b) => b.slot === s.time);
+          // const booking = bookings.find((b) => b.slot === s.time);
+          // const booking = bookings.find(
+          //   (b) => b.slot === s.time && b.status === "confirmed",
+          // );
+          const booking = bookings.find(
+            (b) =>
+              `${b.period}-${b.slot}` === `${s.period}-${s.time}` &&
+              (b.status === "confirmed" || b.status === "pending"),
+          );
           const isBooked = !!booking;
-          const isSel = selectedSlot === s.time;
+          const isSel = selectedSlot === `${s.period}-${s.time}`;
 
           const isCustom = customSlots.some(
-            (cs) => cs.time === s.time && cs.period === s.period,
+            (cs) =>
+              normalizeTime(cs.time) === normalizeTime(s.time) &&
+              cs.period === s.period,
           );
+          // return (
+          //   <div
+          //     key={`${s.period}-${s.time}`}
+          //     className={`slot tap-scale ${
+          //       isBooked ? "booked" : ""
+          //     } ${isSel ? "selected" : ""}`}
+          //     onClick={() =>
+          //       !isBooked &&
+          //       setSelectedSlot(isSel ? null : `${s.period}-${s.time}`)
+          //     }
+          //   >
+          //     <div className="slot-time">{s.time}</div>
 
+          //     <div className="slot-label">
+          //       {isBooked
+          //         ? booking.status === "pending"
+          //           ? "Pending Approval"
+          //           : booking.memberName
+          //         : isSel
+          //           ? "Selected ✓"
+          //           : "Available"}
+          //     </div>
+
+          //     {/* {isBooked && (
+          //       <button
+          //         style={{
+          //           marginTop: 5,
+          //           fontSize: 9,
+          //           background: "rgba(230,51,41,0.15)",
+          //           border: "none",
+          //           color: "var(--red)",
+          //           borderRadius: 3,
+          //           padding: "2px 6px",
+          //           cursor: "pointer",
+          //         }}
+          //         onClick={(e) => {
+          //           e.stopPropagation();
+          //           handleCancel(booking.id, booking.memberName, s.time);
+          //         }}
+          //       >
+          //         Cancel
+          //       </button>
+          //     )}
+          //      */}
+          //     {isBooked ? (
+          //       booking.status === "pending" ? (
+          //         isAdmin ? (
+          //           <>
+          //             <div className="slot-label">Pending Request</div>
+
+          //             <button onClick={approve}>Approve</button>
+
+          //             <button onClick={reject}>Reject</button>
+          //           </>
+          //         ) : (
+          //           <>
+          //             <div className="slot-label">Pending Approval</div>
+
+          //             <button onClick={cancel}>Cancel</button>
+          //           </>
+          //         )
+          //       ) : (
+          //         <>
+          //           <div className="slot-label">
+          //             {isAdmin ? booking.memberName : "Booked ✓"}
+          //           </div>
+
+          //           <button onClick={cancel}>Cancel</button>
+          //         </>
+          //       )
+          //     ) : (
+          //       <div className="slot-label">
+          //         {isSel ? "Selected ✓" : "Available"}
+          //       </div>
+          //     )}
+          //     {/* ✅ FIXED DELETE BUTTON (NOW INSIDE RETURN) */}
+          //     {isCustom && !isBooked && (
+          //       <button
+          //         style={{
+          //           marginTop: 5,
+          //           fontSize: 9,
+          //           background: "rgba(255,0,0,0.15)",
+          //           border: "none",
+          //           color: "red",
+          //           borderRadius: 3,
+          //           padding: "2px 6px",
+          //           cursor: "pointer",
+          //         }}
+          //         onClick={(e) => {
+          //           e.stopPropagation();
+          //           handleDeleteSlot(s);
+          //         }}
+          //       >
+          //         Delete
+          //       </button>
+          //     )}
+          //   </div>
+          // );
           return (
-            <div
-              key={s.time}
-              className={`slot tap-scale ${
-                isBooked ? "booked" : ""
-              } ${isSel ? "selected" : ""}`}
-              onClick={() =>
-                !isBooked && setSelectedSlot(isSel ? null : s.time)
-              }
+  <div
+    key={`${s.period}-${s.time}`}
+    className={`slot tap-scale ${
+      isBooked ? "booked" : ""
+    } ${isSel ? "selected" : ""}`}
+    onClick={() =>
+      !isBooked &&
+      setSelectedSlot(
+        isSel ? null : `${s.period}-${s.time}`
+      )
+    }
+  >
+    <div className="slot-time">{s.time}</div>
+
+    {/* EMPTY SLOT */}
+    {!isBooked && (
+      <div className="slot-label">
+        {isSel ? "Selected ✓" : "Available"}
+      </div>
+    )}
+
+    {/* PENDING BOOKING */}
+    {/* {isBooked && booking.status === "pending" && (
+      <>
+        <div className="slot-label">
+          {isAdmin
+            ? `Pending • ${booking.memberName}`
+            : "Pending Approval"}
+        </div>
+
+        {isAdmin ? (
+          <div className="slot-actions">
+            <button
+              className="mini-btn approve"
+              onClick={async (e) => {
+                e.stopPropagation();
+
+                try {
+                  await approveSteamBooking(
+                    booking.id,
+                    selectedDate,
+                    booking.slot,
+                    booking.period,
+                  );
+
+                  toast.success("Booking approved");
+                } catch {
+                  toast.error("Approval failed");
+                }
+              }}
             >
-              <div className="slot-time">{s.time}</div>
+              Approve
+            </button>
 
-              <div className="slot-label">
-                {isBooked
-                  ? booking.memberName
-                  : isSel
-                    ? "Selected ✓"
-                    : "Available"}
-              </div>
+            <button
+              className="mini-btn reject"
+              onClick={async (e) => {
+                e.stopPropagation();
 
-              {isBooked && (
-                <button
-                  style={{
-                    marginTop: 5,
-                    fontSize: 9,
-                    background: "rgba(230,51,41,0.15)",
-                    border: "none",
-                    color: "var(--red)",
-                    borderRadius: 3,
-                    padding: "2px 6px",
-                    cursor: "pointer",
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCancel(booking.id, booking.memberName, s.time);
-                  }}
-                >
-                  Cancel
-                </button>
-              )}
+                try {
+                  await rejectSteamBooking(booking.id);
 
-              {/* ✅ FIXED DELETE BUTTON (NOW INSIDE RETURN) */}
-              {isCustom && !isBooked && (
-                <button
-                  style={{
-                    marginTop: 5,
-                    fontSize: 9,
-                    background: "rgba(255,0,0,0.15)",
-                    border: "none",
-                    color: "red",
-                    borderRadius: 3,
-                    padding: "2px 6px",
-                    cursor: "pointer",
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteSlot(s);
-                  }}
-                >
-                  Delete
-                </button>
-              )}
-            </div>
-          );
+                  toast.success("Booking rejected");
+                } catch {
+                  toast.error("Reject failed");
+                }
+              }}
+            >
+              Reject
+            </button>
+          </div>
+        ) : (
+          <button
+            className="mini-btn cancel"
+            onClick={(e) => {
+              e.stopPropagation();
+
+              handleCancel(
+                booking.id,
+                booking.memberName,
+                booking.slot,
+              );
+            }}
+          >
+            Cancel
+          </button>
+        )}
+      </>
+    )} */}
+    {isBooked && booking.status === "pending" && (
+  <>
+    <div className="slot-label">
+      Pending • {booking.memberName}
+    </div>
+
+    <div className="slot-actions">
+      <button
+        className="mini-btn approve"
+        onClick={async (e) => {
+          e.stopPropagation();
+
+          try {
+            await approveSteamBooking(
+              booking.id,
+              booking.date,
+              booking.slot,
+              booking.period
+            );
+
+            toast.success("Booking approved");
+          } catch (err) {
+            toast.error(err.message);
+          }
+        }}
+      >
+        Approve
+      </button>
+
+      <button
+        className="mini-btn reject"
+        onClick={async (e) => {
+          e.stopPropagation();
+
+          try {
+            await rejectSteamBooking(booking.id);
+
+            toast.success("Booking rejected");
+          } catch {
+            toast.error("Reject failed");
+          }
+        }}
+      >
+        Reject
+      </button>
+    </div>
+  </>
+)}
+
+    {/* CONFIRMED BOOKING */}
+    {isBooked && booking.status === "confirmed" && (
+      <>
+        <div className="slot-label">
+          {isAdmin
+            ? booking.memberName
+            : "Booked ✓"}
+        </div>
+
+        <button
+          className="mini-btn cancel"
+          onClick={(e) => {
+            e.stopPropagation();
+
+            handleCancel(
+              booking.id,
+              booking.memberName,
+              booking.slot,
+            );
+          }}
+        >
+          Cancel
+        </button>
+      </>
+    )}
+
+    {/* DELETE CUSTOM SLOT */}
+    {isCustom && !isBooked && (
+      <button
+        style={{
+          marginTop: 5,
+          fontSize: 9,
+          background: "rgba(255,0,0,0.15)",
+          border: "none",
+          color: "red",
+          borderRadius: 3,
+          padding: "2px 6px",
+          cursor: "pointer",
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleDeleteSlot(s);
+        }}
+      >
+        Delete
+      </button>
+    )}
+  </div>
+);
         })}
       </div>
     );
@@ -559,7 +911,10 @@ await removeSteamSlot(slot.id);
             },
             {
               label: "Booked",
-              value: bookings.length,
+              // value: bookings.filter((b) => b.status === "confirmed").length,
+              value: bookings.filter(
+                (b) => b.status === "confirmed" || b.status === "pending",
+              ).length,
               cls: "s-red",
               val: "c-red",
             },

@@ -17,6 +17,7 @@ import SectionHeader from "../../components/member/SectionHeader";
 import {
   subscribeSteamBookings,
   bookSteamSlot,
+  requestSteamSlot,
   deleteSteamBooking,
   subscribeSteamSlots,
 } from "../../firebase/service";
@@ -97,13 +98,23 @@ export default function MemberSteam() {
 
     return () => unsub();
   }, []);
-  const bookedSlots = bookings.map((b) => b.slot);
-
+  // const bookedSlots = bookings.map((b) => b.slot);
+ const bookedSlots = bookings
+  .filter(
+    (b) =>
+      b.status === "confirmed" ||
+      b.status === "pending"
+  )
+  .map((b) => `${b.period}-${b.slot}`);
   const myBookings = bookings.filter(
     (b) => b.memberId === membership?.memberId,
   );
 
-  const mySlots = myBookings.map((b) => b.slot);
+  // const mySlots = myBookings.map((b) => `${b.period}-${b.slot}`);
+  const mySlots = myBookings
+  .filter((b) => b.status !== "rejected")
+  .map((b) => `${b.period}-${b.slot}`);
+  // const mySlots = myBookings.map((b) => b.slot);
   //   const [slots, setSlots] = useState([]);
   //   useEffect(() => {
   //     const unsub = subscribeSteamSlots(setSlots);
@@ -122,19 +133,50 @@ export default function MemberSteam() {
   //     index ===
   //     self.findIndex((s) => s.time === slot.time && s.period === slot.period),
   // );
-const mergedSlots = [...ALL_SLOTS, ...slots];
+  const mergedSlots = [...ALL_SLOTS, ...slots];
 
-// remove duplicates
-const displaySlots = mergedSlots.filter(
-  (slot, index, self) =>
-    index ===
-    self.findIndex(
-      (s) =>
-        s.time === slot.time &&
-        s.period === slot.period
-    )
-);
+  // remove duplicates
+  const displaySlots = mergedSlots.filter(
+    (slot, index, self) =>
+      index ===
+      self.findIndex((s) => s.time === slot.time && s.period === slot.period),
+  );
   const available = displaySlots.length - bookedSlots.length;
+  // const bookSlot = async () => {
+  //   if (!selected) {
+  //     toast.error("Select a slot");
+  //     return;
+  //   }
+
+  //   setSaving(true);
+
+  //   try {
+  //     await requestSteamSlot({
+  //       date: selectedDate,
+  //       slot: selected,
+
+  //       memberId: membership.memberId,
+
+  //       memberName: profile?.name,
+  //     });
+  //     // await bookSteamSlot({
+  //     //   date: selectedDate,
+  //     //   slot: selected,
+
+  //     //   memberId: membership.memberId,
+
+  //     //   memberName: profile?.name,
+  //     // });
+
+  //     toast.success("Request sent for approval 🌫️");
+
+  //     setSelected(null);
+  //   } catch (err) {
+  //     toast.error(err.message || "Booking failed");
+  //   } finally {
+  //     setSaving(false);
+  //   }
+  // };
   const bookSlot = async () => {
     if (!selected) {
       toast.error("Select a slot");
@@ -144,16 +186,18 @@ const displaySlots = mergedSlots.filter(
     setSaving(true);
 
     try {
-      await bookSteamSlot({
+      const [period, slotTime] = selected.split("-");
+
+      await requestSteamSlot({
         date: selectedDate,
-        slot: selected,
+        slot: slotTime,
+        period,
 
         memberId: membership.memberId,
-
         memberName: profile?.name,
       });
 
-      toast.success("Steam booked 🌫️");
+      toast.success("Request sent for approval 🌫️");
 
       setSelected(null);
     } catch (err) {
@@ -162,7 +206,6 @@ const displaySlots = mergedSlots.filter(
       setSaving(false);
     }
   };
-
   const cancelBooking = async (id, slot) => {
     if (!window.confirm(`Cancel ${slot} booking?`)) {
       return;
@@ -211,7 +254,7 @@ const displaySlots = mergedSlots.filter(
 
             <StatCard
               label="Booked"
-              value={bookings.length}
+              value={bookedSlots.length}
               cls="s-red"
               valueClass="c-red"
             />
@@ -235,40 +278,74 @@ const displaySlots = mergedSlots.filter(
                     (s) => s.period?.toLowerCase() === period.toLowerCase(),
                   )
                   .map((slot) => {
+                    const booking = myBookings.find(
+                      (b) =>
+                        `${b.period}-${b.slot}` ===
+                        `${slot.period}-${slot.time}`,
+                    );
                     const isBooked =
-                      bookedSlots.includes(slot.time) &&
-                      !mySlots.includes(slot.time);
-
-                    const isMine = mySlots.includes(slot.time);
+                      bookedSlots.includes(`${slot.period}-${slot.time}`) &&
+                      !mySlots.includes(`${slot.period}-${slot.time}`);
+                    // const isMine = mySlots.includes(slot.time);
+                    // const isMine = mySlots.includes(
+                    //   `${slot.period}-${slot.time}`,
+                    // );
+                    // const isMine = booking && booking.status !== "rejected";
+                    const isMine = ["pending", "confirmed"].includes(booking?.status);
                     console.log("All Slots:", displaySlots);
-                    const isSelected = selected === slot.time;
+                    // const isSelected = selected === slot.time;
+                    const isSelected =
+                      selected === `${slot.period}-${slot.time}`;
 
                     return (
                       <div
-                       key={`${slot.period}-${slot.time}`}
+                        key={`${slot.period}-${slot.time}`}
                         className={`slot ${isBooked ? "booked" : ""} ${
                           isMine || isSelected ? "selected" : ""
                         }`}
                         onClick={() => {
-                          if (!isBooked && !isMine) {
-                            setSelected(slot.time);
-                          }
-                        }}
+  if (!isBooked && !booking?.status || booking?.status === "rejected") {
+    setSelected(`${slot.period}-${slot.time}`);
+  }
+}}
                       >
                         <div className="slot-time">{slot.time}</div>
 
+                        {/* <div className="slot-label"> */}
+                        {/* {isMine ? "✓ Mine" : isBooked ? "Taken" : "Available"} */}
+                        {/* {isMine
+                            ? myBookings.find((b) => b.slot === slot.time)
+                                ?.status === "pending"
+                              ? "Pending Approval"
+                              : myBookings.find((b) => b.slot === slot.time)
+                                    ?.status === "confirmed"
+                                ? "✓ Confirmed"
+                                : "Rejected"
+                            : isBooked
+                              ? "Taken"
+                              : "Available"}
+                        </div> */}
                         <div className="slot-label">
-                          {isMine ? "✓ Mine" : isBooked ? "Taken" : "Available"}
-                        </div>
-
-                        {isMine && (
+  {booking
+    ? booking.status === "pending"
+      ? "Pending Approval"
+      : booking.status === "confirmed"
+        ? "✓ Confirmed"
+        : "Rejected"
+    : isBooked
+      ? "Taken"
+      : "Available"}
+</div>
+                        {booking && booking.status !== "rejected" && (
                           <button
                             className="btn btn-sm"
                             onClick={(e) => {
                               e.stopPropagation();
 
                               const booking = myBookings.find(
-                                (b) => b.slot === slot.time,
+                                (b) =>
+                                  `${b.period}-${b.slot}` ===
+                                  `${slot.period}-${slot.time}`,
                               );
 
                               if (booking) {
