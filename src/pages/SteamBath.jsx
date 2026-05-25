@@ -8,6 +8,7 @@ import {
   getAllMembers,
   createSteamSlot,
   removeSteamSlot,
+  subscribeSteamSlots
 } from "../firebase/service";
 
 import { useAuth } from "../context/AuthContext";
@@ -53,7 +54,13 @@ export default function SteamBath() {
       )
       .catch(console.error);
   }, [user, loading]);
+useEffect(() => {
+  const unsub = subscribeSteamSlots((data) => {
+    setCustomSlots(data);
+  });
 
+  return () => unsub();
+}, []);
   useEffect(() => {
     if (!selectedDate || !user) return;
 
@@ -101,16 +108,26 @@ export default function SteamBath() {
   try {
     await createSteamSlot(slot);
 
-    setCustomSlots((prev) => {
-      const already = prev.some(
-        (p) =>
-          p.time.toLowerCase() === slot.time.toLowerCase() &&
-          p.period === slot.period
-      );
-      if (already) return prev;
-      return [...prev, slot];
-    });
+    // setCustomSlots((prev) => {
+    //   const already = prev.some(
+    //     (p) =>
+    //       p.time.toLowerCase() === s.time.toLowerCase() &&
+    //       p.period === slot.period
+    //   );
+    //   if (already) return prev;
+    //   return [...prev, slot];
+    // });
+setCustomSlots((prev) => {
+  const already = prev.some(
+    (p) =>
+      p.time.toLowerCase() === formattedTime.toLowerCase() &&
+      p.period === autoPeriod
+  );
 
+  if (already) return prev;
+
+  return [...prev, slot];
+});
     setNewTime("");
     toast.success(`Added in ${autoPeriod}`);
   } catch (e) {
@@ -339,19 +356,26 @@ export default function SteamBath() {
     if (!confirmDelete) return;
 
     try {
-      await removeSteamSlot(`${slot.period}-${slot.time}`);
-
+      // await removeSteamSlot(`${slot.period}-${slot.time}`);
+await removeSteamSlot(slot.id);
       setCustomSlots((prev) =>
-        prev.filter(
-          (s) => `${s.period}-${s.time}` !== `${slot.period}-${slot.time}`,
-        ),
+        prev.filter((s) => s.id !== slot.id)
       );
 
       setSlots((prev) =>
-        prev.filter(
-          (s) => `${s.period}-${s.time}` !== `${slot.period}-${slot.time}`,
-        ),
+        prev.filter((s) => s.id !== slot.id)
       );
+      // setCustomSlots((prev) =>
+      //   prev.filter(
+      //     (s) => `${s.period}-${s.time}` !== `${slot.period}-${slot.time}`,
+      //   ),
+      // );
+
+      // setSlots((prev) =>
+      //   prev.filter(
+      //     (s) => `${s.period}-${s.time}` !== `${slot.period}-${slot.time}`,
+      //   ),
+      // );
 
       toast.success("Slot deleted");
     } catch (e) {

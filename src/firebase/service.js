@@ -125,7 +125,15 @@ export async function bookSteamSlot({ date, slot, memberId, memberName, memberPh
     if (!memberSnap.empty) throw new Error("You already have a booking for this date.");
 
     const newRef = doc(collection(db, "steam_bookings"));
-    transaction.set(newRef, { date, slot, memberId, memberName, memberPhone, createdAt: serverTimestamp() });
+    // transaction.set(newRef, { date, slot, memberId, memberName, memberPhone, createdAt: serverTimestamp() });
+    transaction.set(newRef, {
+  date,
+  slot,
+  memberId,
+  memberName,
+  memberPhone: memberPhone || "",
+  createdAt: serverTimestamp(),
+});
     return { id: newRef.id };
   });
 }
@@ -147,7 +155,8 @@ export async function bookSteamSlot({ date, slot, memberId, memberName, memberPh
 
 export async function getSteamSlots() {
   const snap = await getDocs(
-    query(collection(db, "steam_slots"), orderBy("order", "asc"))
+    // query(collection(db, "steam_slots"), orderBy("order", "asc"))
+    query(collection(db, "steam_slots"), orderBy("createdAt", "asc"))
   );
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
@@ -200,13 +209,33 @@ export const toggleSteamSlot = async (id, disabled) => {
 };
 
 
+// export function subscribeSteamSlots(callback) {
+//   return onSnapshot(
+//     query(collection(db, "steam_slots"), orderBy("order", "asc")),
+//     snap => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+//   );
+// }
 export function subscribeSteamSlots(callback) {
   return onSnapshot(
-    query(collection(db, "steam_slots"), orderBy("order", "asc")),
-    snap => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+    query(collection(db, "steam_slots"), orderBy("createdAt", "asc")),
+    (snap) => {
+      console.log(
+        "Firestore slots:",
+        snap.docs.map((d) => ({
+          id: d.id,
+          ...d.data(),
+        }))
+      );
+
+      callback(
+        snap.docs.map((d) => ({
+          id: d.id,
+          ...d.data(),
+        }))
+      );
+    }
   );
 }
-
 export async function addSteamSlot(data) {
   return await addDoc(collection(db, "steam_slots"), {
     ...data,

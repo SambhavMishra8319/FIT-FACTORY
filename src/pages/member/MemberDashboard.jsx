@@ -40,7 +40,13 @@ export default function MemberDashboard() {
   async function fetchData() {
     if (!profile?.phone) { setLoading(false); return; }
     try {
-      const mSnap = await getDocs(query(collection(db, "members"), where("email", "==", (profile.email || "").toLowerCase())));
+      // const mSnap = await getDocs(query(collection(db, "members"), where("email", "==", (profile.email || "").toLowerCase())));
+      const mSnap = await getDocs(
+  query(
+    collection(db, "members"),
+    where("phone", "==", profile.phone)
+  )
+);
       if (!mSnap.empty) setMember({ id: mSnap.docs[0].id, ...mSnap.docs[0].data() });
 
       if (membership?.memberId) {
@@ -318,7 +324,7 @@ export default function MemberDashboard() {
         {isPaid && (
           <div style={{ ...anim(0.4), marginTop: 24 }}>
             <div className="card tap-scale" style={{ cursor: "pointer", border: "1px solid rgba(245,200,66,0.15)" }}
-              onClick={() => navigate("/equipment")}>
+              onClick={() => navigate("/equipments")}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <span style={{ fontSize: 28 }}>🔧</span>
                 <div>
