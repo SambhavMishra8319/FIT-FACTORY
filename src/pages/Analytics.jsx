@@ -509,7 +509,7 @@ import {
 } from "recharts";
 import toast from "react-hot-toast";
 
-export function Analytics() {
+export default function Analytics() {
   const [members, setMembers] = useState([]);
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);

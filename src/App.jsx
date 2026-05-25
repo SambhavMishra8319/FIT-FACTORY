@@ -216,7 +216,7 @@ import {
 // Styles
 import "./index.css";
 import "./styles/base/animations.css";
-
+import { Workout, Diet } from "./pages/StaticPages";
 // ── Lazy Admin Pages ─────────────────────────────────────
 const Login = lazy(() =>
   import("./pages/Login")
@@ -636,6 +636,23 @@ function AppRoutes() {
           </AdminLayout>
         }
       />
+      <Route
+  path="/workout"
+  element={
+    <AdminLayout>
+      <Workout />
+    </AdminLayout>
+  }
+/>
+
+<Route
+  path="/diet"
+  element={
+    <AdminLayout>
+      <Diet />
+    </AdminLayout>
+  }
+/>
 
       <Route
         path="/members/:id/edit"
