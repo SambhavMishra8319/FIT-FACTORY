@@ -214,6 +214,7 @@ export default function Members() {
             <tbody>
               {loading ? (
                 [1, 2, 3, 4].map((i) => (
+                  
                   <tr key={i}>
                     <td colSpan={7} style={{ padding: 16 }}>
                       <div
@@ -226,9 +227,11 @@ export default function Members() {
                       />
                     </td>
                   </tr>
+
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
+                  
                   <td
                     colSpan={7}
                     style={{
@@ -283,11 +286,20 @@ export default function Members() {
                             .toUpperCase()}
                         </div>
                         <div>
-                          <strong>{m.name}</strong>
-                          <div style={{ fontSize: 11, color: "var(--muted2)" }}>
-                            {m.phone}
-                          </div>
-                        </div>
+  <strong
+    style={{
+      cursor: "pointer",
+      color: "var(--gold)",
+    }}
+    onClick={() => navigate(`/members/${m.id}`)}
+  >
+    {m.name}
+  </strong>
+
+  <div style={{ fontSize: 11, color: "var(--muted2)" }}>
+    {m.phone}
+  </div>
+</div>
                       </div>
                     </td>
                     <td>{m.plan}</td>

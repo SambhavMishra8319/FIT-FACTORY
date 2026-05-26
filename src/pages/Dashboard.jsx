@@ -10,8 +10,11 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
+  LineChart,
+  Line,
 } from "recharts";
-
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
 import {
   format,
   addDays,
@@ -55,6 +58,10 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [visible, setVisible] = useState(false);
 const [selectedPlans, setSelectedPlans] = useState({});
+const [workouts, setWorkouts] = useState([]);
+const [steam, setSteam] = useState([]);
+const [bcaData, setBcaData] = useState([]);
+const [rank, setRank] = useState(null);
   // FILTER
   const [expiryFilter, setExpiryFilter] = useState("week");
 
@@ -513,10 +520,89 @@ const [selectedPlans, setSelectedPlans] = useState({});
 //     toast.error("Failed to assign plan");
 //   }
 // };
+// const attendanceDates = attendance.map((a) => a.date);
+
+// const handleAssignPlan = async (user) => {
+//   const plan = selectedPlans[user.id];
+
+//   if (!plan) return toast.error("Select a plan first");
+
+//   try {
+//     console.log("ASSIGN STARTED");
+
+//     const amount =
+//       plan === "Monthly"
+//         ? 1499
+//         : plan === "Quarterly"
+//         ? 3999
+//         : 9999;
+
+//     const planMonths =
+//       plan === "Monthly"
+//         ? 1
+//         : plan === "Quarterly"
+//         ? 3
+//         : 12;
+
+//     // 1. CREATE MEMBER FIRST
+//     const memberRef = await addDoc(collection(db, "members"), {
+//       name: user.name,
+//       email: user.email,
+//       status: "active",
+//       plan,
+//       createdAt: serverTimestamp(),
+//     });
+
+//     // 2. RECORD PAYMENT + ACTIVATE
+//     await recordPaymentAndActivate(
+//       {
+//         memberId: memberRef.id,
+//         memberName: user.name,
+//         email: user.email,
+//         plan,
+//         amount,
+//         method: "Admin",
+//       },
+//       memberRef.id,
+//       planMonths
+//     );
+
+//     toast.success(`${user.name} assigned ${plan}`);
+
+//     setSignups((prev) =>
+//       prev.filter((u) => u.id !== user.id)
+//     );
+//   } catch (err) {
+//     console.error(err);
+//     toast.error("Failed to assign plan");
+//   }
+// };
+// const attendanceDates = attendance.map((a) => a.date);
+const attendanceDates = useMemo(
+  () => [
+    ...new Set(
+      attendance.map((a) => a.date)
+    ),
+  ],
+  [attendance]
+);
+
+const tileClassName = ({ date }) => {
+  const d = format(date, "yyyy-MM-dd");
+
+  if (attendanceDates.includes(d)) {
+    return "present-day";
+  }
+
+  return null;
+};
+
 const handleAssignPlan = async (user) => {
   const plan = selectedPlans[user.id];
 
-  if (!plan) return toast.error("Select a plan first");
+  if (!plan) {
+    return toast.error("Select a plan first");
+  }
 
   try {
     console.log("ASSIGN STARTED");
@@ -535,7 +621,7 @@ const handleAssignPlan = async (user) => {
         ? 3
         : 12;
 
-    // 1. CREATE MEMBER FIRST
+    // CREATE MEMBER
     const memberRef = await addDoc(collection(db, "members"), {
       name: user.name,
       email: user.email,
@@ -544,7 +630,7 @@ const handleAssignPlan = async (user) => {
       createdAt: serverTimestamp(),
     });
 
-    // 2. RECORD PAYMENT + ACTIVATE
+    // ACTIVATE + PAYMENT
     await recordPaymentAndActivate(
       {
         memberId: memberRef.id,
@@ -568,6 +654,41 @@ const handleAssignPlan = async (user) => {
     toast.error("Failed to assign plan");
   }
 };
+const currentMonthDays = new Date(
+  new Date().getFullYear(),
+  new Date().getMonth() + 1,
+  0
+).getDate();
+
+const uniqueAttendanceDays = [
+  ...new Set(
+    attendance
+      .filter((a) =>
+        a.date?.startsWith(
+          format(new Date(), "yyyy-MM")
+        )
+      )
+      .map((a) => a.date)
+  ),
+];
+
+const thisMonthAttendance =
+  uniqueAttendanceDays.length;
+
+// const attendancePercent = Math.round(
+
+//   (thisMonthAttendance /
+//     currentMonthDays) *
+//     100
+// );
+const attendancePercent =
+  currentMonthDays > 0
+    ? Math.round(
+        (thisMonthAttendance /
+          currentMonthDays) *
+          100
+      )
+    : 0;
   // =========================
   // STATS
   // =========================
@@ -683,7 +804,110 @@ const handleAssignPlan = async (user) => {
             </div>
           ))}
         </div>
+        <div className="stat-card s-green">
+  <div className="stat-label">
+    Consistency
+  </div>
 
+  <div className="stat-value c-green">
+    {attendancePercent}%
+  </div>
+
+  <div className="stat-sub">
+    {thisMonthAttendance}/{currentMonthDays} days
+  </div>
+</div>
+<div className="card mb-20">
+  <div className="card-title">
+    Attendance Calendar
+  </div>
+
+  <Calendar tileClassName={tileClassName} />
+</div>
+<div className="card">
+  <div className="card-title">
+    Workout History
+  </div>
+
+  {workouts.map((w) => (
+    <div key={w.id} className="activity-item">
+      <div className="activity-dot green" />
+
+      <div>
+        <div className="activity-text">
+          {w.plan}
+        </div>
+
+        <div className="activity-time">
+          {w.exercisesDone}/{w.total} exercises
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
+{bcaData.length > 0 && (
+  <ResponsiveContainer
+    width="100%"
+    height={250}
+  >
+    <LineChart data={bcaData}>
+      <XAxis dataKey="date" />
+      <YAxis />
+      <Tooltip />
+
+      <Line
+        type="monotone"
+        dataKey="weight"
+        stroke="#f5c842"
+      />
+    </LineChart>
+  </ResponsiveContainer>
+)}
+{/* <div className="timeline-item">
+  <div className="timeline-dot" />
+
+  <div>
+    <strong>Membership Renewed</strong>
+    <div>{item.date}</div>
+  </div>
+</div> */}
+<div className="card">
+  {/* <div className="card-title">
+    Steam History
+  </div> */}
+
+  {steam.map((s) => (
+    <div key={s.id}>
+      {s.date} • {s.slot}
+    </div>
+  ))}
+</div>
+{/* <div className="stat-card s-gold">
+  <div className="stat-label">
+    Rank
+  </div>
+
+  <div className="stat-value c-gold">
+    #{rank?.rank || "--"}
+  </div>
+</div> */}
+{/* <div className="quick-actions">
+  <button className="btn btn-primary">
+    Renew
+  </button>
+
+  <button className="btn btn-outline">
+    Add BCA
+  </button>
+
+  <button className="btn btn-outline">
+    Mark Attendance
+  </button>
+
+  <button className="btn btn-outline">
+    Assign Workout
+  </button>
+</div> */}
         {/* CHARTS */}
         <div className="grid-2 mb-20">
           {/* ATTENDANCE */}
@@ -691,6 +915,7 @@ const handleAssignPlan = async (user) => {
             className="card"
             style={anim(0.28)}
           >
+            
             <div className="card-title">
               Weekly Attendance
             </div>
@@ -1125,4 +1350,4 @@ const handleAssignPlan = async (user) => {
       </button>
     </div>
   );
-}
+}  

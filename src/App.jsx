@@ -171,31 +171,16 @@
 //     </AuthProvider>
 //   );
 // }
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import {
-  useState,
-  lazy,
-  Suspense,
-} from "react";
+import { useState, lazy, Suspense } from "react";
 
 import { Toaster } from "react-hot-toast";
 
-import {
-  AuthProvider,
-  useAuth,
-} from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
 // Layouts
-import {
-  Sidebar,
-  MobileHeader,
-} from "./components/Sidebar";
+import { Sidebar, MobileHeader } from "./components/Sidebar";
 
 import BottomNav from "./components/BottomNav";
 
@@ -209,111 +194,55 @@ import {
 import SplashScreen from "./components/SplashScreen";
 import ErrorBoundary from "./components/ErrorBoundary";
 
-import {
-  UpgradePage,
-} from "./components/LockGate";
+import { UpgradePage } from "./components/LockGate";
 
 // Styles
 import "./index.css";
 import "./styles/base/animations.css";
 import { Workout, Diet } from "./pages/StaticPages";
 // ── Lazy Admin Pages ─────────────────────────────────────
-const Login = lazy(() =>
-  import("./pages/Login")
-);
+const Login = lazy(() => import("./pages/Login"));
 
-const Dashboard = lazy(() =>
-  import("./pages/Dashboard")
-);
+const Dashboard = lazy(() => import("./pages/Dashboard"));
 
-const Members = lazy(() =>
-  import("./pages/Members")
-);
+const Members = lazy(() => import("./pages/Members"));
+const MemberProfile = lazy(() => import("./pages/MemberProfile"));
+const AddMember = lazy(() => import("./pages/AddMember"));
 
-const AddMember = lazy(() =>
-  import("./pages/AddMember")
-);
+const EditMember = lazy(() => import("./pages/EditMember"));
 
-const EditMember = lazy(() =>
-  import("./pages/EditMember")
-);
+const BCA = lazy(() => import("./pages/BCA"));
 
-const BCA = lazy(() =>
-  import("./pages/BCA")
-);
+const SteamBath = lazy(() => import("./pages/SteamBath"));
 
-const SteamBath = lazy(() =>
-  import("./pages/SteamBath")
-);
+const Payments = lazy(() => import("./pages/Payments"));
 
-const Payments = lazy(() =>
-  import("./pages/Payments")
-);
+const Notifications = lazy(() => import("./pages/Notifications"));
 
-const Notifications = lazy(() =>
-  import("./pages/Notifications")
-);
+const Equipment = lazy(() => import("./pages/EquipmentGuide"));
 
-const Equipment = lazy(() =>
-  import("./pages/EquipmentGuide")
-);
+const Analytics = lazy(() => import("./pages/Analytics"));
 
-const Analytics = lazy(() =>
-  import("./pages/Analytics")
-);
+const BalanceSheet = lazy(() => import("./pages/BalanceSheet"));
 
-const BalanceSheet = lazy(() =>
-  import("./pages/BalanceSheet")
-);
+const Progress = lazy(() => import("./pages/Progress"));
 
-const Progress = lazy(() =>
-  import("./pages/Progress")
-);
+const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 
-const Leaderboard = lazy(() =>
-  import("./pages/Leaderboard")
-);
-
-const StaticPages = lazy(() =>
-  import("./pages/StaticPages")
-);
+const StaticPages = lazy(() => import("./pages/StaticPages"));
 
 // ── Lazy Member Pages ────────────────────────────────────
-const MemberDashboard = lazy(() =>
-  import(
-    "./pages/member/MemberDashboard"
-  )
-);
+const MemberDashboard = lazy(() => import("./pages/member/MemberDashboard"));
 
-const MemberWorkout = lazy(() =>
-  import(
-    "./pages/member/MemberWorkout"
-  )
-);
+const MemberWorkout = lazy(() => import("./pages/member/MemberWorkout"));
 
-const MemberDiet = lazy(() =>
-  import(
-    "./pages/member/MemberDiet"
-  )
-);
+const MemberDiet = lazy(() => import("./pages/member/MemberDiet"));
 
-const MemberBCA = lazy(() =>
-  import(
-    "./pages/member/MemberBCA"
-  )
-);
+const MemberBCA = lazy(() => import("./pages/member/MemberBCA"));
 
-const MemberSteam = lazy(() =>
-  import(
-    "./pages/member/MemberSteam"
-  )
-);
+const MemberSteam = lazy(() => import("./pages/member/MemberSteam"));
 
-const MemberProgress = lazy(() =>
-  import(
-    "./pages/member/MemberProgress"
-  )
-);
+const MemberProgress = lazy(() => import("./pages/member/MemberProgress"));
 
 // ── Loading Screen ───────────────────────────────────────
 function LoadingScreen() {
@@ -328,8 +257,7 @@ function LoadingScreen() {
 
         justifyContent: "center",
 
-        background:
-          "var(--black)",
+        background: "var(--black)",
 
         flexDirection: "column",
 
@@ -338,8 +266,7 @@ function LoadingScreen() {
     >
       <div
         style={{
-          fontFamily:
-            "var(--font-display)",
+          fontFamily: "var(--font-display)",
 
           fontSize: 28,
 
@@ -347,14 +274,11 @@ function LoadingScreen() {
 
           fontWeight: 900,
 
-          background:
-            "var(--grad-gold2)",
+          background: "var(--grad-gold2)",
 
-          WebkitBackgroundClip:
-            "text",
+          WebkitBackgroundClip: "text",
 
-          WebkitTextFillColor:
-            "transparent",
+          WebkitTextFillColor: "transparent",
         }}
       >
         F2 FIT FACTORY
@@ -366,8 +290,7 @@ function LoadingScreen() {
 
           fontSize: 12,
 
-          fontFamily:
-            "var(--font-body)",
+          fontFamily: "var(--font-body)",
 
           letterSpacing: 2,
         }}
@@ -380,70 +303,38 @@ function LoadingScreen() {
 
 // ── Root Redirect ────────────────────────────────────────
 function RootRedirect() {
-  const {
-    user,
-    role,
-    loading,
-  } = useAuth();
+  const { user, role, loading } = useAuth();
 
   if (loading) {
     return <LoadingScreen />;
   }
 
   if (!user) {
-    return (
-      <Navigate
-        to="/login"
-        replace
-      />
-    );
+    return <Navigate to="/login" replace />;
   }
 
   return (
     <Navigate
-      to={
-        role === "admin"
-          ? "/dashboard"
-          : "/member/dashboard"
-      }
+      to={role === "admin" ? "/dashboard" : "/member/dashboard"}
       replace
     />
   );
 }
 
 // ── Admin Layout ─────────────────────────────────────────
-function AdminLayout({
-  children,
-}) {
-  const {
-    user,
-    role,
-    loading,
-  } = useAuth();
+function AdminLayout({ children }) {
+  const { user, role, loading } = useAuth();
 
-  if (
-    loading ||
-    (user && role === null)
-  ) {
+  if (loading || (user && role === null)) {
     return <LoadingScreen />;
   }
 
   if (!user) {
-    return (
-      <Navigate
-        to="/login"
-        replace
-      />
-    );
+    return <Navigate to="/login" replace />;
   }
 
   if (role === "member") {
-    return (
-      <Navigate
-        to="/member/dashboard"
-        replace
-      />
-    );
+    return <Navigate to="/member/dashboard" replace />;
   }
 
   return (
@@ -453,9 +344,7 @@ function AdminLayout({
       <MobileHeader />
 
       <div className="main-content">
-        <ErrorBoundary>
-          {children}
-        </ErrorBoundary>
+        <ErrorBoundary>{children}</ErrorBoundary>
       </div>
 
       <BottomNav />
@@ -464,38 +353,19 @@ function AdminLayout({
 }
 
 // ── Member Layout ────────────────────────────────────────
-function MemberLayout({
-  children,
-}) {
-  const {
-    user,
-    role,
-    loading,
-  } = useAuth();
+function MemberLayout({ children }) {
+  const { user, role, loading } = useAuth();
 
-  if (
-    loading ||
-    (user && role === null)
-  ) {
+  if (loading || (user && role === null)) {
     return <LoadingScreen />;
   }
 
   if (!user) {
-    return (
-      <Navigate
-        to="/login"
-        replace
-      />
-    );
+    return <Navigate to="/login" replace />;
   }
 
   if (role === "admin") {
-    return (
-      <Navigate
-        to="/dashboard"
-        replace
-      />
-    );
+    return <Navigate to="/dashboard" replace />;
   }
 
   return (
@@ -505,9 +375,7 @@ function MemberLayout({
       <MemberMobileHeader />
 
       <div className="main-content">
-        <ErrorBoundary>
-          {children}
-        </ErrorBoundary>
+        <ErrorBoundary>{children}</ErrorBoundary>
       </div>
 
       <MemberBottomNav />
@@ -527,36 +395,21 @@ function AuthEquipmentWrapper({ children }) {
   );
 }
 // ── Shared Layout ────────────────────────────────────────
-function SharedLayout({
-  children,
-}) {
-  const {
-    user,
-    role,
-    loading,
-  } = useAuth();
+function SharedLayout({ children }) {
+  const { user, role, loading } = useAuth();
 
   if (loading) {
     return <LoadingScreen />;
   }
 
   if (!user) {
-    return (
-      <Navigate
-        to="/login"
-        replace
-      />
-    );
+    return <Navigate to="/login" replace />;
   }
 
   return role === "admin" ? (
-    <AdminLayout>
-      {children}
-    </AdminLayout>
+    <AdminLayout>{children}</AdminLayout>
   ) : (
-    <MemberLayout>
-      {children}
-    </MemberLayout>
+    <MemberLayout>{children}</MemberLayout>
   );
 }
 
@@ -566,21 +419,8 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route
-        path="/login"
-        element={
-          user ? (
-            <RootRedirect />
-          ) : (
-            <Login />
-          )
-        }
-      />
-
-      <Route
-        path="/"
-        element={<RootRedirect />}
-      />
+      <Route path="/login" element={user ? <RootRedirect /> : <Login />} />
+      <Route path="/" element={<RootRedirect />} />
 
       {/* Admin */}
       <Route
@@ -636,23 +476,32 @@ function AppRoutes() {
           </AdminLayout>
         }
       />
-      <Route
-  path="/workout"
-  element={
-    <AdminLayout>
-      <Workout />
-    </AdminLayout>
-  }
-/>
-
+{/* <Route path="/members/:id" element={<MemberProfile />} /> */}
 <Route
-  path="/diet"
+  path="/members/:id"
   element={
     <AdminLayout>
-      <Diet />
+      <MemberProfile />
     </AdminLayout>
   }
 />
+      <Route
+        path="/workout"
+        element={
+          <AdminLayout>
+            <Workout />
+          </AdminLayout>
+        }
+      />
+
+      <Route
+        path="/diet"
+        element={
+          <AdminLayout>
+            <Diet />
+          </AdminLayout>
+        }
+      />
 
       <Route
         path="/members/:id/edit"
@@ -782,49 +631,36 @@ function AppRoutes() {
         }
       />
 
-      <Route
-        path="*"
-        element={<RootRedirect />}
-      />
+      <Route path="*" element={<RootRedirect />} />
     </Routes>
   );
 }
 
 // ── App ──────────────────────────────────────────────────
 export default function App() {
-  const [showSplash, setShowSplash] =
-    useState(true);
+  const [showSplash, setShowSplash] = useState(true);
 
   return (
     <AuthProvider>
       <BrowserRouter
-  future={{
-    v7_startTransition: true,
-    v7_relativeSplatPath: true,
-  }}
->
-        {showSplash && (
-          <SplashScreen
-            onDone={() =>
-              setShowSplash(false)
-            }
-          />
-        )}
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
+        {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
 
         <Toaster
           position="top-right"
           toastOptions={{
             style: {
-              background:
-                "#141414",
+              background: "#141414",
 
               color: "#f0f0f0",
 
-              border:
-                "1px solid #2a2a2a",
+              border: "1px solid #2a2a2a",
 
-              fontFamily:
-                "'Exo 2',sans-serif",
+              fontFamily: "'Exo 2',sans-serif",
 
               fontSize: "13px",
 
@@ -833,29 +669,23 @@ export default function App() {
 
             success: {
               iconTheme: {
-                primary:
-                  "#22c55e",
+                primary: "#22c55e",
 
-                secondary:
-                  "#fff",
+                secondary: "#fff",
               },
             },
 
             error: {
               iconTheme: {
-                primary:
-                  "#e63329",
+                primary: "#e63329",
 
-                secondary:
-                  "#fff",
+                secondary: "#fff",
               },
             },
           }}
         />
 
-        <Suspense
-          fallback={<LoadingScreen />}
-        >
+        <Suspense fallback={<LoadingScreen />}>
           <AppRoutes />
         </Suspense>
       </BrowserRouter>

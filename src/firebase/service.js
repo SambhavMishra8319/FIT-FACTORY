@@ -127,7 +127,18 @@ export async function recordPaymentAndActivate(
       plan: paymentData.plan,
       updatedAt: serverTimestamp(),
     });
+    const historyRef = doc(collection(db, "membership_history"));
+
+    batch.set(historyRef, {
+      memberId,
+      type: "renewed",
+      plan: paymentData.plan || "Monthly",
+      date: today,
+      createdAt: serverTimestamp(),
+    });
+  
   }
+
 
   await batch.commit();
   return { paymentId: payRef.id, expiry };
@@ -144,6 +155,27 @@ export function subscribePaymentsSnapshot(callback) {
   );
 }
 
+export async function getSteamHistory(memberId) {
+  const snap = await getDocs(
+    query(
+      collection(db, "steam_bookings"),
+      where("memberId", "==", memberId),
+      orderBy("date", "desc")
+    )
+  );
+
+  return snap.docs.map((d) => ({
+    id: d.id,
+    ...d.data(),
+  }));
+}
+export async function getMemberRank(memberId) {
+  const leaderboard = await getLeaderboard();
+
+  return leaderboard.find(
+    (l) => l.memberId === memberId
+  );
+}
 // ── BCA READINGS ───────────────────────────────────────────
 
 export async function getBCAReadings(memberId) {
@@ -214,19 +246,7 @@ export async function bookSteamSlot({
   });
 }
 
-// export async function getSteamBookings(date) {
-//   const snap = await getDocs(query(collection(db, "steam_bookings"), where("date", "==", date)));
-//   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-// }
 
-// export async function deleteSteamBooking(id) {
-//   return await deleteDoc(doc(db, "steam_bookings", id));
-// }
-
-// export function subscribeSteamBookings(date, callback) {
-//   const q = query(collection(db, "steam_bookings"), where("date", "==", date));
-//   return onSnapshot(q, snap => callback(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
-// }
 // ── STEAM SLOT ADMIN ─────────────────────────────
 
 export async function getSteamSlots() {
@@ -236,28 +256,7 @@ export async function getSteamSlots() {
   );
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
-// import {   updateDoc } from "firebase/firestore";
-// import { db } from "./config";
 
-// CREATE SLOT
-// export const createSteamSlot = async (slot) => {
-//   return await addDoc(collection(db, "steamSlots"), {
-//     ...slot,
-//     createdAt: new Date(),
-//   });
-// };
-
-// // DELETE SLOT
-// export const removeSteamSlot = async (id) => {
-//   return await deleteDoc(doc(db, "steamSlots", id));
-// };
-
-// // TOGGLE SLOT (enable/disable)
-// export const toggleSteamSlot = async (id, disabled) => {
-//   return await updateDoc(doc(db, "steamSlots", id), {
-//     disabled,
-//   });
-// };
 
 export const createSteamSlot = async (slot) => {
   try {
@@ -284,12 +283,6 @@ export const toggleSteamSlot = async (id, disabled) => {
   });
 };
 
-// export function subscribeSteamSlots(callback) {
-//   return onSnapshot(
-//     query(collection(db, "steam_slots"), orderBy("order", "asc")),
-//     snap => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })))
-//   );
-// }
 export function subscribeSteamSlots(callback) {
   return onSnapshot(
     query(collection(db, "steam_slots"), orderBy("createdAt", "asc")),
@@ -354,7 +347,36 @@ export async function getAttendance() {
   );
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
+export async function getWorkoutHistory(memberId) {
+  const snap = await getDocs(
+    query(
+      collection(db, "workout_logs"),
+      where("memberId", "==", memberId),
+      orderBy("completedAt", "desc"),
+      limit(30)
+    )
+  );
 
+  return snap.docs.map((d) => ({
+    id: d.id,
+    ...d.data(),
+  }));
+}
+export async function getMemberAttendance(memberId) {
+  const snap = await getDocs(
+    query(
+      collection(db, "attendance"),
+      where("memberId", "==", memberId),
+      orderBy("date", "desc"),
+      limit(100),
+    ),
+  );
+
+  return snap.docs.map((d) => ({
+    id: d.id,
+    ...d.data(),
+  }));
+}
 export async function addAttendance(memberId, memberName) {
   const today = format(new Date(), "yyyy-MM-dd");
   const existing = await getDocs(
@@ -663,157 +685,7 @@ export function exportToCSV(data, filename) {
   });
   a.click();
 }
-// export async function requestSteamSlot({
-//   date,
-//   slot,
-//   memberId,
-//   memberName,
-//   memberPhone,
-// }) {
-//   // check member already requested
-//   const existing = await getDocs(
-//     query(
-//       collection(db, "steam_bookings"),
-//       where("date", "==", date),
-//       where("memberId", "==", memberId)
-//     )
-//   );
 
-//   if (!existing.empty) {
-//     throw new Error("You already requested a slot");
-//   }
-
-//   return await addDoc(collection(db, "steam_bookings"), {
-//     date,
-//     slot,
-//     memberId,
-//     memberName,
-//     memberPhone: memberPhone || "",
-
-//     status: "pending",
-
-//     createdAt: serverTimestamp(),
-//   });
-// }
-// export async function requestSteamSlot({
-//   date,
-//   slot,
-//   period,
-//   memberId,
-//   memberName,
-//   memberPhone,
-// }) {
-//   // member already requested?
-//   const existing = await getDocs(
-//     query(
-//       collection(db, "steam_bookings"),
-//       where("date", "==", date),
-//       where("memberId", "==", memberId),
-//     ),
-//   );
-
-//   if (!existing.empty) {
-//     throw new Error("You already requested a slot for this date.");
-//   }
-
-//   return await addDoc(collection(db, "steam_bookings"), {
-//     date,
-//     slot,
-//     period,
-//     memberId,
-//     memberName,
-//     memberPhone: memberPhone || "",
-
-//     status: "pending",
-
-//     createdAt: serverTimestamp(),
-//   });
-// }
-// export async function requestSteamSlot({
-//   date,
-//   slot,
-//   period,
-//   memberId,
-//   memberName,
-//   memberPhone,
-// }) {
-//   const existingSnap = await getDocs(
-//     query(
-//       collection(db, "steam_bookings"),
-//       where("date", "==", date),
-//       where("memberId", "==", memberId)
-//     )
-//   );
-
-//   // 🔥 only block if ACTIVE request exists
-//   const activeRequest = existingSnap.docs.find((d) => {
-//     const status = d.data().status;
-//     return status === "pending" || status === "confirmed";
-//   });
-
-//   if (activeRequest) {
-//     throw new Error("You already requested a slot for this date.");
-//   }
-
-//   return await addDoc(collection(db, "steam_bookings"), {
-//     date,
-//     slot,
-//     period,
-//     memberId,
-//     memberName,
-//     memberPhone: memberPhone || "",
-//     status: "pending",
-//     createdAt: serverTimestamp(),
-//   });
-// }
-// export async function requestSteamSlot({
-//   date,
-//   slot,
-//   period,
-//   memberId,
-//   memberName,
-//   memberPhone,
-// }) {
-//   const existingSnap = await getDocs(
-//     query(
-//       collection(db, "steam_bookings"),
-//       where("date", "==", date),
-//       where("memberId", "==", memberId)
-//     )
-//   );
-//   const q = query(
-//   collection(db, "steam_bookings"),
-//   where("date", "==", date),
-//   where("memberId", "==", memberId),
-//   where("status", "in", ["pending", "confirmed"])
-// );
-// const snap = await getDocs(q);
-
-// if (!snap.empty) {
-//   throw new Error("You already requested a slot for this date.");
-// }
-//   // ✅ only block ACTIVE (pending/confirmed)
-//   const activeRequest = existingSnap.docs.find((d) => {
-//   const status = d.data().status;
-//   return status === "pending" || status === "confirmed";
-// });
-
-//   if (activeRequest) {
-//     throw new Error("You already requested a slot for this date.");
-//   }
-
-//   // ✅ IMPORTANT: allow re-request after rejection
-//   return await addDoc(collection(db, "steam_bookings"), {
-//     date,
-//     slot,
-//     period,
-//     memberId,
-//     memberName,
-//     memberPhone: memberPhone || "",
-//     status: "pending",
-//     createdAt: serverTimestamp(),
-//   });
-// }
 export async function requestSteamSlot({
   date,
   slot,
@@ -848,51 +720,7 @@ export async function requestSteamSlot({
     createdAt: serverTimestamp(),
   });
 }
-// export async function approveSteamBooking(id, date, slot) {
 
-//   // check already confirmed
-//   const existing = await getDocs(
-//     query(
-//       collection(db, "steam_bookings"),
-//       where("date", "==", date),
-//       where("slot", "==", slot),
-//       where("status", "==", "confirmed")
-//     )
-//   );
-
-//   if (!existing.empty) {
-//     throw new Error("Slot already confirmed");
-//   }
-
-//   await updateDoc(doc(db, "steam_bookings", id), {
-//     status: "confirmed",
-//     approvedAt: serverTimestamp(),
-//   });
-// }
-// export async function approveSteamBooking(  bookingId,
-//   date,
-//   slot,
-//   period) {
-
-//   // check slot already confirmed
-//   const existing = await getDocs(
-//     query(
-//       collection(db, "steam_bookings"),
-//       where("date", "==", date),
-//       where("slot", "==", slot),
-//       where("status", "==", "confirmed")
-//     )
-//   );
-
-//   if (!existing.empty) {
-//     throw new Error("Slot already confirmed");
-//   }
-
-//   await updateDoc(doc(db, "steam_bookings", id), {
-//     status: "confirmed",
-//     approvedAt: serverTimestamp(),
-//   });
-// }
 export async function approveSteamBooking(bookingId, date, slot, period) {
   // check already confirmed
   const existing = await getDocs(

@@ -13,7 +13,7 @@ import {
   removeSteamSlot,
   subscribeSteamSlots,
 } from "../firebase/service";
-
+import "../styles/steam.css";
 import { useAuth } from "../context/AuthContext";
 
 const ALL_SLOTS = [
@@ -33,6 +33,7 @@ export default function SteamBath() {
   const [selectedDate, setSelectedDate] = useState(
     format(new Date(), "yyyy-MM-dd"),
   );
+  const [filter, setFilter] = useState("all");
   const [bookings, setBookings] = useState([]);
   const [members, setMembers] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null);
@@ -130,15 +131,6 @@ export default function SteamBath() {
     try {
       await createSteamSlot(slot);
 
-      // setCustomSlots((prev) => {
-      //   const already = prev.some(
-      //     (p) =>
-      //       p.time.toLowerCase() === s.time.toLowerCase() &&
-      //       p.period === slot.period
-      //   );
-      //   if (already) return prev;
-      //   return [...prev, slot];
-      // });
       setCustomSlots((prev) => {
         const already = prev.some(
           (p) =>
@@ -156,220 +148,7 @@ export default function SteamBath() {
       toast.error(e.message || "Failed to create slot");
     }
   };
-  //   const handleAddSlot = async () => {
-  //     if (!newTime) return toast.error("Select time");
 
-  //     const hour = parseInt(newTime.split(":")[0], 10);
-
-  //     // ❌ validation based on selected period
-  //     if (newPeriod === "Morning" && hour >= 12) {
-  //       return toast.error("Morning slots must be between 1–11 AM");
-  //     }
-
-  //     if (newPeriod === "Evening" && hour >= 12) {
-  //       return toast.error(
-  //         "Evening slots must be between 1–11 PM format (use PM logic)",
-  //       );
-  //     }
-  //     const hour = parseInt(newTime.split(":")[0], 10);
-  // const autoPeriod = hour < 12 ? "Morning" : "Evening";
-
-  //     const formattedTime = formatTime12(newTime);
-
-  //     // const exists = ALL_AVAILABLE_SLOTS.some(
-  //     //   (s) =>
-  //     //     s.time.toLowerCase() === formattedTime.toLowerCase() &&
-  //     //     s.period === newPeriod
-  //     // );
-  // setCustomSlots((prev) => {
-  //   const already = prev.some(
-  //     (p) =>
-  //       p.time.trim().toLowerCase() === formattedTime.trim().toLowerCase() &&
-  //       p.period === newPeriod
-  //   );
-
-  //   if (already) return prev;
-  //   return [...prev, slot];
-  // });
-  //     if (exists) return toast.error("Slot already exists");
-
-  //     const slot = {
-  //       time: formattedTime,
-  //       period: newPeriod, // 👈 user controls Morning/Evening
-  //       disabled: false,
-  //     };
-
-  //     try {
-  //       await createSteamSlot(slot);
-
-  //       setCustomSlots((prev) => {
-  //         const already = prev.some(
-  //           (p) =>
-  //             p.time.toLowerCase() === formattedTime.toLowerCase() &&
-  //             p.period === newPeriod,
-  //         );
-
-  //         if (already) return prev;
-  //         return [...prev, slot];
-  //       });
-
-  //       setNewTime("");
-  //       toast.success(`Added in ${newPeriod}`);
-  //     } catch (e) {
-  //       toast.error(e.message || "Failed to create slot");
-  //     }
-  //   };
-  // const handleAddSlot = async () => {
-  //   if (!newTime) return toast.error("Select time");
-
-  //   const hour = parseInt(newTime.split(":")[0], 10);
-
-  //   const autoPeriod = hour < 12 ? "Morning" : "Evening";
-
-  //   const formattedTime = formatTime12(newTime);
-
-  //   const exists = ALL_AVAILABLE_SLOTS.some(
-  //     (s) =>
-  //       s.time.toLowerCase() === formattedTime.toLowerCase() &&
-  //       s.period === autoPeriod
-  //   );
-
-  //   if (exists) return toast.error("Slot already exists");
-
-  //   try {
-  //     const slot = {
-  //       time: formattedTime,
-  //       period: autoPeriod, // ✅ auto assigned
-  //       disabled: false,
-  //     };
-
-  //     await createSteamSlot(slot);
-
-  //     setCustomSlots((prev) => {
-  //       const already = prev.some(
-  //         (p) =>
-  //           p.time.toLowerCase() === formattedTime.toLowerCase() &&
-  //           p.period === autoPeriod
-  //       );
-
-  //       if (already) return prev;
-  //       return [...prev, slot];
-  //     });
-
-  //     setNewTime("");
-  //     toast.success(`Slot added in ${autoPeriod}`);
-  //   } catch (e) {
-  //     toast.error(e.message || "Failed to create slot");
-  //   }
-  // };
-  // const handleAddSlot = async () => {
-  //   if (!newTime) return toast.error("Select time");
-
-  //   const formattedTime = formatTime12(newTime);
-
-  //   const exists = ALL_AVAILABLE_SLOTS.some(
-  //     (s) =>
-  //       normalizeTime(s.time) === normalizeTime(formattedTime) &&
-  //       s.period === newPeriod
-  //   );
-
-  //   if (exists) return toast.error("Slot already exists");
-
-  //   try {
-  //     const slot = {
-  //       time: formattedTime,
-  //       period: newPeriod,
-  //       disabled: false,
-  //     };
-
-  //     await createSteamSlot(slot);
-
-  //     setCustomSlots((prev) => {
-  //       // extra safety duplicate protection
-  //       const already = prev.some(
-  //         (p) =>
-  //           normalizeTime(p.time) === normalizeTime(slot.time) &&
-  //           p.period === slot.period
-  //       );
-
-  //       if (already) return prev;
-  //       return [...prev, slot];
-  //     });
-
-  //     setNewTime("");
-  //     toast.success("Slot added");
-  //   } catch (e) {
-  //     toast.error(e.message || "Failed to create slot");
-  //   }
-  // };
-  // const handleAddSlot = async () => {
-  //   if (!newTime) return toast.error("Select time");
-
-  //   const formattedTime = formatTime12(newTime);
-
-  //   // time rule validation
-  //   const hour = parseInt(newTime.split(":")[0], 10);
-
-  //   if (newPeriod === "Morning" && hour >= 12) {
-  //     return toast.error("Morning slots must be before 12 PM");
-  //   }
-
-  //   if (newPeriod === "Evening" && hour < 12) {
-  //     return toast.error("Evening slots must be after 12 PM");
-  //   }
-
-  //   const exists = ALL_AVAILABLE_SLOTS.some(
-  //     (s) =>
-  //       s.time.toLowerCase() === formattedTime.toLowerCase() &&
-  //       s.period === newPeriod,
-  //   );
-
-  //   if (exists) return toast.error("Slot already exists");
-
-  //   try {
-  //     const slot = {
-  //       time: formattedTime,
-  //       period: newPeriod,
-  //       disabled: false,
-  //     };
-
-  //     await createSteamSlot(slot);
-
-  //     setCustomSlots((prev) => {
-  //       const already = prev.some(
-  //         (p) =>
-  //           p.time.toLowerCase() === formattedTime.toLowerCase() &&
-  //           p.period === newPeriod,
-  //       );
-
-  //       if (already) return prev;
-  //       return [...prev, slot];
-  //     });
-
-  //     setNewTime("");
-  //     toast.success("Slot added");
-  //   } catch (e) {
-  //     toast.error(e.message || "Failed to create slot");
-  //   }
-  // };
-  // const handleDeleteSlot = async (slot) => {
-  //   try {
-  //     // await removeSteamSlot(slot);
-  //     await removeSteamSlot(`${slot.period}-${slot.time}`);
-
-  //     setCustomSlots((prev) =>
-  //       prev.filter(
-  //         (s) => `${s.period}-${s.time}` !== `${slot.period}-${slot.time}`,
-  //       ),
-  //     );
-
-  //     setSlots((prev) => prev.filter((s) => s.time !== slot.time));
-
-  //     toast.success("Slot deleted");
-  //   } catch (e) {
-  //     toast.error(e.message || "Failed to delete slot");
-  //   }
-  // };
   const isAdmin = user?.role === "admin";
   const handleDeleteSlot = async (slot) => {
     const confirmDelete = window.confirm(
@@ -384,110 +163,13 @@ export default function SteamBath() {
       setCustomSlots((prev) => prev.filter((s) => s.id !== slot.id));
 
       setSlots((prev) => prev.filter((s) => s.id !== slot.id));
-      // setCustomSlots((prev) =>
-      //   prev.filter(
-      //     (s) => `${s.period}-${s.time}` !== `${slot.period}-${slot.time}`,
-      //   ),
-      // );
-
-      // setSlots((prev) =>
-      //   prev.filter(
-      //     (s) => `${s.period}-${s.time}` !== `${slot.period}-${slot.time}`,
-      //   ),
-      // );
 
       toast.success("Slot deleted");
     } catch (e) {
       toast.error(e.message || "Failed to delete slot");
     }
   };
-  // const handleBook = async () => {
-  //   if (!selectedSlot) return toast.error("Select a time slot.");
-  //   if (!selectedMember) return toast.error("Select a member.");
 
-  //   const member = members.find((m) => m.id === selectedMember);
-  //   if (!member) return toast.error("Member not found.");
-
-  //   setSaving(true);
-  //   try {
-  //     await requestSteamSlot({
-  //       date: selectedDate,
-  //       slot: selectedSlot,
-  //       memberId: selectedMember,
-  //       memberName: member.name,
-  //       memberPhone: member.phone,
-  //     });
-
-  //     toast.success(`${member.name} booked ${selectedSlot} 🌫️`);
-  //     setSelectedSlot(null);
-  //     setSelectedMember("");
-  //   } catch (err) {
-  //     toast.error(err.message || "Booking failed. Please try again.");
-  //   } finally {
-  //     setSaving(false);
-  //   }
-  // };
-  //   const handleBook = async () => {
-  //     if (!selectedSlot) {
-  //       return toast.error("Select a time slot.");
-  //     }
-
-  //     if (!selectedMember) {
-  //       return toast.error("Select a member.");
-  //     }
-
-  //     const member = members.find((m) => m.id === selectedMember);
-
-  //     if (!member) {
-  //       return toast.error("Member not found.");
-  //     }
-
-  //     setSaving(true);
-
-  //     try {
-  //       // create pending request
-  //       //       const ref = await requestSteamSlot({
-  //       //         date: selectedDate,
-  //       //         // slot: selectedSlot,
-  //       //         slot: selectedSlot.split("-")[1],
-  //       // period: selectedSlot.split("-")[0],
-  //       //         slot: slotTime,
-  //       // period,
-  //       //         memberId: selectedMember,
-  //       //         memberName: member.name,
-  //       //         memberPhone: member.phone,
-  //       //       });
-  //       // const [period, slotTime] = selectedSlot.split("-");
-  //       setSelectedSlot({
-  //   period: s.period,
-  //   time: s.time,
-  // });
-  // selectedSlot.period
-  // selectedSlot.time
-
-  //       const ref = await requestSteamSlot({
-  //         date: selectedDate,
-  //         slot: slotTime,
-  //         period,
-  //         memberId: selectedMember,
-  //         memberName: member.name,
-  //         memberPhone: member.phone,
-  //       });
-  //       // instantly approve because admin booked it
-  //       // await approveSteamBooking(ref.id, selectedDate, selectedSlot);
-  //       // const [period, slotTime] = selectedSlot.split("-");
-
-  //       await approveSteamBooking(ref.id, selectedDate, slotTime, period);
-  //       toast.success(`${member.name} booked ${selectedSlot} 🌫️`);
-
-  //       setSelectedSlot(null);
-  //       setSelectedMember("");
-  //     } catch (err) {
-  //       toast.error(err.message || "Booking failed.");
-  //     } finally {
-  //       setSaving(false);
-  //     }
-  //   };
   const handleBook = async () => {
     if (!selectedSlot) {
       return toast.error("Select a time slot.");
@@ -554,17 +236,15 @@ export default function SteamBath() {
       return Array.from(unique.values());
     }, [ALL_AVAILABLE_SLOTS, period]);
     return (
-      <div className="slot-grid mb-16">
+      <div className="slot-grid steam-slot-grid">
         {slots.map((s) => {
-          // const booking = bookings.find((b) => b.slot === s.time);
-          // const booking = bookings.find(
-          //   (b) => b.slot === s.time && b.status === "confirmed",
-          // );
-          const booking = bookings.find(
-            (b) =>
-              `${b.period}-${b.slot}` === `${s.period}-${s.time}` &&
-              (b.status === "confirmed" || b.status === "pending"),
-          );
+          const booking = bookings.find((b) => {
+            return (
+              b.period === s.period &&
+              b.slot?.trim().toLowerCase() === s.time?.trim().toLowerCase() &&
+              (b.status === "confirmed" || b.status === "pending")
+            );
+          });
           const isBooked = !!booking;
           const isSel = selectedSlot === `${s.period}-${s.time}`;
 
@@ -573,108 +253,11 @@ export default function SteamBath() {
               normalizeTime(cs.time) === normalizeTime(s.time) &&
               cs.period === s.period,
           );
-          // return (
-          //   <div
-          //     key={`${s.period}-${s.time}`}
-          //     className={`slot tap-scale ${
-          //       isBooked ? "booked" : ""
-          //     } ${isSel ? "selected" : ""}`}
-          //     onClick={() =>
-          //       !isBooked &&
-          //       setSelectedSlot(isSel ? null : `${s.period}-${s.time}`)
-          //     }
-          //   >
-          //     <div className="slot-time">{s.time}</div>
 
-          //     <div className="slot-label">
-          //       {isBooked
-          //         ? booking.status === "pending"
-          //           ? "Pending Approval"
-          //           : booking.memberName
-          //         : isSel
-          //           ? "Selected ✓"
-          //           : "Available"}
-          //     </div>
-
-          //     {/* {isBooked && (
-          //       <button
-          //         style={{
-          //           marginTop: 5,
-          //           fontSize: 9,
-          //           background: "rgba(230,51,41,0.15)",
-          //           border: "none",
-          //           color: "var(--red)",
-          //           borderRadius: 3,
-          //           padding: "2px 6px",
-          //           cursor: "pointer",
-          //         }}
-          //         onClick={(e) => {
-          //           e.stopPropagation();
-          //           handleCancel(booking.id, booking.memberName, s.time);
-          //         }}
-          //       >
-          //         Cancel
-          //       </button>
-          //     )}
-          //      */}
-          //     {isBooked ? (
-          //       booking.status === "pending" ? (
-          //         isAdmin ? (
-          //           <>
-          //             <div className="slot-label">Pending Request</div>
-
-          //             <button onClick={approve}>Approve</button>
-
-          //             <button onClick={reject}>Reject</button>
-          //           </>
-          //         ) : (
-          //           <>
-          //             <div className="slot-label">Pending Approval</div>
-
-          //             <button onClick={cancel}>Cancel</button>
-          //           </>
-          //         )
-          //       ) : (
-          //         <>
-          //           <div className="slot-label">
-          //             {isAdmin ? booking.memberName : "Booked ✓"}
-          //           </div>
-
-          //           <button onClick={cancel}>Cancel</button>
-          //         </>
-          //       )
-          //     ) : (
-          //       <div className="slot-label">
-          //         {isSel ? "Selected ✓" : "Available"}
-          //       </div>
-          //     )}
-          //     {/* ✅ FIXED DELETE BUTTON (NOW INSIDE RETURN) */}
-          //     {isCustom && !isBooked && (
-          //       <button
-          //         style={{
-          //           marginTop: 5,
-          //           fontSize: 9,
-          //           background: "rgba(255,0,0,0.15)",
-          //           border: "none",
-          //           color: "red",
-          //           borderRadius: 3,
-          //           padding: "2px 6px",
-          //           cursor: "pointer",
-          //         }}
-          //         onClick={(e) => {
-          //           e.stopPropagation();
-          //           handleDeleteSlot(s);
-          //         }}
-          //       >
-          //         Delete
-          //       </button>
-          //     )}
-          //   </div>
-          // );
           return (
             <div
               key={`${s.period}-${s.time}`}
-              className={`slot tap-scale ${
+              className={`slot steam-slot ${
                 isBooked ? "booked" : ""
               } ${isSel ? "selected" : ""}`}
               onClick={() =>
@@ -682,86 +265,19 @@ export default function SteamBath() {
                 setSelectedSlot(isSel ? null : `${s.period}-${s.time}`)
               }
             >
-              <div className="slot-time">{s.time}</div>
+              {/* <div className="slot-time">{s.time}</div> */}
+              <div className="slot-time steam-slot-time">{s.time}</div>
 
               {/* EMPTY SLOT */}
               {!isBooked && (
-                <div className="slot-label">
+                <div className="slot-label steam-slot-label">
                   {isSel ? "Selected ✓" : "Available"}
                 </div>
               )}
 
-              {/* PENDING BOOKING */}
-              {/* {isBooked && booking.status === "pending" && (
-      <>
-        <div className="slot-label">
-          {isAdmin
-            ? `Pending • ${booking.memberName}`
-            : "Pending Approval"}
-        </div>
-
-        {isAdmin ? (
-          <div className="slot-actions">
-            <button
-              className="mini-btn approve"
-              onClick={async (e) => {
-                e.stopPropagation();
-
-                try {
-                  await approveSteamBooking(
-                    booking.id,
-                    selectedDate,
-                    booking.slot,
-                    booking.period,
-                  );
-
-                  toast.success("Booking approved");
-                } catch {
-                  toast.error("Approval failed");
-                }
-              }}
-            >
-              Approve
-            </button>
-
-            <button
-              className="mini-btn reject"
-              onClick={async (e) => {
-                e.stopPropagation();
-
-                try {
-                  await rejectSteamBooking(booking.id);
-
-                  toast.success("Booking rejected");
-                } catch {
-                  toast.error("Reject failed");
-                }
-              }}
-            >
-              Reject
-            </button>
-          </div>
-        ) : (
-          <button
-            className="mini-btn cancel"
-            onClick={(e) => {
-              e.stopPropagation();
-
-              handleCancel(
-                booking.id,
-                booking.memberName,
-                booking.slot,
-              );
-            }}
-          >
-            Cancel
-          </button>
-        )}
-      </>
-    )} */}
               {isBooked && booking.status === "pending" && (
                 <>
-                  <div className="slot-label">
+                  <div className="slot-label steam-slot-label">
                     Pending • {booking.memberName}
                   </div>
 
@@ -811,8 +327,9 @@ export default function SteamBath() {
               {/* CONFIRMED BOOKING */}
               {isBooked && booking.status === "confirmed" && (
                 <>
-                  <div className="slot-label">
-                    {isAdmin ? booking.memberName : "Booked ✓"}
+                  <div className="slot-label steam-slot-label">
+                    {/* {isAdmin ? booking.memberName : "Booked ✓"} */}
+                    {isAdmin ? `Booked • ${booking.memberName}` : "Booked ✓"}
                   </div>
 
                   <button
@@ -870,6 +387,10 @@ export default function SteamBath() {
 
     return `${hour}:${minute} ${ampm}`;
   };
+  const filteredBookings = useMemo(() => {
+    if (filter === "all") return bookings;
+    return bookings.filter((b) => b.status === filter);
+  }, [bookings, filter]);
   const anim = (delay) => ({
     opacity: visible ? 1 : 0,
     transition: `opacity 0.4s ease ${delay}s`,
@@ -927,7 +448,7 @@ export default function SteamBath() {
               style={anim(i * 0.07)}
             >
               <div className="stat-label">{s.label}</div>
-              <div className={`stat-value ${s.val}`} style={{ fontSize: 24 }}>
+              <div className={`stat-value ${s.val}`} >
                 {s.value}
               </div>
             </div>
@@ -947,6 +468,97 @@ export default function SteamBath() {
                 </div>
               </div>
             ))}
+            {/* <div style={{ display: "flex", gap: 8, marginBottom: 10 }}> */}
+            <div className="steam-filter-row">
+              {/* <button onClick={() => setFilter("all")}>All</button> */}
+              <button
+                className={`steam-filter-btn ${filter === "all" ? "active" : ""}`}
+                onClick={() => setFilter("all")}
+              >
+                All
+              </button>
+              <button
+  className={`steam-filter-btn ${filter === "pending" ? "active" : ""}`}
+  onClick={() => setFilter("pending")}
+>
+  Pending
+</button>
+
+<button
+  className={`steam-filter-btn ${filter === "confirmed" ? "active" : ""}`}
+  onClick={() => setFilter("confirmed")}
+>
+  Confirmed
+</button>
+
+<button
+  className={`steam-filter-btn ${filter === "rejected" ? "active" : ""}`}
+  onClick={() => setFilter("rejected")}
+>
+  Rejected
+</button>
+              {/* <button onClick={() => setFilter("pending")}>Pending</button>
+              
+              <button onClick={() => setFilter("confirmed")}>Confirmed</button>
+              <button onClick={() => setFilter("rejected")}>Rejected</button> */}
+            </div>
+            {/* ================= BOOKING OVERVIEW ================= */}
+            <div className="card mt-20">
+              <div className="card-title">📋 All Bookings (Live)</div>
+
+              {filteredBookings.length === 0 ? (
+                <div className="form-label">No bookings for this date.</div>
+              ) : (
+                <div className="booking-list">
+                  {filteredBookings
+                    .sort((a, b) => {
+                      // sort by time + period
+                      return `${a.period}-${a.slot}`.localeCompare(
+                        `${b.period}-${b.slot}`,
+                      );
+                    })
+                    .map((b) => (
+                      <div
+                        key={b.id}
+                        className={`booking-item ${b.status}`}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          padding: "10px",
+                          borderBottom: "1px solid #eee",
+                          alignItems: "center",
+                        }}
+                      >
+                        {/* LEFT SIDE */}
+                        <div>
+                          <div style={{ fontWeight: 600 }}>
+                            {b.slot} ({b.period})
+                          </div>
+
+                          <div style={{ fontSize: 13, opacity: 0.8 }}>
+                            👤 {b.memberName} • {b.memberPhone}
+                          </div>
+                        </div>
+
+                        {/* RIGHT SIDE STATUS */}
+                        <div>
+                          {b.status === "pending" && (
+                            <span style={{ color: "orange" }}>⏳ Pending</span>
+                          )}
+
+                          {b.status === "confirmed" && (
+                            <span style={{ color: "green" }}>✅ Confirmed</span>
+                          )}
+
+                          {b.status === "rejected" && (
+                            <span style={{ color: "red" }}>❌ Rejected</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div>
@@ -959,15 +571,6 @@ export default function SteamBath() {
                 value={newTime}
                 onChange={(e) => setNewTime(e.target.value)}
               />
-
-              {/* <select
-                className="form-input mt-12"
-                value={newPeriod}
-                onChange={(e) => setNewPeriod(e.target.value)}
-              >
-                <option value="Morning">Morning</option>
-                <option value="Evening">Evening</option>
-              </select> */}
 
               <button className="btn btn-primary mt-12" onClick={handleAddSlot}>
                 ➕ Add Slot

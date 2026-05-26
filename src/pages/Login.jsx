@@ -155,7 +155,7 @@ export default function Login() {
         {/* Logo */}
         <div className="login-logo" style={{ marginBottom: 22 }}>
           <div className="f2">F2 FIT<br />FACTORY</div>
-          <div className="sub">📍 Best Gym in Mandla</div>
+          <div className="sub">📍 By NIMESH MISHRA</div>
         </div>
 
         {/* Top tabs */}
