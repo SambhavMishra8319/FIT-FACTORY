@@ -171,16 +171,31 @@
 //     </AuthProvider>
 //   );
 // }
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
-import { useState, lazy, Suspense } from "react";
+import {
+  useState,
+  lazy,
+  Suspense,
+} from "react";
 
 import { Toaster } from "react-hot-toast";
 
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import {
+  AuthProvider,
+  useAuth,
+} from "./context/AuthContext";
 
 // Layouts
-import { Sidebar, MobileHeader } from "./components/Sidebar";
+import {
+  Sidebar,
+  MobileHeader,
+} from "./components/Sidebar";
 
 import BottomNav from "./components/BottomNav";
 
@@ -194,55 +209,111 @@ import {
 import SplashScreen from "./components/SplashScreen";
 import ErrorBoundary from "./components/ErrorBoundary";
 
-import { UpgradePage } from "./components/LockGate";
+import {
+  UpgradePage,
+} from "./components/LockGate";
 
 // Styles
 import "./index.css";
 import "./styles/base/animations.css";
 import { Workout, Diet } from "./pages/StaticPages";
 // ── Lazy Admin Pages ─────────────────────────────────────
-const Login = lazy(() => import("./pages/Login"));
+const Login = lazy(() =>
+  import("./pages/Login")
+);
 
-const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Dashboard = lazy(() =>
+  import("./pages/Dashboard")
+);
 
-const Members = lazy(() => import("./pages/Members"));
-const MemberProfile = lazy(() => import("./pages/MemberProfile"));
-const AddMember = lazy(() => import("./pages/AddMember"));
+const Members = lazy(() =>
+  import("./pages/Members")
+);
 
-const EditMember = lazy(() => import("./pages/EditMember"));
+const AddMember = lazy(() =>
+  import("./pages/AddMember")
+);
 
-const BCA = lazy(() => import("./pages/BCA"));
+const EditMember = lazy(() =>
+  import("./pages/EditMember")
+);
 
-const SteamBath = lazy(() => import("./pages/SteamBath"));
+const BCA = lazy(() =>
+  import("./pages/BCA")
+);
 
-const Payments = lazy(() => import("./pages/Payments"));
+const SteamBath = lazy(() =>
+  import("./pages/SteamBath")
+);
 
-const Notifications = lazy(() => import("./pages/Notifications"));
+const Payments = lazy(() =>
+  import("./pages/Payments")
+);
 
-const Equipment = lazy(() => import("./pages/EquipmentGuide"));
+const Notifications = lazy(() =>
+  import("./pages/Notifications")
+);
 
-const Analytics = lazy(() => import("./pages/Analytics"));
+const Equipment = lazy(() =>
+  import("./pages/EquipmentGuide")
+);
 
-const BalanceSheet = lazy(() => import("./pages/BalanceSheet"));
+const Analytics = lazy(() =>
+  import("./pages/Analytics")
+);
 
-const Progress = lazy(() => import("./pages/Progress"));
+const BalanceSheet = lazy(() =>
+  import("./pages/BalanceSheet")
+);
 
-const Leaderboard = lazy(() => import("./pages/Leaderboard"));
+const Progress = lazy(() =>
+  import("./pages/Progress")
+);
 
-const StaticPages = lazy(() => import("./pages/StaticPages"));
+const Leaderboard = lazy(() =>
+  import("./pages/Leaderboard")
+);
+
+const StaticPages = lazy(() =>
+  import("./pages/StaticPages")
+);
 
 // ── Lazy Member Pages ────────────────────────────────────
-const MemberDashboard = lazy(() => import("./pages/member/MemberDashboard"));
+const MemberDashboard = lazy(() =>
+  import(
+    "./pages/member/MemberDashboard"
+  )
+);
 
-const MemberWorkout = lazy(() => import("./pages/member/MemberWorkout"));
+const MemberWorkout = lazy(() =>
+  import(
+    "./pages/member/MemberWorkout"
+  )
+);
 
-const MemberDiet = lazy(() => import("./pages/member/MemberDiet"));
+const MemberDiet = lazy(() =>
+  import(
+    "./pages/member/MemberDiet"
+  )
+);
 
-const MemberBCA = lazy(() => import("./pages/member/MemberBCA"));
+const MemberBCA = lazy(() =>
+  import(
+    "./pages/member/MemberBCA"
+  )
+);
 
-const MemberSteam = lazy(() => import("./pages/member/MemberSteam"));
+const MemberSteam = lazy(() =>
+  import(
+    "./pages/member/MemberSteam"
+  )
+);
 
-const MemberProgress = lazy(() => import("./pages/member/MemberProgress"));
+const MemberProgress = lazy(() =>
+  import(
+    "./pages/member/MemberProgress"
+  )
+);
 
 // ── Loading Screen ───────────────────────────────────────
 function LoadingScreen() {
@@ -257,7 +328,8 @@ function LoadingScreen() {
 
         justifyContent: "center",
 
-        background: "var(--black)",
+        background:
+          "var(--black)",
 
         flexDirection: "column",
 
@@ -266,7 +338,8 @@ function LoadingScreen() {
     >
       <div
         style={{
-          fontFamily: "var(--font-display)",
+          fontFamily:
+            "var(--font-display)",
 
           fontSize: 28,
 
@@ -274,11 +347,14 @@ function LoadingScreen() {
 
           fontWeight: 900,
 
-          background: "var(--grad-gold2)",
+          background:
+            "var(--grad-gold2)",
 
-          WebkitBackgroundClip: "text",
+          WebkitBackgroundClip:
+            "text",
 
-          WebkitTextFillColor: "transparent",
+          WebkitTextFillColor:
+            "transparent",
         }}
       >
         F2 FIT FACTORY
@@ -290,7 +366,8 @@ function LoadingScreen() {
 
           fontSize: 12,
 
-          fontFamily: "var(--font-body)",
+          fontFamily:
+            "var(--font-body)",
 
           letterSpacing: 2,
         }}
@@ -303,38 +380,70 @@ function LoadingScreen() {
 
 // ── Root Redirect ────────────────────────────────────────
 function RootRedirect() {
-  const { user, role, loading } = useAuth();
+  const {
+    user,
+    role,
+    loading,
+  } = useAuth();
 
   if (loading) {
     return <LoadingScreen />;
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return (
+      <Navigate
+        to="/login"
+        replace
+      />
+    );
   }
 
   return (
     <Navigate
-      to={role === "admin" ? "/dashboard" : "/member/dashboard"}
+      to={
+        role === "admin"
+          ? "/dashboard"
+          : "/member/dashboard"
+      }
       replace
     />
   );
 }
 
 // ── Admin Layout ─────────────────────────────────────────
-function AdminLayout({ children }) {
-  const { user, role, loading } = useAuth();
+function AdminLayout({
+  children,
+}) {
+  const {
+    user,
+    role,
+    loading,
+  } = useAuth();
 
-  if (loading || (user && role === null)) {
+  if (
+    loading ||
+    (user && role === null)
+  ) {
     return <LoadingScreen />;
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return (
+      <Navigate
+        to="/login"
+        replace
+      />
+    );
   }
 
   if (role === "member") {
-    return <Navigate to="/member/dashboard" replace />;
+    return (
+      <Navigate
+        to="/member/dashboard"
+        replace
+      />
+    );
   }
 
   return (
@@ -344,7 +453,9 @@ function AdminLayout({ children }) {
       <MobileHeader />
 
       <div className="main-content">
-        <ErrorBoundary>{children}</ErrorBoundary>
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
       </div>
 
       <BottomNav />
@@ -353,19 +464,38 @@ function AdminLayout({ children }) {
 }
 
 // ── Member Layout ────────────────────────────────────────
-function MemberLayout({ children }) {
-  const { user, role, loading } = useAuth();
+function MemberLayout({
+  children,
+}) {
+  const {
+    user,
+    role,
+    loading,
+  } = useAuth();
 
-  if (loading || (user && role === null)) {
+  if (
+    loading ||
+    (user && role === null)
+  ) {
     return <LoadingScreen />;
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return (
+      <Navigate
+        to="/login"
+        replace
+      />
+    );
   }
 
   if (role === "admin") {
-    return <Navigate to="/dashboard" replace />;
+    return (
+      <Navigate
+        to="/dashboard"
+        replace
+      />
+    );
   }
 
   return (
@@ -375,7 +505,9 @@ function MemberLayout({ children }) {
       <MemberMobileHeader />
 
       <div className="main-content">
-        <ErrorBoundary>{children}</ErrorBoundary>
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
       </div>
 
       <MemberBottomNav />
@@ -395,21 +527,36 @@ function AuthEquipmentWrapper({ children }) {
   );
 }
 // ── Shared Layout ────────────────────────────────────────
-function SharedLayout({ children }) {
-  const { user, role, loading } = useAuth();
+function SharedLayout({
+  children,
+}) {
+  const {
+    user,
+    role,
+    loading,
+  } = useAuth();
 
   if (loading) {
     return <LoadingScreen />;
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return (
+      <Navigate
+        to="/login"
+        replace
+      />
+    );
   }
 
   return role === "admin" ? (
-    <AdminLayout>{children}</AdminLayout>
+    <AdminLayout>
+      {children}
+    </AdminLayout>
   ) : (
-    <MemberLayout>{children}</MemberLayout>
+    <MemberLayout>
+      {children}
+    </MemberLayout>
   );
 }
 
@@ -419,8 +566,21 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/login" element={user ? <RootRedirect /> : <Login />} />
-      <Route path="/" element={<RootRedirect />} />
+      <Route
+        path="/login"
+        element={
+          user ? (
+            <RootRedirect />
+          ) : (
+            <Login />
+          )
+        }
+      />
+
+      <Route
+        path="/"
+        element={<RootRedirect />}
+      />
 
       {/* Admin */}
       <Route
@@ -476,32 +636,23 @@ function AppRoutes() {
           </AdminLayout>
         }
       />
-{/* <Route path="/members/:id" element={<MemberProfile />} /> */}
-<Route
-  path="/members/:id"
+      <Route
+  path="/workout"
   element={
     <AdminLayout>
-      <MemberProfile />
+      <Workout />
     </AdminLayout>
   }
 />
-      <Route
-        path="/workout"
-        element={
-          <AdminLayout>
-            <Workout />
-          </AdminLayout>
-        }
-      />
 
-      <Route
-        path="/diet"
-        element={
-          <AdminLayout>
-            <Diet />
-          </AdminLayout>
-        }
-      />
+<Route
+  path="/diet"
+  element={
+    <AdminLayout>
+      <Diet />
+    </AdminLayout>
+  }
+/>
 
       <Route
         path="/members/:id/edit"
@@ -631,36 +782,49 @@ function AppRoutes() {
         }
       />
 
-      <Route path="*" element={<RootRedirect />} />
+      <Route
+        path="*"
+        element={<RootRedirect />}
+      />
     </Routes>
   );
 }
 
 // ── App ──────────────────────────────────────────────────
 export default function App() {
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] =
+    useState(true);
 
   return (
     <AuthProvider>
       <BrowserRouter
-        future={{
-          v7_startTransition: true,
-          v7_relativeSplatPath: true,
-        }}
-      >
-        {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
+  future={{
+    v7_startTransition: true,
+    v7_relativeSplatPath: true,
+  }}
+>
+        {showSplash && (
+          <SplashScreen
+            onDone={() =>
+              setShowSplash(false)
+            }
+          />
+        )}
 
         <Toaster
           position="top-right"
           toastOptions={{
             style: {
-              background: "#141414",
+              background:
+                "#141414",
 
               color: "#f0f0f0",
 
-              border: "1px solid #2a2a2a",
+              border:
+                "1px solid #2a2a2a",
 
-              fontFamily: "'Exo 2',sans-serif",
+              fontFamily:
+                "'Exo 2',sans-serif",
 
               fontSize: "13px",
 
@@ -669,26 +833,728 @@ export default function App() {
 
             success: {
               iconTheme: {
-                primary: "#22c55e",
+                primary:
+                  "#22c55e",
 
-                secondary: "#fff",
+                secondary:
+                  "#fff",
               },
             },
 
             error: {
               iconTheme: {
-                primary: "#e63329",
+                primary:
+                  "#e63329",
 
-                secondary: "#fff",
+                secondary:
+                  "#fff",
               },
             },
           }}
         />
 
-        <Suspense fallback={<LoadingScreen />}>
+        <Suspense
+          fallback={<LoadingScreen />}
+        >
           <AppRoutes />
         </Suspense>
       </BrowserRouter>
     </AuthProvider>
   );
-}
+}   
+
+
+// // import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+// // import { useState } from "react";
+// // import { Toaster } from "react-hot-toast";
+// // import { AuthProvider, useAuth } from "./context/AuthContext";
+
+// // // Layouts
+// // import { Sidebar, MobileHeader } from "./components/Sidebar";
+// // import BottomNav from "./components/BottomNav";
+// // import { MemberSidebar, MemberMobileHeader, MemberBottomNav } from "./components/MemberLayout";
+
+// // // Admin pages
+// // import Login         from "./pages/Login";
+// // import Dashboard     from "./pages/Dashboard";
+// // import Members       from "./pages/Members";
+// // import AddMember     from "./pages/AddMember";
+// // import EditMember    from "./pages/EditMember";
+// // import BCA           from "./pages/BCA";
+// // import SteamBath     from "./pages/SteamBath";
+// // import SteamSlotManager from "./pages/SteamSlotManager";
+// // import Payments      from "./pages/Payments";
+// // import Notifications from "./pages/Notifications";
+// // import { Workout, Diet } from "./pages/StaticPages";
+// // import Equipment  from "./pages/EquipmentGuide";
+// // import {Analytics}     from "./pages/Analytics";
+// // import BalanceSheet from "./pages/BalanceSheet";
+// // import Progress    from "./pages/Progress";
+// // import Leaderboard from "./pages/Leaderboard";
+
+// // // Member pages
+// // import MemberDashboard from "./pages/member/MemberDashboard";
+// // // import { MemberWorkout, MemberDiet, MemberBCA, MemberSteam, MemberProgress } from "./pages/member/MemberPages";
+// // import MemberWorkout from "./pages/member/MemberWorkout";
+// // import MemberDiet from "./pages/member/MemberDiet";
+// // import MemberBCA from "./pages/member/MemberBCA";
+// // import MemberSteam from "./pages/member/MemberSteam";
+// // import MemberProgress from "./pages/member/MemberProgress";
+// // import { UpgradePage } from "./components/LockGate";
+
+// // import "./index.css";
+// // // import "./styles/main.css"
+// // // import "./animations.css";
+// // import "./styles/base/animations.css";
+// // import SplashScreen from "./components/SplashScreen";
+// // import ErrorBoundary from "./components/ErrorBoundary";
+
+// // // ── Loading screen ───────────────────────────────────────
+// // function LoadingScreen() {
+// //   return (
+// //     <div style={{
+// //       minHeight: "100vh", display: "flex", alignItems: "center",
+// //       justifyContent: "center", background: "var(--black)",
+// //       flexDirection: "column", gap: 16,
+// //     }}>
+// //       <div style={{
+// //         fontFamily: "var(--font-display)", fontSize: 28,
+// //         letterSpacing: 6, fontWeight: 900,
+// //         background: "var(--grad-gold2)",
+// //         WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+// //       }}>
+// //         F2 FIT FACTORY
+// //       </div>
+// //       <div style={{ color: "var(--muted2)", fontSize: 12, fontFamily: "var(--font-body)", letterSpacing: 2 }}>
+// //         LOADING…
+// //       </div>
+// //     </div>
+// //   );
+// // }
+
+// // // ── Smart root redirect ──────────────────────────────────
+// // function RootRedirect() {
+// //   const { user, role, loading } = useAuth();
+// //   if (loading) return <LoadingScreen />;
+// //   if (!user) return <Navigate to="/login" replace />;
+// //   return <Navigate to={role === "admin" ? "/dashboard" : "/member/dashboard"} replace />;
+// // }
+
+// // // ── Admin layout ─────────────────────────────────────────
+// // function AdminLayout({ children }) {
+// //   const { user, role, loading } = useAuth();
+// //   // Wait until BOTH auth and role are fully resolved
+// //   if (loading || (user && role === null)) return <LoadingScreen />;
+// //   if (!user) return <Navigate to="/login" replace />;
+// //   if (role === "member") return <Navigate to="/member/dashboard" replace />;
+// //   return (
+// //     <div className="app-layout">
+// //       <Sidebar />
+// //       <MobileHeader />
+// //       <div className="main-content">
+// //         <ErrorBoundary>{children}</ErrorBoundary>
+// //       </div>
+// //       <BottomNav />
+// //     </div>
+// //   );
+// // }
+
+// // // ── Member layout ─────────────────────────────────────────
+// // function MemberLayout({ children }) {
+// //   const { user, role, loading } = useAuth();
+// //   // Wait until BOTH auth and role are fully resolved
+// //   if (loading || (user && role === null)) return <LoadingScreen />;
+// //   if (!user) return <Navigate to="/login" replace />;
+// //   if (role === "admin") return <Navigate to="/dashboard" replace />;
+// //   return (
+// //     <div className="app-layout">
+// //       <MemberSidebar />
+// //       <MemberMobileHeader />
+// //       <div className="main-content">
+// //         <ErrorBoundary>{children}</ErrorBoundary>
+// //       </div>
+// //       <MemberBottomNav />
+// //     </div>
+// //   );
+// // }
+
+// // // ── Routes ───────────────────────────────────────────────
+// // function AppRoutes() {
+// //   const { user } = useAuth();
+// //   return (
+// //     <Routes>
+// //       <Route path="/login" element={user ? <RootRedirect /> : <Login />} />
+// //       <Route path="/"      element={<RootRedirect />} />
+
+// //       {/* Admin */}
+// //       <Route path="/dashboard"     element={<AdminLayout><Dashboard /></AdminLayout>} />
+// //       <Route path="/bca"           element={<AdminLayout><BCA /></AdminLayout>} />
+// //       <Route path="/workout"       element={<AdminLayout><Workout /></AdminLayout>} />
+// //       <Route path="/diet"          element={<AdminLayout><Diet /></AdminLayout>} />
+// //       <Route path="/steam"         element={<AdminLayout><SteamBath /></AdminLayout>} />
+// //       {/* <Route path="/steam" element={<AdminLayout><SteamSlotManager /></AdminLayout>} /> */}
+// //       <Route path="/progress"      element={<AdminLayout><Progress /></AdminLayout>} />
+// //       <Route path="/leaderboard"   element={<AdminLayout><Leaderboard /></AdminLayout>} />
+// //       <Route path="/members"       element={<AdminLayout><Members /></AdminLayout>} />
+// //       <Route path="/members/:id/edit" element={<AdminLayout><EditMember /></AdminLayout>} />
+// // <Route path="/payments"      element={<AdminLayout><Payments /></AdminLayout>} />
+// //       <Route path="/add-member"    element={<AdminLayout><AddMember /></AdminLayout>} />
+// //       <Route path="/notifications" element={<AdminLayout><Notifications /></AdminLayout>} />
+// //       <Route path="/analytics"     element={<AdminLayout><Analytics /></AdminLayout>} />
+// //       <Route path="/balance-sheet" element={<AdminLayout><BalanceSheet /></AdminLayout>} />
+
+// //       {/* Member — free + locked */}
+// //       <Route path="/member/dashboard" element={<MemberLayout><MemberDashboard /></MemberLayout>} />
+// //       <Route path="/member/workout"   element={<MemberLayout><MemberWorkout /></MemberLayout>} />
+// //       <Route path="/member/diet"      element={<MemberLayout><MemberDiet /></MemberLayout>} />
+// //       <Route path="/member/bca"       element={<MemberLayout><MemberBCA /></MemberLayout>} />
+// //       <Route path="/member/steam"     element={<MemberLayout><MemberSteam /></MemberLayout>} />
+// //       <Route path="/member/progress"  element={<MemberLayout><MemberProgress /></MemberLayout>} />
+// //       <Route path="/member/upgrade"   element={<MemberLayout><UpgradePage /></MemberLayout>} />
+
+// //       {/* Shared — equipment accessible to all logged-in */}
+// //       <Route path="/equipments" element={<MemberLayout><Equipment /></MemberLayout>} />
+
+// //       <Route path="*" element={<RootRedirect />} />
+// //     </Routes>
+// //   );
+// // }
+
+// // export default function App() {
+// //   const [showSplash, setShowSplash] = useState(true);
+
+// //   return (
+// //     <AuthProvider>
+// //       <BrowserRouter>
+// //         {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
+// //         <Toaster position="top-right" toastOptions={{
+// //           style: { background:"#141414",color:"#f0f0f0",border:"1px solid #2a2a2a",fontFamily:"'Exo 2',sans-serif",fontSize:"13px",maxWidth:"340px" },
+// //           success: { iconTheme: { primary:"#22c55e",secondary:"#fff" } },
+// //           error:   { iconTheme: { primary:"#e63329",secondary:"#fff"  } },
+// //         }} />
+// //         <AppRoutes />
+// //       </BrowserRouter>
+// //     </AuthProvider>
+// //   );
+// // }
+// import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
+// import { useState, lazy, Suspense } from "react";
+
+// import { Toaster } from "react-hot-toast";
+
+// import { AuthProvider, useAuth } from "./context/AuthContext";
+
+// // Layouts
+// import { Sidebar, MobileHeader } from "./components/Sidebar";
+
+// import BottomNav from "./components/BottomNav";
+
+// import {
+//   MemberSidebar,
+//   MemberMobileHeader,
+//   MemberBottomNav,
+// } from "./components/MemberLayout";
+
+// // Shared
+// import SplashScreen from "./components/SplashScreen";
+// import ErrorBoundary from "./components/ErrorBoundary";
+
+// import { UpgradePage } from "./components/LockGate";
+
+// // Styles
+// import "./index.css";
+// import "./styles/base/animations.css";
+// import { Workout, Diet } from "./pages/StaticPages";
+// // ── Lazy Admin Pages ─────────────────────────────────────
+// const Login = lazy(() => import("./pages/Login"));
+
+// const Dashboard = lazy(() => import("./pages/Dashboard"));
+
+// const Members = lazy(() => import("./pages/Members"));
+// const MemberProfile = lazy(() => import("./pages/MemberProfile"));
+// const AddMember = lazy(() => import("./pages/AddMember"));
+
+// const EditMember = lazy(() => import("./pages/EditMember"));
+
+// const BCA = lazy(() => import("./pages/BCA"));
+
+// const SteamBath = lazy(() => import("./pages/SteamBath"));
+
+// const Payments = lazy(() => import("./pages/Payments"));
+
+// const Notifications = lazy(() => import("./pages/Notifications"));
+
+// const Equipment = lazy(() => import("./pages/EquipmentGuide"));
+
+// const Analytics = lazy(() => import("./pages/Analytics"));
+
+// const BalanceSheet = lazy(() => import("./pages/BalanceSheet"));
+
+// const Progress = lazy(() => import("./pages/Progress"));
+
+// const Leaderboard = lazy(() => import("./pages/Leaderboard"));
+
+// const StaticPages = lazy(() => import("./pages/StaticPages"));
+
+// // ── Lazy Member Pages ────────────────────────────────────
+// const MemberDashboard = lazy(() => import("./pages/member/MemberDashboard"));
+
+// const MemberWorkout = lazy(() => import("./pages/member/MemberWorkout"));
+
+// const MemberDiet = lazy(() => import("./pages/member/MemberDiet"));
+
+// const MemberBCA = lazy(() => import("./pages/member/MemberBCA"));
+
+// const MemberSteam = lazy(() => import("./pages/member/MemberSteam"));
+
+// const MemberProgress = lazy(() => import("./pages/member/MemberProgress"));
+
+// // ── Loading Screen ───────────────────────────────────────
+// function LoadingScreen() {
+//   return (
+//     <div
+//       style={{
+//         minHeight: "100vh",
+
+//         display: "flex",
+
+//         alignItems: "center",
+
+//         justifyContent: "center",
+
+//         background: "var(--black)",
+
+//         flexDirection: "column",
+
+//         gap: 16,
+//       }}
+//     >
+//       <div
+//         style={{
+//           fontFamily: "var(--font-display)",
+
+//           fontSize: 28,
+
+//           letterSpacing: 6,
+
+//           fontWeight: 900,
+
+//           background: "var(--grad-gold2)",
+
+//           WebkitBackgroundClip: "text",
+
+//           WebkitTextFillColor: "transparent",
+//         }}
+//       >
+//         F2 FIT FACTORY
+//       </div>
+
+//       <div
+//         style={{
+//           color: "var(--muted2)",
+
+//           fontSize: 12,
+
+//           fontFamily: "var(--font-body)",
+
+//           letterSpacing: 2,
+//         }}
+//       >
+//         LOADING…
+//       </div>
+//     </div>
+//   );
+// }
+
+// // ── Root Redirect ────────────────────────────────────────
+// function RootRedirect() {
+//   const { user, role, loading } = useAuth();
+
+//   if (loading) {
+//     return <LoadingScreen />;
+//   }
+
+//   if (!user) {
+//     return <Navigate to="/login" replace />;
+//   }
+
+//   return (
+//     <Navigate
+//       to={role === "admin" ? "/dashboard" : "/member/dashboard"}
+//       replace
+//     />
+//   );
+// }
+
+// // ── Admin Layout ─────────────────────────────────────────
+// function AdminLayout({ children }) {
+//   const { user, role, loading } = useAuth();
+
+//   if (loading || (user && role === null)) {
+//     return <LoadingScreen />;
+//   }
+
+//   if (!user) {
+//     return <Navigate to="/login" replace />;
+//   }
+
+//   if (role === "member") {
+//     return <Navigate to="/member/dashboard" replace />;
+//   }
+
+//   return (
+//     <div className="app-layout">
+//       <Sidebar />
+
+//       <MobileHeader />
+
+//       <div className="main-content">
+//         <ErrorBoundary>{children}</ErrorBoundary>
+//       </div>
+
+//       <BottomNav />
+//     </div>
+//   );
+// }
+
+// // ── Member Layout ────────────────────────────────────────
+// function MemberLayout({ children }) {
+//   const { user, role, loading } = useAuth();
+
+//   if (loading || (user && role === null)) {
+//     return <LoadingScreen />;
+//   }
+
+//   if (!user) {
+//     return <Navigate to="/login" replace />;
+//   }
+
+//   if (role === "admin") {
+//     return <Navigate to="/dashboard" replace />;
+//   }
+
+//   return (
+//     <div className="app-layout">
+//       <MemberSidebar />
+
+//       <MemberMobileHeader />
+
+//       <div className="main-content">
+//         <ErrorBoundary>{children}</ErrorBoundary>
+//       </div>
+
+//       <MemberBottomNav />
+//     </div>
+//   );
+// }
+// function AuthEquipmentWrapper({ children }) {
+//   const { user, role, loading } = useAuth();
+
+//   if (loading) return <LoadingScreen />;
+//   if (!user) return <Navigate to="/login" replace />;
+
+//   return role === "admin" ? (
+//     <AdminLayout>{children}</AdminLayout>
+//   ) : (
+//     <MemberLayout>{children}</MemberLayout>
+//   );
+// }
+// // ── Shared Layout ────────────────────────────────────────
+// function SharedLayout({ children }) {
+//   const { user, role, loading } = useAuth();
+
+//   if (loading) {
+//     return <LoadingScreen />;
+//   }
+
+//   if (!user) {
+//     return <Navigate to="/login" replace />;
+//   }
+
+//   return role === "admin" ? (
+//     <AdminLayout>{children}</AdminLayout>
+//   ) : (
+//     <MemberLayout>{children}</MemberLayout>
+//   );
+// }
+
+// // ── Routes ───────────────────────────────────────────────
+// function AppRoutes() {
+//   const { user } = useAuth();
+
+//   return (
+//     <Routes>
+//       <Route path="/login" element={user ? <RootRedirect /> : <Login />} />
+//       <Route path="/" element={<RootRedirect />} />
+
+//       {/* Admin */}
+//       <Route
+//         path="/dashboard"
+//         element={
+//           <AdminLayout>
+//             <Dashboard />
+//           </AdminLayout>
+//         }
+//       />
+
+//       <Route
+//         path="/bca"
+//         element={
+//           <AdminLayout>
+//             <BCA />
+//           </AdminLayout>
+//         }
+//       />
+
+//       <Route
+//         path="/steam"
+//         element={
+//           <AdminLayout>
+//             <SteamBath />
+//           </AdminLayout>
+//         }
+//       />
+
+//       <Route
+//         path="/progress"
+//         element={
+//           <AdminLayout>
+//             <Progress />
+//           </AdminLayout>
+//         }
+//       />
+
+//       <Route
+//         path="/leaderboard"
+//         element={
+//           <AdminLayout>
+//             <Leaderboard />
+//           </AdminLayout>
+//         }
+//       />
+
+//       <Route
+//         path="/members"
+//         element={
+//           <AdminLayout>
+//             <Members />
+//           </AdminLayout>
+//         }
+//       />
+// {/* <Route path="/members/:id" element={<MemberProfile />} /> */}
+// <Route
+//   path="/members/:id"
+//   element={
+//     <AdminLayout>
+//       <MemberProfile />
+//     </AdminLayout>
+//   }
+// />
+//       <Route
+//         path="/workout"
+//         element={
+//           <AdminLayout>
+//             <Workout />
+//           </AdminLayout>
+//         }
+//       />
+
+//       <Route
+//         path="/diet"
+//         element={
+//           <AdminLayout>
+//             <Diet />
+//           </AdminLayout>
+//         }
+//       />
+
+//       <Route
+//         path="/members/:id/edit"
+//         element={
+//           <AdminLayout>
+//             <EditMember />
+//           </AdminLayout>
+//         }
+//       />
+
+//       <Route
+//         path="/payments"
+//         element={
+//           <AdminLayout>
+//             <Payments />
+//           </AdminLayout>
+//         }
+//       />
+
+//       <Route
+//         path="/add-member"
+//         element={
+//           <AdminLayout>
+//             <AddMember />
+//           </AdminLayout>
+//         }
+//       />
+
+//       <Route
+//         path="/notifications"
+//         element={
+//           <AdminLayout>
+//             <Notifications />
+//           </AdminLayout>
+//         }
+//       />
+
+//       <Route
+//         path="/analytics"
+//         element={
+//           <AdminLayout>
+//             <Analytics />
+//           </AdminLayout>
+//         }
+//       />
+
+//       <Route
+//         path="/balance-sheet"
+//         element={
+//           <AdminLayout>
+//             <BalanceSheet />
+//           </AdminLayout>
+//         }
+//       />
+
+//       {/* Member */}
+//       <Route
+//         path="/member/dashboard"
+//         element={
+//           <MemberLayout>
+//             <MemberDashboard />
+//           </MemberLayout>
+//         }
+//       />
+
+//       <Route
+//         path="/member/workout"
+//         element={
+//           <MemberLayout>
+//             <MemberWorkout />
+//           </MemberLayout>
+//         }
+//       />
+
+//       <Route
+//         path="/member/diet"
+//         element={
+//           <MemberLayout>
+//             <MemberDiet />
+//           </MemberLayout>
+//         }
+//       />
+
+//       <Route
+//         path="/member/bca"
+//         element={
+//           <MemberLayout>
+//             <MemberBCA />
+//           </MemberLayout>
+//         }
+//       />
+
+//       <Route
+//         path="/member/steam"
+//         element={
+//           <MemberLayout>
+//             <MemberSteam />
+//           </MemberLayout>
+//         }
+//       />
+
+//       <Route
+//         path="/member/progress"
+//         element={
+//           <MemberLayout>
+//             <MemberProgress />
+//           </MemberLayout>
+//         }
+//       />
+
+//       <Route
+//         path="/member/upgrade"
+//         element={
+//           <MemberLayout>
+//             <UpgradePage />
+//           </MemberLayout>
+//         }
+//       />
+
+//       {/* Shared */}
+//       <Route
+//         path="/equipments"
+//         element={
+//           <SharedLayout>
+//             <Equipment />
+//           </SharedLayout>
+//         }
+//       />
+
+//       <Route path="*" element={<RootRedirect />} />
+//     </Routes>
+//   );
+// }
+
+// // ── App ──────────────────────────────────────────────────
+// export default function App() {
+//   const [showSplash, setShowSplash] = useState(true);
+
+//   return (
+//     <AuthProvider>
+//       <BrowserRouter
+//         future={{
+//           v7_startTransition: true,
+//           v7_relativeSplatPath: true,
+//         }}
+//       >
+//         {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
+
+//         <Toaster
+//           position="top-right"
+//           toastOptions={{
+//             style: {
+//               background: "#141414",
+
+//               color: "#f0f0f0",
+
+//               border: "1px solid #2a2a2a",
+
+//               fontFamily: "'Exo 2',sans-serif",
+
+//               fontSize: "13px",
+
+//               maxWidth: "340px",
+//             },
+
+//             success: {
+//               iconTheme: {
+//                 primary: "#22c55e",
+
+//                 secondary: "#fff",
+//               },
+//             },
+
+//             error: {
+//               iconTheme: {
+//                 primary: "#e63329",
+
+//                 secondary: "#fff",
+//               },
+//             },
+//           }}
+//         />
+
+//         <Suspense fallback={<LoadingScreen />}>
+//           <AppRoutes />
+//         </Suspense>
+//       </BrowserRouter>
+//     </AuthProvider>
+//   );
+// }
