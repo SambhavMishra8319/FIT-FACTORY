@@ -7,7 +7,7 @@ import {
   deleteMember,
   addAttendance,
 } from "../firebase/service";
-
+// import "../styles/member.css";
 const statusBadge = (s) => {
   if (s === "active") return <span className="badge badge-green">Active</span>;
   if (s === "expiring")

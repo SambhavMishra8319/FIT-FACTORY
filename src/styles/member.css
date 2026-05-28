@@ -1,0 +1,559 @@
+/* =========================================
+   MEMBERS PAGE
+========================================= */
+
+.page-enter{
+  min-height:100vh;
+}
+
+/* =========================================
+   TOPBAR
+========================================= */
+
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:100;
+
+  height:58px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+
+  padding:0 24px;
+
+  background:rgba(15,15,15,0.95);
+
+  border-bottom:1px solid var(--border);
+
+  backdrop-filter:blur(12px);
+}
+
+.page-title{
+  font-family:var(--font-display);
+  font-size:16px;
+  font-weight:700;
+
+  letter-spacing:2px;
+  text-transform:uppercase;
+
+  color:var(--text);
+}
+
+.topbar-right{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+/* =========================================
+   PAGE BODY
+========================================= */
+
+.page-body{
+  padding:22px 24px;
+}
+
+/* =========================================
+   SEARCH
+========================================= */
+
+.search-input{
+  width:220px;
+
+  background:var(--card2);
+
+  border:1px solid var(--border);
+  border-radius:var(--r-sm);
+
+  padding:9px 13px;
+
+  color:var(--text);
+
+  font-size:13px;
+  font-family:var(--font-body);
+
+  transition:0.2s ease;
+}
+
+.search-input:focus{
+  outline:none;
+  border-color:var(--gold-dark);
+}
+
+.search-input::placeholder{
+  color:var(--muted);
+}
+
+/* =========================================
+   FORM INPUT
+========================================= */
+
+.form-input{
+  background:var(--card2);
+
+  border:1px solid var(--border);
+  border-radius:var(--r-sm);
+
+  color:var(--text);
+
+  font-family:var(--font-body);
+
+  transition:0.2s ease;
+}
+
+.form-input:focus{
+  outline:none;
+  border-color:var(--gold-dark);
+
+  box-shadow:0 0 0 3px rgba(245,200,66,0.08);
+}
+
+/* =========================================
+   BUTTONS
+========================================= */
+
+.btn{
+  border:none;
+  cursor:pointer;
+
+  font-family:var(--font-body);
+
+  transition:all 0.18s ease;
+}
+
+.btn-sm{
+  padding:7px 12px;
+  font-size:11px;
+
+  border-radius:8px;
+
+  font-weight:600;
+}
+
+.btn-primary{
+  background:var(--grad-gold);
+
+  color:var(--black);
+
+  font-weight:700;
+}
+
+.btn-primary:hover{
+  transform:translateY(-1px);
+
+  box-shadow:0 4px 18px rgba(245,200,66,0.25);
+}
+
+.btn-outline{
+  background:transparent;
+
+  color:var(--text2);
+
+  border:1px solid var(--border2);
+}
+
+.btn-outline:hover{
+  border-color:var(--gold-dark);
+  color:var(--gold);
+}
+
+.btn-danger{
+  background:rgba(239,68,68,0.1);
+
+  color:#ef4444;
+
+  border:1px solid rgba(239,68,68,0.18);
+}
+
+.btn-danger:hover{
+  background:rgba(239,68,68,0.18);
+}
+
+/* =========================================
+   TAP EFFECT
+========================================= */
+
+.tap-scale{
+  transition:transform 0.15s ease;
+}
+
+.tap-scale:active{
+  transform:scale(0.96);
+}
+
+/* =========================================
+   STATS GRID
+========================================= */
+
+.stats-grid{
+  display:grid;
+
+  grid-template-columns:repeat(4,1fr);
+
+  gap:12px;
+
+  margin-bottom:22px;
+}
+
+.stat-card{
+  position:relative;
+
+  overflow:hidden;
+
+  background:var(--card);
+
+  border:1px solid var(--border);
+  border-radius:var(--r-md);
+
+  padding:16px;
+
+  transition:border-color 0.18s ease;
+}
+
+.stat-card:hover{
+  border-color:var(--border2);
+}
+
+.stat-card::before{
+  content:'';
+
+  position:absolute;
+  top:0;
+  right:0;
+
+  width:60px;
+  height:60px;
+
+  border-radius:0 var(--r-md) 0 60px;
+
+  opacity:0.1;
+}
+
+.stat-card.s-green{
+  border-top:2px solid var(--green);
+}
+
+.stat-card.s-green::before{
+  background:var(--green);
+}
+
+.stat-card.s-red{
+  border-top:2px solid var(--red);
+}
+
+.stat-card.s-red::before{
+  background:var(--red);
+}
+
+.stat-card.s-gold{
+  border-top:2px solid var(--gold-dark);
+}
+
+.stat-card.s-gold::before{
+  background:var(--gold);
+}
+
+.stat-label{
+  margin-bottom:8px;
+
+  color:var(--muted);
+
+  font-family:var(--font-display);
+  font-size:8px;
+
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+.stat-value{
+  font-family:var(--font-display);
+  font-size:28px;
+  font-weight:700;
+
+  line-height:1;
+}
+
+.c-green{
+  color:var(--green);
+}
+
+.c-red{
+  color:var(--red);
+}
+
+.c-gold{
+  color:var(--gold);
+}
+
+/* =========================================
+   TABLE
+========================================= */
+
+.table-wrap{
+  overflow:hidden;
+  overflow-x:auto;
+
+  background:var(--card);
+
+  border:1px solid var(--border);
+  border-radius:var(--r-md);
+
+  -webkit-overflow-scrolling:touch;
+}
+
+table{
+  width:100%;
+  min-width:850px;
+
+  border-collapse:collapse;
+}
+
+thead th{
+  background:var(--card2);
+
+  border-bottom:1px solid var(--border);
+
+  padding:11px 14px;
+
+  text-align:left;
+
+  color:var(--gold-dark);
+
+  font-family:var(--font-display);
+  font-size:8px;
+  font-weight:600;
+
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+tbody td{
+  padding:12px 14px;
+
+  border-bottom:1px solid var(--border);
+
+  vertical-align:middle;
+
+  color:var(--text2);
+
+  font-size:13px;
+}
+
+tbody tr:last-child td{
+  border-bottom:none;
+}
+
+tbody tr:hover td{
+  background:rgba(245,200,66,0.03);
+}
+
+/* =========================================
+   BADGES
+========================================= */
+
+.badge{
+  display:inline-block;
+
+  padding:4px 9px;
+
+  border-radius:5px;
+
+  font-family:var(--font-display);
+  font-size:9px;
+  font-weight:700;
+
+  letter-spacing:1px;
+}
+
+.badge-green{
+  background:rgba(34,197,94,0.12);
+  color:var(--green);
+
+  border:1px solid rgba(34,197,94,0.18);
+}
+
+.badge-red{
+  background:rgba(239,68,68,0.12);
+  color:#ef4444;
+
+  border:1px solid rgba(239,68,68,0.18);
+}
+
+.badge-gray{
+  background:rgba(255,255,255,0.06);
+  color:var(--muted2);
+
+  border:1px solid var(--border);
+}
+
+.badge-gold{
+  background:rgba(245,200,66,0.12);
+  color:var(--gold);
+
+  border:1px solid rgba(245,200,66,0.2);
+}
+
+/* =========================================
+   SKELETON
+========================================= */
+
+.skeleton{
+  border-radius:6px;
+
+  background:linear-gradient(
+    90deg,
+    var(--card2) 25%,
+    var(--card3) 50%,
+    var(--card2) 75%
+  );
+
+  background-size:200% 100%;
+
+  animation:shimmer 1.4s infinite;
+}
+
+@keyframes shimmer{
+  0%{
+    background-position:-200% 0;
+  }
+
+  100%{
+    background-position:200% 0;
+  }
+}
+
+/* =========================================
+   FLOATING ACTION BUTTON
+========================================= */
+
+.fab{
+  position:fixed;
+
+  right:18px;
+  bottom:90px;
+
+  width:56px;
+  height:56px;
+
+  border:none;
+  border-radius:50%;
+
+  background:var(--grad-gold);
+
+  color:var(--black);
+
+  font-size:30px;
+  font-weight:700;
+
+  cursor:pointer;
+
+  z-index:120;
+
+  box-shadow:0 10px 25px rgba(245,200,66,0.25);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.fab:hover{
+  transform:translateY(-2px);
+}
+
+/* =========================================
+   RIPPLE EFFECT
+========================================= */
+
+.btn-ripple{
+  position:relative;
+  overflow:hidden;
+}
+
+/* =========================================
+   SPACING
+========================================= */
+
+.mb-20{
+  margin-bottom:20px;
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width:768px){
+
+  .topbar{
+    height:auto;
+
+    padding:12px 14px;
+
+    flex-wrap:wrap;
+  }
+
+  .page-title{
+    font-size:13px;
+    letter-spacing:1px;
+  }
+
+  .topbar-right{
+    width:100%;
+  }
+
+  .search-input{
+    width:100%;
+  }
+
+  .page-body{
+    padding:12px;
+  }
+
+  .stats-grid{
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+
+  .stat-value{
+    font-size:22px;
+  }
+
+  .table-wrap{
+    border-radius:14px;
+  }
+
+  table{
+    min-width:760px;
+  }
+
+  .fab{
+    width:52px;
+    height:52px;
+
+    font-size:28px;
+
+    bottom:84px;
+  }
+}
+
+/* =========================================
+   SMALL MOBILE
+========================================= */
+
+@media (max-width:480px){
+
+  .stats-grid{
+    gap:6px;
+  }
+
+  .stat-value{
+    font-size:18px;
+  }
+
+  .stat-card{
+    padding:14px;
+  }
+}

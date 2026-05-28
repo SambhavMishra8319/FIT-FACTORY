@@ -6,7 +6,7 @@ import { db } from "../../firebase/config";
 import { format } from "date-fns";
 import { useMembership } from "../../hooks/useMembership";
 import { MembershipBanner, ExpiryBanner, SectionLock } from "../../components/LockGate";
-
+import "../../styles/MemberDashboard.css"
 // Sample preview data shown to free members (blurred)
 const SAMPLE_BCA = { weight: "72.4", fat: "22.5%", muscle: "35.8 kg", bmi: "22.4" };
 const SAMPLE_EXERCISES = ["Flat Bench Press", "Incline DB Press", "Cable Crossover", "Tricep Pushdown"];
@@ -90,7 +90,40 @@ export default function MemberDashboard() {
         {/* Free user banner */}
         <MembershipBanner membership={membership} />
         <ExpiryBanner membership={membership} />
+<div
+  className="hero-banner mb-20"
+  style={anim(0)}
+>
+  <div className="hero-overlay" />
 
+  <div className="hero-content">
+    
+
+    <div className="hero-title">
+      F2 FIT FACTORY BY Nimesh Mishra
+    </div>
+
+    <div className="hero-subtitle">
+      Train harder. Recover smarter. Become unstoppable.
+    </div>
+
+    <div className="hero-actions">
+      <button
+        className="btn btn-primary tap-scale"
+        onClick={() => navigate("/member/workout")}
+      >
+        Start Workout
+      </button>
+
+      <button
+        className="btn btn-outline tap-scale"
+        onClick={() => navigate("/member/progress")}
+      >
+        Track Progress
+      </button>
+    </div>
+  </div>
+</div>
         {/* Profile card */}
         <div className="profile-header mb-16" style={anim(0.05)}>
           <div className="avatar">{initials}</div>
@@ -324,7 +357,9 @@ export default function MemberDashboard() {
         {isPaid && (
           <div style={{ ...anim(0.4), marginTop: 24 }}>
             <div className="card tap-scale" style={{ cursor: "pointer", border: "1px solid rgba(245,200,66,0.15)" }}
-              onClick={() => navigate("/equipments")}>
+              // onClick={() => navigate("/equipments")}/
+              onClick={() => navigate("/member/equipment")}
+              >
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <span style={{ fontSize: 28 }}>🔧</span>
                 <div>
@@ -348,7 +383,7 @@ export default function MemberDashboard() {
           <div style={{ fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 900, letterSpacing: 3, color: "var(--gold)", lineHeight: 1.3, marginBottom: 5 }}>
             PUSH YOUR LIMITS EVERY DAY
           </div>
-          <div style={{ fontSize: 11, color: "var(--muted2)" }}>F2 Fit Factory · Mandla's Best Gym 🏆</div>
+          <div style={{ fontSize: 11, color: "var(--muted2)" }}>F2 Fit Factory BY Nimesh Mishra 🏆</div>
         </div>
       </div>
     </div>

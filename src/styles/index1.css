@@ -2357,13 +2357,4 @@ select.form-input option {
   background:rgba(239,68,68,.15);
   color:#ef4444;
 }
-.btn.btn-primary{
-  background: var(--grad-gold) !important;
-  color: var(--black) !important;
-  border: 1px solid rgba(245,200,66,0.25);
-}
-
-.btn.btn-primary:hover{
-  background: var(--grad-gold2) !important;
-  color: var(--black) !important;
-}
+s

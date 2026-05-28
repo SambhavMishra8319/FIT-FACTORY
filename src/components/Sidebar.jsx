@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
-import "../styles/sidebar.css"
+import "../styles/sidebar.css";
 /* ─────────────────────────────────────────────
    NAV CONFIG
 ───────────────────────────────────────────── */
@@ -17,6 +17,8 @@ const navItems = [
       { to: "/steam", icon: "🌫️", label: "Steam Bath" },
       { to: "/progress", icon: "📈", label: "My Progress" },
       { to: "/leaderboard", icon: "🏆", label: "Leaderboard" },
+     
+      // { to: "/notifications", icon: "🔔", label: "Notifications" },
     ],
   },
   {
@@ -83,21 +85,16 @@ export function Sidebar() {
 
   return (
     <div className="sidebar">
-      
-<div className="sidebar-logo">
-  <div className="brand-wrap">
-    <div className="logo-f2">
-      <span className="logo-line1">F2 FIT</span>
-      <span className="logo-line2">FACTORY</span>
-    </div>
+      <div className="sidebar-logo">
+        <div className="brand-wrap">
+          <div className="logo-f2">
+            <span className="logo-line1">F2 FIT</span>
+            <span className="logo-line2">FACTORY</span>
+          </div>
 
-    <div className="brand-owner">
-      by Nimesh Mishra
-    </div>
-
-    
-  </div>
-</div>
+          <div className="brand-owner">by Nimesh Mishra</div>
+        </div>
+      </div>
       <NavLinks onClose={() => {}} />
 
       <div className="sidebar-footer">
@@ -141,16 +138,11 @@ export function MobileHeader() {
     <>
       {/* Top Bar */}
       <div className="mobile-header">
-      
         <div className="mobile-logo-wrap">
-  <div className="mobile-logo-main">
-    F2 FIT FACTORY
-  </div>
+          <div className="mobile-logo-main">F2 FIT FACTORY</div>
 
-  <div className="mobile-logo-sub">
-    by Nimesh Mishra
-  </div>
-</div>
+          <div className="mobile-logo-sub">by Nimesh Mishra</div>
+        </div>
 
         <button
           className="hamburger"
@@ -164,23 +156,16 @@ export function MobileHeader() {
       </div>
 
       {/* Overlay */}
-      {open && (
-        <div className="drawer-overlay" onClick={closeDrawer} />
-      )}
+      {open && <div className="drawer-overlay" onClick={closeDrawer} />}
 
       {/* Drawer */}
       <div className={`drawer${open ? " open" : ""}`}>
         <div className="drawer-header">
-          
-<div className="drawer-brand">
-  <div className="drawer-logo-main">
-    F2 FIT-FACTORY
-  </div>
+          <div className="drawer-brand">
+            <div className="drawer-logo-main">F2 FIT-FACTORY</div>
 
-  <div className="drawer-logo-sub">
-    by Nimesh Mishra
-  </div>
-</div>
+            <div className="drawer-logo-sub">by Nimesh Mishra</div>
+          </div>
           <button
             className="drawer-close"
             onClick={closeDrawer}
