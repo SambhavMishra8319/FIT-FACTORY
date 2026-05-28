@@ -14,7 +14,7 @@ import {
   getBCAReadings,
   addBCAReading,
 } from "../../firebase/service";
-
+import BcaScanner from "../../components/BcaScanner";
 // const empty = { weight: "", fat: "", muscle: "", water: "", bmi: "" };
 const empty = {
   // Main
@@ -76,7 +76,7 @@ export default function BCA() {
   const [form, setForm] = useState(empty);
   const [saving, setSaving] = useState(false);
   const [loadingReadings, setLoadingReadings] = useState(false);
-
+const [showScanner, setShowScanner] = useState(false);
   const set = (k, v) => setForm((p) => ({ ...p, [k]: v }));
 
   // Load all members for selector
@@ -128,7 +128,52 @@ export default function BCA() {
       </span>
     );
   };
+  import Tesseract from "tesseract.js";
+const handleScan = async (url) => {
+  try {
+    setShowScanner(false);
 
+    toast.loading("Reading BCA report...");
+
+    const result = await Tesseract.recognize(
+      url,
+      "eng"
+    );
+
+    const text = result.data.text;
+
+    console.log(text);
+
+    // Example parsing
+    const weight =
+      text.match(/Weight\s*[:\-]?\s*(\d+\.?\d*)/i)?.[1];
+
+    const fat =
+      text.match(/Body Fat\s*[:\-]?\s*(\d+\.?\d*)/i)?.[1];
+
+    const bmi =
+      text.match(/BMI\s*[:\-]?\s*(\d+\.?\d*)/i)?.[1];
+
+    const muscle =
+      text.match(/Muscle\s*[:\-]?\s*(\d+\.?\d*)/i)?.[1];
+
+    setForm((prev) => ({
+      ...prev,
+      weight: weight || "",
+      fat: fat || "",
+      bmi: bmi || "",
+      muscle: muscle || "",
+    }));
+
+    toast.dismiss();
+    toast.success("BCA data auto-filled!");
+  } catch (err) {
+    console.error(err);
+
+    toast.dismiss();
+    toast.error("Failed to read BCA report.");
+  }
+};
   const handleSave = async (e) => {
     e.preventDefault();
     if (!selectedId) {
@@ -588,7 +633,19 @@ export default function BCA() {
                         )}
                       </div>
                     </div>
-
+<button
+  type="button"
+  className="btn btn-secondary"
+  onClick={() => setShowScanner(true)}
+  style={{ marginBottom: 12 }}
+>
+  📷 Scan BCA QR
+</button>
+{showScanner && (
+  <div className="card mb-16">
+    <BcaScanner onScan={handleScan} />
+  </div>
+)}
                     {/* History table */}
                     {readings.length > 0 && (
                       <>
