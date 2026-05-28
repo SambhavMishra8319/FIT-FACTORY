@@ -42,7 +42,7 @@ import {
 import MemberNotifications from "./pages/member/MemberNotifications";
 // Styles
 import "./index.css";
-import "./styles/base/animations.css";
+import "./styles/animations.css";
 import MemberProfile from "./pages/MemberProfile";
 import { Workout, Diet } from "./pages/StaticPages";
 // ── Lazy Admin Pages ─────────────────────────────────────
