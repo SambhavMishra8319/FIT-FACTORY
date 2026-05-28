@@ -185,7 +185,7 @@ function LoadingScreen() {
             "transparent",
         }}
       >
-        F2 FIT FACTORY
+        F2 FIT-FACTORY
       </div>
 
       <div

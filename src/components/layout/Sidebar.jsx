@@ -139,7 +139,7 @@ export function MobileHeader() {
       {/* Top Bar */}
       <div className="mobile-header">
         <div className="mobile-logo-wrap">
-          <div className="mobile-logo-main">F2 FIT FACTORY</div>
+          <div className="mobile-logo-main">F2 FIT-FACTORY</div>
 
           <div className="mobile-logo-sub">by Nimesh Mishra</div>
         </div>

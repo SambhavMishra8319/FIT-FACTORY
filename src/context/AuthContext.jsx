@@ -135,8 +135,9 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
   signOut,
+  signInWithPopup,
 } from "firebase/auth";
-
+import { auth, googleProvider } from "../firebase/config";
 import {
   doc,
   getDoc,
@@ -148,7 +149,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 
-import { auth, db } from "../firebase/config";
+import { db } from "../firebase/config";
 
 const AuthContext = createContext();
 
@@ -222,11 +223,7 @@ export function AuthProvider({ children }) {
      ADMIN SIGNUP
   ───────────────────────────────────────────── */
   const signupAdmin = async (email, password, name) => {
-    const cred = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
 
     await updateProfile(cred.user, { displayName: name });
 
@@ -259,14 +256,14 @@ export function AuthProvider({ children }) {
     email,
     password,
     name,
-    goal = "General Fitness"
+    goal = "General Fitness",
   ) => {
     const normalizedEmail = email.toLowerCase();
 
     const cred = await createUserWithEmailAndPassword(
       auth,
       normalizedEmail,
-      password
+      password,
     );
 
     await updateProfile(cred.user, { displayName: name });
@@ -275,10 +272,7 @@ export function AuthProvider({ children }) {
 
     try {
       const mSnap = await getDocs(
-        query(
-          collection(db, "members"),
-          where("email", "==", normalizedEmail)
-        )
+        query(collection(db, "members"), where("email", "==", normalizedEmail)),
       );
 
       if (!mSnap.empty) memberId = mSnap.docs[0].id;
@@ -312,7 +306,73 @@ export function AuthProvider({ children }) {
 
     return cred;
   };
+  /* ─────────────────────────────────────────────
+   GOOGLE MEMBER LOGIN / SIGNUP
+───────────────────────────────────────────── */
+  const googleMemberLogin = async () => {
+    const result = await signInWithPopup(auth, googleProvider);
 
+    const user = result.user;
+
+    const normalizedEmail = user.email.toLowerCase();
+
+    // Check existing profile
+    const userRef = doc(db, "users", user.uid);
+    const existing = await getDoc(userRef);
+
+    // Link existing gym member record
+    let memberId = null;
+
+    try {
+      const mSnap = await getDocs(
+        query(collection(db, "members"), where("email", "==", normalizedEmail)),
+      );
+
+      if (!mSnap.empty) {
+        memberId = mSnap.docs[0].id;
+      }
+    } catch (err) {
+      console.warn("Member lookup failed:", err);
+    }
+
+    // Create user only if not exists
+    if (!existing.exists()) {
+      const data = {
+        uid: user.uid,
+        name: user.displayName || "Member",
+        email: normalizedEmail,
+        photo: user.photoURL || "",
+        role: "member",
+        goal: "General Fitness",
+        memberId,
+        createdAt: serverTimestamp(),
+      };
+
+      await setDoc(userRef, data);
+
+      // Back-link uid into members collection
+      if (memberId) {
+        try {
+          const { updateMember } = await import("../firebase/service");
+
+          await updateMember(memberId, {
+            uid: user.uid,
+          });
+        } catch (err) {
+          console.error("Member link error:", err);
+        }
+      }
+
+      setProfile(data);
+      setRole("member");
+    } else {
+      const data = existing.data();
+      setProfile(data);
+      setRole(data.role || "member");
+    }
+
+    return result;
+  };
   /* ─────────────────────────────────────────────
      LOGOUT
   ───────────────────────────────────────────── */
@@ -337,19 +397,16 @@ export function AuthProvider({ children }) {
       signupAdmin,
       loginMember,
       signupMember,
+      googleMemberLogin,
       logout,
 
       isAdmin: role === "admin",
       isMember: role === "member",
     }),
-    [user, profile, role, loading]
+    [user, profile, role, loading],
   );
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 /* ─────────────────────────────────────────────

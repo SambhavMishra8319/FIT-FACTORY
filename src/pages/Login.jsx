@@ -52,7 +52,14 @@ const Input = ({ label, ...props }) => (
 );
 
 export default function Login() {
-  const { loginAdmin, signupAdmin, loginMember, signupMember } = useAuth();
+  // const { loginAdmin, signupAdmin, loginMember, signupMember } = useAuth();
+  const {
+  loginAdmin,
+  signupAdmin,
+  loginMember,
+  signupMember,
+  googleMemberLogin,
+} = useAuth();
   const navigate = useNavigate();
 
   const [tab, setTab]         = useState("member"); // "member" | "admin"
@@ -106,7 +113,7 @@ export default function Login() {
     setLoading(true);
     try {
       await signupMember(mEmail, mPass, mName.trim(), mGoal);
-      toast.success(`Welcome to F2 Fit Factory, ${mName}! 🎉`);
+      toast.success(`Welcome to F2 FIT-FACTORY, ${mName}! 🎉`);
       navigate("/member/dashboard");
     } catch (err) {
       if (err.code === "auth/email-already-in-use") {
@@ -118,7 +125,24 @@ export default function Login() {
       }
     } finally { setLoading(false); }
   };
+const handleGoogleLogin = async () => {
+  clear();
+  setLoading(true);
 
+  try {
+    await googleMemberLogin();
+
+    toast.success("Welcome to F2 FIT-FACTORY 🎉");
+
+    navigate("/member/dashboard");
+  } catch (err) {
+    console.error(err);
+
+    setError("Google sign in failed.");
+  } finally {
+    setLoading(false);
+  }
+};
   // ── Admin Login ──────────────────────────────────────────
   const handleAdminLogin = async (e) => {
     e.preventDefault(); clear(); setLoading(true);
@@ -198,6 +222,49 @@ export default function Login() {
                   disabled={loading} style={{ width: "100%", padding: 12, fontSize: 13, marginBottom: 14 }}>
                   {loading ? "Logging in…" : "Login →"}
                 </button>
+                <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    margin: "14px 0",
+  }}
+>
+  <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
+  <span style={{ fontSize: 11, color: "var(--muted2)" }}>
+    OR
+  </span>
+  <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
+</div>
+
+<button
+  type="button"
+  onClick={handleGoogleLogin}
+  disabled={loading}
+  className="btn tap-scale"
+  style={{
+    width: "100%",
+    padding: 12,
+    fontSize: 13,
+    marginBottom: 14,
+    background: "#fff",
+    color: "#111",
+    border: "1px solid #ddd",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    fontWeight: 600,
+  }}
+>
+  <img
+    src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+    alt="google"
+    style={{ width: 18, height: 18 }}
+  />
+
+  Continue with Google
+</button>
                 <div style={{ textAlign: "center", fontSize: 12, color: "var(--muted2)" }}>
                   New here?{" "}
                   <span style={{ color: "var(--gold)", cursor: "pointer", fontWeight: 600 }}
@@ -211,7 +278,7 @@ export default function Login() {
               <form onSubmit={handleMemberSignup}>
                 <div style={{ textAlign: "center", marginBottom: 18 }}>
                   <div style={{ fontSize: 36, marginBottom: 6 }}>🏋️</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 13, letterSpacing: 2, color: "var(--text)", marginBottom: 4 }}>JOIN F2 FIT FACTORY</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 13, letterSpacing: 2, color: "var(--text)", marginBottom: 4 }}>JOIN F2 FIT-FACTORY</div>
                   <div style={{ fontSize: 12, color: "var(--muted2)" }}>Free account — upgrade anytime to unlock all features</div>
                 </div>
 
@@ -339,7 +406,7 @@ export default function Login() {
         )}
 
         <div style={{ textAlign: "center", marginTop: 20, fontSize: 10, color: "var(--muted)" }}>
-          F2 Fit Factory · Mandla, Madhya Pradesh
+          F2 FIT-FACTORY · Mandla, Madhya Pradesh
         </div>
       </div>
     </div>

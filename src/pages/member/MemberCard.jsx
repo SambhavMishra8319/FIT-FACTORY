@@ -42,10 +42,10 @@ export default function MemberCard() {
     : "Active";
 
   const handleShare = async () => {
-    const text = `🏋️ F2 Fit Factory — Mandla's Best Gym\n👤 ${profile?.name}\n📱 +91 ${profile?.phone}\n🎫 ${member?.plan || "Member"}\n📅 Valid till: ${member?.expiryDate || "—"}\n\n💪 Crushing goals at F2 Fit Factory!`;
+    const text = `🏋️ F2 fit-factory — Mandla's Best Gym\n👤 ${profile?.name}\n📱 +91 ${profile?.phone}\n🎫 ${member?.plan || "Member"}\n📅 Valid till: ${member?.expiryDate || "—"}\n\n💪 Crushing goals at F2 Fit Factory!`;
     if (navigator.share) {
       try {
-        await navigator.share({ title: "F2 Fit Factory Membership", text });
+        await navigator.share({ title: "F2 fit-factory Membership", text });
       } catch {}
     } else {
       navigator.clipboard?.writeText(text);
@@ -159,7 +159,7 @@ export default function MemberCard() {
 
           {daysLeft !== null && daysLeft <= 0 && (
             <div className="info-box danger mt-12">
-              ❌ Your membership has expired. Please visit F2 Fit Factory to renew and get back on track!
+              ❌ Your membership has expired. Please visit F2 fit-factory to renew and get back on track!
             </div>
           )}
 

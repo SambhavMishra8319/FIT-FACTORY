@@ -26,7 +26,7 @@ const memberNav = [
 function MemberNavLinks({ onClose }) {
   return (
     <nav className="nav">
-      <div className="nav-section-label">My Fitness</div>
+      <div className="nav-section-label"></div>
       {memberNav.map(({ to, icon, label }) => (
         <NavLink
           key={to}
@@ -91,7 +91,7 @@ export function MemberMobileHeader() {
     <>
       <div className="mobile-header">
         <div className="mobile-logo">
-  <div className="brand-title">F2 FIT FACTORY</div>
+  <div className="brand-title">F2 FIT-FACTORY</div>
   <div className="brand-subtitle">by Nimesh Mishra</div>
 </div>
         <button className="hamburger" onClick={() => setOpen(true)}>
@@ -105,7 +105,7 @@ export function MemberMobileHeader() {
         <div className="drawer-header">
           {/* <div className="logo-brand">
   <div className="logo-f2" style={{ fontSize: 18 }}>
-    F2 FIT FACTORY
+    F2 FIT-FACTORY
   </div>
 
   <div className="logo-owner">
@@ -113,7 +113,7 @@ export function MemberMobileHeader() {
   </div>
 </div> */}
 <BrandLogo small />
-          {/* <div className="logo-f2" style={{ fontSize: 18 }}>F2 FIT FACTORY</div> */}
+          {/* <div className="logo-f2" style={{ fontSize: 18 }}>F2 FIT-FACTORY</div> */}
           <button className="drawer-close" onClick={() => setOpen(false)}>✕</button>
         </div>
         <div style={{ flex: 1, overflowY: "auto" }}>

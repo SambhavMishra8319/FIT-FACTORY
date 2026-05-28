@@ -279,10 +279,14 @@ export default function MemberSteam() {
                   )
                   .map((slot) => {
                     const booking = myBookings
-  .filter(
-    (b) => `${b.period}-${b.slot}` === `${slot.period}-${slot.time}`
-  )
-  .sort((a, b) => b.createdAt?.seconds - a.createdAt?.seconds)[0];
+                      .filter(
+                        (b) =>
+                          `${b.period}-${b.slot}` ===
+                          `${slot.period}-${slot.time}`,
+                      )
+                      .sort(
+                        (a, b) => b.createdAt?.seconds - a.createdAt?.seconds,
+                      )[0];
                     const isBooked =
                       bookedSlots.includes(`${slot.period}-${slot.time}`) &&
                       !mySlots.includes(`${slot.period}-${slot.time}`);
@@ -314,53 +318,76 @@ export default function MemberSteam() {
 
                         //   const key = `${slot.period}-${slot.time}`;
                         //   const booking = getBooking(slot);
-                        
+
                         //   const isBlocked =
                         //     booking &&
                         //     (booking.status === "pending" ||
                         //       booking.status === "confirmed");
-                        
-                        //   if (!isBlocked) {
-                          //     setSelected(key);
-                          //   }
-                          // }}
-                          onClick={() => {
-                            const key = `${slot.period}-${slot.time}`;
 
-  const booking = myBookings.find(
-    (b) => `${b.period}-${b.slot}` === key
-  );
-  
-  const status = booking?.status;
-//   const isActive = booking && ["pending", "confirmed"].includes(booking.status);
-  
-//   if (!isActive) {
-//     setSelected(key);
-//   }
-const isBlocked =
-  myBookings.some(
+                        //   if (!isBlocked) {
+                        //     setSelected(key);
+                        //   }
+                        // }}
+                        // onClick={() => {
+                        //   const key = `${slot.period}-${slot.time}`;
+
+                        //   const booking = myBookings.find(
+                        //     (b) => `${b.period}-${b.slot}` === key,
+                        //   );
+
+                        //   const status = booking?.status;
+                        //   //   const isActive = booking && ["pending", "confirmed"].includes(booking.status);
+
+                        //   //   if (!isActive) {
+                        //   //     setSelected(key);
+                        //   //   }
+                        //   const isBlocked = myBookings.some(
+                        //     (b) =>
+                        //       `${b.period}-${b.slot}` === key &&
+                        //       ["pending", "confirmed"].includes(b.status),
+                        //   );
+
+                        //   if (!isBlocked) {
+                        //     setSelected(key);
+                        //   }
+                        // }}
+                        onClick={() => {
+  const key = `${slot.period}-${slot.time}`;
+
+  // Someone else already booked it
+  const alreadyTaken = bookedSlots.includes(key);
+
+  // My active booking exists
+  const myActiveBooking = myBookings.some(
     (b) =>
       `${b.period}-${b.slot}` === key &&
       ["pending", "confirmed"].includes(b.status)
   );
 
-if (!isBlocked) {
-  setSelected(key);
-}
+  // Prevent selecting booked slots
+  if (alreadyTaken && !myActiveBooking) {
+    toast.error("This slot is already booked");
+    return;
+  }
+
+  // Allow only if not actively booked by me
+  if (!myActiveBooking) {
+    setSelected(key);
+  }
 }}
->
+                      >
                         <div className="slot-time">{slot.time}</div>
                         <div className="slot-label">
-  {booking
-    ? booking.status === "pending"
-      ? "Pending Approval"
-      : booking.status === "confirmed"
-        ? "✓ Confirmed"
-        : "Rejected → Rebook allowed"
-    : isBooked
-      ? "Taken"
-      : "Available"}
-</div>
+                          {booking
+                            ? booking.status === "pending"
+                              ? "Pending Approval"
+                              : booking.status === "confirmed"
+                                ? "✓ Confirmed"
+                                : "Rejected → Rebook allowed"
+                            : isBooked
+                              ? "Taken"
+                              : "Available"}
+                        </div>
                         {booking && booking.status !== "rejected" && (
                           <button
                             className="btn btn-sm"

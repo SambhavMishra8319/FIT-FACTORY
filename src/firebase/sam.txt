@@ -1,7 +1,7 @@
 domain name 
 company name 
 google map 
-google auth 
+
 f2-factory
 member dashboard
    
@@ -18,7 +18,7 @@ member dashboard
     
    
     workout
-        after reset points does not cut 
+        
         new workouts 
     
 admin 
@@ -36,19 +36,15 @@ trainer add
 bca barcode 
 therpy machines 
 finger print 
-google authentication 
+
 
 no alerts  convert them to pop ups 
 workout plan of admin to be added to member 
 
 
 no assign plan without number
-stema me taken not working rebook option is there
 
-
-
-
-
+member ship expire but access is there 
 
 
 

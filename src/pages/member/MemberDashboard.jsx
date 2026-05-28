@@ -252,7 +252,7 @@ async function fetchData() {
           <div className="hero-overlay" />
 
           <div className="hero-content">
-            <div className="hero-title">F2 FIT FACTORY BY Nimesh Mishra</div>
+            <div className="hero-title">F2 FIT-FACTORY BY Nimesh Mishra</div>
 
             <div className="hero-subtitle">
               Train harder. Recover smarter. Become unstoppable.
@@ -791,7 +791,7 @@ async function fetchData() {
             PUSH YOUR LIMITS EVERY DAY
           </div>
           <div style={{ fontSize: 11, color: "var(--muted2)" }}>
-            F2 Fit Factory BY Nimesh Mishra 🏆
+            F2 Fit-Factory BY Nimesh Mishra 🏆
           </div>
         </div>
       </div>
