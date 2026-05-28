@@ -30,7 +30,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
 import "../../styles/payments.css";
-
+import { useNavigate } from "react-router-dom";
 import {
   subscribePaymentsSnapshot,
   addPayment,
@@ -41,7 +41,7 @@ export default function Payments() {
   const [payments, setPayments] = useState([]);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
-
+const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -824,7 +824,7 @@ export default function Payments() {
         </div>
 
         {/* ================= FILTER BAR ================= */}
-        <div className="premium-filter-bar">
+        {/* <div className="premium-filter-bar">
           <div className="filter-left">
             <input
               className="premium-search"
@@ -950,8 +950,118 @@ export default function Payments() {
               {filtered.length} results
             </div>
           </div>
-        </div>
+        </div> */}
+<div className="premium-filter-bar">
+  <div className="filter-left">
+    <div className="search-wrap">
+      <span className="search-icon">🔍</span>
 
+      <input
+        className="premium-search"
+        placeholder="Search member, phone, plan..."
+        value={search}
+        onChange={(e) =>
+          setSearch(e.target.value)
+        }
+      />
+    </div>
+
+    <select
+      className="premium-select"
+      value={filterMethod}
+      onChange={(e) =>
+        setFilterMethod(e.target.value)
+      }
+    >
+      <option value="all">
+        All Methods
+      </option>
+
+      <option>Cash</option>
+      <option>UPI</option>
+      <option>Card</option>
+      <option>Bank Transfer</option>
+    </select>
+
+    <select
+      className="premium-select"
+      value={filterPlan}
+      onChange={(e) =>
+        setFilterPlan(e.target.value)
+      }
+    >
+      <option value="all">
+        All Plans
+      </option>
+
+      <option>Monthly</option>
+      <option>Quarterly</option>
+      <option>6 Month</option>
+      <option>Annual</option>
+    </select>
+
+    <select
+      className="premium-select"
+      value={filterStatus}
+      onChange={(e) =>
+        setFilterStatus(e.target.value)
+      }
+    >
+      <option value="all">
+        All Status
+      </option>
+
+      <option value="paid">
+        Paid
+      </option>
+
+      <option value="pending">
+        Pending
+      </option>
+
+      <option value="partial">
+        Partial
+      </option>
+    </select>
+
+    <select
+      className="premium-select"
+      value={dateRange}
+      onChange={(e) =>
+        setDateRange(e.target.value)
+      }
+    >
+      <option value="7days">
+        Last 7 Days
+      </option>
+
+      <option value="30days">
+        Last 30 Days
+      </option>
+
+      <option value="month">
+        This Month
+      </option>
+
+      <option value="year">
+        This Year
+      </option>
+    </select>
+  </div>
+
+  <div className="filter-right">
+    <button
+      className="btn btn-outline btn-sm premium-clear-btn"
+      onClick={clearFilters}
+    >
+      ✕ Clear
+    </button>
+
+    <div className="results-chip">
+      {filtered.length} Results
+    </div>
+  </div>
+</div>
         {/* ================= TABLE ================= */}
         <div className="table-wrap">
           <table>
@@ -993,10 +1103,42 @@ export default function Payments() {
                   return (
                     <tr key={p.id}>
                       <td>
-                        <strong>
-                          {p.memberName}
-                        </strong>
-                      </td>
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      gap: 2,
+    }}
+  >
+    <strong
+      style={{
+        cursor: "pointer",
+        color: "var(--gold)",
+        transition: "0.2s",
+      }}
+      onClick={() =>
+        navigate(`/members/${p.memberId}`)
+      }
+      onMouseEnter={(e) =>
+        (e.target.style.opacity = "0.8")
+      }
+      onMouseLeave={(e) =>
+        (e.target.style.opacity = "1")
+      }
+    >
+      {p.memberName}
+    </strong>
+
+    <small
+      style={{
+        color: "var(--muted2)",
+        fontSize: 11,
+      }}
+    >
+      {p.phone || "No phone"}
+    </small>
+  </div>
+</td>
 
                       <td>{p.plan}</td>
 

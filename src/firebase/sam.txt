@@ -4,56 +4,33 @@ google map
 google auth 
 f2-factory
 member dashboard
-    sidebar
-        equipment not working
+   
     footer 
         mobile number 
-    header
-        small -by nimeshmishra not coming
+    
     dashboard 
-        equipments guide not redirecting 
+         
         static workout plan 
     notification
         no other button sidebar header
-    bca 
-        progress chart not working
     steam 
         cancel notification     
-    my progress
-        data not acess
-    equipment 
-        not working 
+    
+   
     workout
         after reset points does not cut 
         new workouts 
     
 admin 
-    dashboard
-        PENDING conversion 
-            rename as memberships
-            yearly dropdown color white-black
-        member expiry 
-            by defalut 3 months 
-            filter of time to add
-        weekly attendence not working 
-
-    add member 
-        add button not coming 
-
-    bca 
-        from bca report field change
+    
     workout plans 
         days wise plans 
-    my progress
-        not working
-    payments  
-        serch filter styls
-        member name click-profile
+    
+    
     balance sheet 
         csv format 
     notification 
-    member 
-        edit option not working 
+    
     
 
 trainer add
@@ -62,15 +39,12 @@ therpy machines
 finger print 
 google authentication 
 
+no alerts  convert them to pop ups 
+workout plan of admin to be added to member 
 
 
-
-
-
-
-
-
-
+no assign plan without number
+stema me taken not working rebook option is there
 
 
 

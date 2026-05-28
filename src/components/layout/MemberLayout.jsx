@@ -90,7 +90,10 @@ export function MemberMobileHeader() {
   return (
     <>
       <div className="mobile-header">
-        <div className="mobile-logo">F2 FIT FACTORY</div>
+        <div className="mobile-logo">
+  <div className="brand-title">F2 FIT FACTORY</div>
+  <div className="brand-subtitle">by Nimesh Mishra</div>
+</div>
         <button className="hamburger" onClick={() => setOpen(true)}>
           <span /><span /><span />
         </button>

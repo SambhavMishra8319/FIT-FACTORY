@@ -155,7 +155,26 @@ export default function MemberWorkout() {
     (done.length / exercises.length) *
       100
   );
+const resetWorkout = async () => {
+  setDone([]);
 
+  if (!membership?.memberId) return;
+
+  try {
+    await saveWorkoutLog({
+      memberId: membership.memberId,
+      memberName: profile?.name,
+      plan: goal,
+      exercisesDone: 0,
+      total: exercises.length,
+      completedIndexes: [],
+    });
+
+    toast.success("Workout reset ✔");
+  } catch (err) {
+    toast.error("Reset failed");
+  }
+};
   const saveProgress = async () => {
     if (!membership?.memberId) {
       toast.error(
@@ -211,11 +230,11 @@ export default function MemberWorkout() {
 
           <div className="topbar-right">
             <button
-              className="btn btn-outline btn-sm"
-              onClick={() => setDone([])}
-            >
-              Reset
-            </button>
+  className="btn btn-outline btn-sm"
+  onClick={resetWorkout}
+>
+  Reset
+</button>
 
             <button
               className="btn btn-primary btn-sm"

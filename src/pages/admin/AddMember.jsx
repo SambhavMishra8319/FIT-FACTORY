@@ -170,8 +170,11 @@ useEffect(() => {
       el.scrollWidth - el.clientWidth;
 
     setShowLeft(scrollLeft > 10);
-
-    setShowRight(scrollLeft < maxScroll - 10);
+// setShowRight(scrollLeft < maxScroll - 5);
+setShowRight(
+  Math.ceil(scrollLeft) < maxScroll - 5
+);
+    // setShowRight(scrollLeft < maxScroll - 10);
 
     // stop pulse after first scroll
     if (scrollLeft > 20) {
@@ -216,9 +219,9 @@ useEffect(() => {
   const selectedPlan = PLANS.find((p) => p.label === form.plan) || PLANS[0];
 
   const expiryDate = format(
-    addMonths(new Date(form.joinDate), selectedPlan.months),
-    "yyyy-MM-dd",
-  );
+  addMonths(new Date(`${form.joinDate}T00:00:00`), selectedPlan.months),
+  "yyyy-MM-dd"
+);
 
   const isPrefilled = !!(prefill.name || prefill.email);
 
@@ -253,10 +256,17 @@ useEffect(() => {
       }
     }
   };
-
+const bmi =
+  form.weight && form.height
+    ? (
+        Number(form.weight) /
+        ((Number(form.height) / 100) ** 2)
+      ).toFixed(1)
+    : "";
  
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (saving) return;
 
     if (!form.name.trim()) {
       toast.error("Name is required.");
@@ -273,7 +283,7 @@ useEffect(() => {
       return;
     }
 
-    if (form.phone.length !== 10) {
+    if (!/^[6-9]\d{9}$/.test(form.phone)){
       toast.error("Phone number must be 10 digits.");
       return;
     }
@@ -357,7 +367,13 @@ useEffect(() => {
       const memberData = {
         memberId,
 
-        name: form.name.trim(),
+        name: form.name
+  .trim()
+  .replace(/\s+/g, " ")
+  .replace(
+    /\b\w/g,
+    (c) => c.toUpperCase()
+  ),
 
         phone,
 
@@ -498,7 +514,15 @@ useEffect(() => {
 
                         set("phone", value);
 
-                        checkDuplicate("phone", value);
+                        // checkDuplicate("phone", value);
+                        setPhoneExists(
+  allMembers.some(
+    (m) =>
+      (m.phone || "")
+        .replace(/\D/g, "")
+        .slice(-10) === value
+  )
+);
                       }}
                     />
 
@@ -552,7 +576,14 @@ useEffect(() => {
   onChange={(e) => {
     set("email", e.target.value);
 
-    checkDuplicate("email", e.target.value);
+    // checkDuplicate("email", e.target.value);
+    setEmailExists(
+  allMembers.some(
+    (m) =>
+      (m.email || "").trim().toLowerCase() ===
+      e.target.value.trim().toLowerCase()
+  )
+);
   }}
   required
 />
@@ -617,7 +648,19 @@ useEffect(() => {
                       onChange={(e) => set("height", e.target.value)}
                     />
                   </div>
-                </div>
+                <div className="form-group">
+  <label className="form-label">
+    BMI
+  </label>
+
+  <input
+    className="form-input"
+    value={bmi}
+    readOnly
+    placeholder="BMI Auto"
+  />
+</div></div>
+{/* BMI */}
 
                 {/* GOAL */}
                 <div className="form-group">
@@ -650,6 +693,83 @@ useEffect(() => {
                 </div>
               </div>
             </div>
+{/* MEMBERSHIP DETAILS */}
+<div
+  style={{
+    background: `${selectedPlan.color}12`,
+    border: `1px solid ${selectedPlan.color}40`,
+    borderRadius: 18,
+    padding: 18,
+    fontSize: 14,
+    lineHeight: 2,
+    marginTop: 16,
+  }}
+>
+  <div>
+    📋 Plan:
+    <strong> {selectedPlan.label}</strong>
+  </div>
+
+  <div>
+    💰 Amount:
+    <strong>
+      {" "}
+      ₹{selectedPlan.price.toLocaleString()}
+    </strong>
+  </div>
+
+  <div>
+    📅 Valid Till:
+    <strong> {expiryDate}</strong>
+  </div>
+
+  <div>
+    💳 Payment:
+    <strong> {form.paymentMethod}</strong>
+  </div>
+</div>
+
+{/* DATE + PAYMENT */}
+<div className="form-row mt-16">
+  <div className="form-group">
+    <label className="form-label">
+      Start Date
+    </label>
+
+    <input
+      className="form-input"
+      type="date"
+      value={form.joinDate}
+      onChange={(e) =>
+        set("joinDate", e.target.value)
+      }
+    />
+  </div>
+
+  <div className="form-group">
+    <label className="form-label">
+      Payment Method
+    </label>
+
+    <select
+      className="form-input"
+      value={form.paymentMethod}
+      onChange={(e) =>
+        set(
+          "paymentMethod",
+          e.target.value
+        )
+      }
+    >
+      <option>Cash</option>
+      <option>UPI</option>
+      <option>Card</option>
+      <option>Bank Transfer</option>
+    </select>
+  </div>
+</div>
+
+{/* SUBMIT BUTTON */}
 
             {/* RIGHT */}
             {/* RIGHT */}
@@ -1003,7 +1123,7 @@ useEffect(() => {
   </div>
 
 </div>
-            {/* <div style={anim(0.14)}>
+            { <div style={anim(0.14)}>
               <button
                 type="submit"
                 className="btn btn-primary tap-scale btn-ripple"
@@ -1025,7 +1145,8 @@ useEffect(() => {
                   ? `✓ Assign ${form.plan}`
                   : "✓ Register Member"}
               </button>
-            </div> */}
+              
+            </div> }
           </div>
         </form>
       </div>

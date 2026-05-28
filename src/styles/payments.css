@@ -169,3 +169,174 @@ small{
   opacity:0.6;
   cursor:not-allowed;
 }
+/* =========================
+   PREMIUM FILTER BAR
+========================= */
+
+.premium-filter-bar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
+
+  margin:20px 0;
+  padding:18px;
+
+  border-radius:22px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.04),
+      rgba(255,255,255,0.02)
+    );
+
+  border:1px solid rgba(255,255,255,0.06);
+
+  backdrop-filter:blur(14px);
+}
+
+.filter-left{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.filter-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* SEARCH */
+
+.search-wrap{
+  position:relative;
+}
+
+.search-icon{
+  position:absolute;
+  left:14px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:13px;
+  opacity:0.6;
+}
+
+.premium-search{
+  width:260px;
+
+  padding:12px 14px 12px 40px;
+
+  border-radius:14px;
+
+  border:1px solid rgba(255,255,255,0.08);
+
+  background:rgba(255,255,255,0.04);
+
+  color:#fff;
+
+  outline:none;
+
+  transition:0.25s;
+}
+
+.premium-search:focus{
+  border-color:rgba(255,215,0,0.45);
+
+  box-shadow:
+    0 0 0 4px rgba(255,215,0,0.08);
+}
+
+/* SELECTS */
+
+.premium-select{
+  min-width:150px;
+
+  padding:11px 14px;
+
+  border-radius:14px;
+
+  border:1px solid rgba(255,255,255,0.08);
+
+  background:rgba(255,255,255,0.04);
+
+  color:#fff;
+
+  cursor:pointer;
+
+  transition:0.25s;
+}
+
+.premium-select:hover{
+  border-color:rgba(255,215,0,0.22);
+}
+
+.premium-select:focus{
+  outline:none;
+
+  border-color:rgba(255,215,0,0.45);
+
+  box-shadow:
+    0 0 0 4px rgba(255,215,0,0.08);
+}
+
+/* CLEAR BUTTON */
+
+.premium-clear-btn{
+  border-radius:12px !important;
+  padding:10px 16px !important;
+}
+
+/* RESULTS */
+
+.results-chip{
+  padding:10px 14px;
+
+  border-radius:999px;
+
+  background:rgba(255,215,0,0.08);
+
+  border:1px solid rgba(255,215,0,0.15);
+
+  color:var(--gold);
+
+  font-size:12px;
+
+  font-weight:600;
+
+  white-space:nowrap;
+}
+
+/* MOBILE */
+
+@media(max-width:768px){
+
+  .premium-filter-bar{
+    padding:14px;
+  }
+
+  .filter-left{
+    width:100%;
+  }
+
+  .premium-search{
+    width:100%;
+  }
+
+  .search-wrap{
+    width:100%;
+  }
+
+  .premium-select{
+    flex:1;
+    min-width:140px;
+  }
+
+  .filter-right{
+    width:100%;
+    justify-content:space-between;
+  }
+}

@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { recordPaymentAndActivate } from "../../firebase/service";
@@ -30,9 +29,10 @@ import {
   getDocs,
   query,
   where,
-  orderBy, addDoc, 
+  orderBy,
+  addDoc,
   limit,
-  serverTimestamp 
+  serverTimestamp,
 } from "firebase/firestore";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../../firebase/config";
@@ -54,63 +54,63 @@ export default function Dashboard() {
 
   const [loading, setLoading] = useState(true);
   const [visible, setVisible] = useState(false);
-const [selectedPlans, setSelectedPlans] = useState({});
+  const [selectedPlans, setSelectedPlans] = useState({});
   // FILTER
-  const [expiryFilter, setExpiryFilter] = useState("week");
+  // const [expiryFilter, setExpiryFilter] = useState("week");
+  const [expiryFilter, setExpiryFilter] = useState("3months");
 
   const now = new Date();
 
   const today = format(now, "yyyy-MM-dd");
   const thisMonth = format(now, "yyyy-MM");
 
+  // const handleAssignPlan = async (user) => {
+  //   const plan = selectedPlans[user.id];
 
-// const handleAssignPlan = async (user) => {
-//   const plan = selectedPlans[user.id];
+  //   if (!plan) {
+  //     toast.error("Select a plan first");
+  //     return;
+  //   }
 
-//   if (!plan) {
-//     toast.error("Select a plan first");
-//     return;
-//   }
+  //   try {
+  //     console.log("ASSIGN STARTED");
 
-//   try {
-//     console.log("ASSIGN STARTED");
+  //     // STEP 1: Activate member + payment (BEST METHOD)
+  //     await recordPaymentAndActivate(
+  //       {
+  //         memberId: user.id,
+  //         memberName: user.name,
+  //         email: user.email,
+  //         plan,
+  //         amount:
+  //           plan === "Monthly"
+  //             ? 1499
+  //             : plan === "Quarterly"
+  //             ? 3999
+  //             : 9999,
+  //         method: "Admin",
+  //       },
+  //       user.id,
+  //       plan === "Monthly"
+  //         ? 1
+  //         : plan === "Quarterly"
+  //         ? 3
+  //         : 12
+  //     );
 
-//     // STEP 1: Activate member + payment (BEST METHOD)
-//     await recordPaymentAndActivate(
-//       {
-//         memberId: user.id,
-//         memberName: user.name,
-//         email: user.email,
-//         plan,
-//         amount:
-//           plan === "Monthly"
-//             ? 1499
-//             : plan === "Quarterly"
-//             ? 3999
-//             : 9999,
-//         method: "Admin",
-//       },
-//       user.id,
-//       plan === "Monthly"
-//         ? 1
-//         : plan === "Quarterly"
-//         ? 3
-//         : 12
-//     );
+  //     toast.success(`${user.name} assigned ${plan}`);
 
-//     toast.success(`${user.name} assigned ${plan}`);
+  //     // STEP 2: REMOVE from UI instantly
+  //     setSignups((prev) =>
+  //       prev.filter((u) => u.id !== user.id)
+  //     );
 
-//     // STEP 2: REMOVE from UI instantly
-//     setSignups((prev) =>
-//       prev.filter((u) => u.id !== user.id)
-//     );
-
-//   } catch (err) {
-//     console.error(err);
-//     toast.error("Failed to assign plan");
-//   }
-// };
-//   // =========================
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Failed to assign plan");
+  //   }
+  // };
+  //   // =========================
   // FETCH DATA
   // =========================
   useEffect(() => {
@@ -135,8 +135,8 @@ const [selectedPlans, setSelectedPlans] = useState({});
             collection(db, "users"),
             where("role", "==", "member"),
             orderBy("createdAt", "desc"),
-            limit(20)
-          )
+            limit(20),
+          ),
         );
 
         const allUsers = usersSnap.docs.map((d) => ({
@@ -176,10 +176,7 @@ const [selectedPlans, setSelectedPlans] = useState({});
   // =========================
   const memberMap = useMemo(() => {
     return new Map(
-      members.map((m) => [
-        (m.email || "").trim().toLowerCase(),
-        m,
-      ])
+      members.map((m) => [(m.email || "").trim().toLowerCase(), m]),
     );
   }, [members]);
 
@@ -195,7 +192,6 @@ const [selectedPlans, setSelectedPlans] = useState({});
   // =========================
   const expiredMembers = useMemo(() => {
     return members.filter((m) => {
-      
       if (!m.expiryDate) return false;
 
       try {
@@ -211,58 +207,90 @@ const [selectedPlans, setSelectedPlans] = useState({});
   // =========================
   // EXPIRING FILTER
   // =========================
+  // const expiringMembers = useMemo(() => {
+  //   const today = new Date();
+
+  //   const todayStr = format(today, "yyyy-MM-dd");
+
+  //   let futureDate = new Date();
+
+  //   switch (expiryFilter) {
+  //     case "today":
+  //       futureDate = today;
+  //       break;
+
+  //     case "week":
+  //       futureDate.setDate(futureDate.getDate() + 7);
+  //       break;
+
+  //     case "month":
+  //       futureDate.setMonth(futureDate.getMonth() + 1);
+  //       break;
+
+  //     case "3months":
+  //       futureDate.setMonth(futureDate.getMonth() + 3);
+  //       break;
+
+  //     default:
+  //       futureDate.setDate(futureDate.getDate() + 7);
+  //   }
+
+  //   const futureStr = format(futureDate, "yyyy-MM-dd");
+
+  //   return members.filter((m) => {
+  //     if (!m.expiryDate) return false;
+
+  //     if ((m.status || "").toLowerCase() !== "active") {
+  //       return false;
+  //     }
+
+  //     // STRING COMPARISON
+  //     return m.expiryDate >= todayStr && m.expiryDate <= futureStr;
+  //   });
+  // }, [members, expiryFilter]);
   const expiringMembers = useMemo(() => {
-  const today = new Date();
+    const now = new Date();
 
-  const todayStr = format(today, "yyyy-MM-dd");
+    let futureDate = new Date();
 
-  let futureDate = new Date();
+    switch (expiryFilter) {
+      case "today":
+        futureDate = now;
+        break;
 
-  switch (expiryFilter) {
-    case "today":
-      futureDate = today;
-      break;
+      case "week":
+        futureDate = addDays(now, 7);
+        break;
 
-    case "week":
-      futureDate.setDate(futureDate.getDate() + 7);
-      break;
+      case "month":
+        futureDate = addMonths(now, 1);
+        break;
 
-    case "month":
-      futureDate.setMonth(futureDate.getMonth() + 1);
-      break;
+      case "3months":
+        futureDate = addMonths(now, 3);
+        break;
 
-    case "3months":
-      futureDate.setMonth(futureDate.getMonth() + 3);
-      break;
-
-    default:
-      futureDate.setDate(futureDate.getDate() + 7);
-  }
-
-  const futureStr = format(futureDate, "yyyy-MM-dd");
-
-  return members.filter((m) => {
-    if (!m.expiryDate) return false;
-
-    if ((m.status || "").toLowerCase() !== "active") {
-      return false;
+      default:
+        futureDate = addDays(now, 7);
     }
 
-    // STRING COMPARISON
-    return (
-      m.expiryDate >= todayStr &&
-      m.expiryDate <= futureStr
-    );
-  });
-}, [members, expiryFilter]);
+    return members.filter((m) => {
+      if (!m.expiryDate) return false;
+      if ((m.status || "").toLowerCase() !== "active") return false;
 
+      const exp = parseISO(m.expiryDate);
+
+      return isWithinInterval(exp, {
+        start: startOfDay(now),
+        end: endOfDay(futureDate),
+      });
+    });
+  }, [members, expiryFilter]);
   // =========================
   // TODAY CHECKINS
   // =========================
   const todayCheckins = useMemo(() => {
-    return attendance.filter(
-      (a) => a.date === today
-    ).length;
+    return attendance.filter((a) => a.date === today).length;
   }, [attendance, today]);
 
   // =========================
@@ -270,14 +298,8 @@ const [selectedPlans, setSelectedPlans] = useState({});
   // =========================
   const monthRevenue = useMemo(() => {
     return payments
-      .filter((p) =>
-        p.date?.startsWith(thisMonth)
-      )
-      .reduce(
-        (sum, p) =>
-          sum + (Number(p.amount) || 0),
-        0
-      );
+      .filter((p) => p.date?.startsWith(thisMonth))
+      .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
   }, [payments, thisMonth]);
 
   // =========================
@@ -285,14 +307,10 @@ const [selectedPlans, setSelectedPlans] = useState({});
   // =========================
   const revenueDisplay =
     monthRevenue >= 100000
-      ? `₹${(monthRevenue / 100000).toFixed(
-          1
-        )}L`
+      ? `₹${(monthRevenue / 100000).toFixed(1)}L`
       : monthRevenue >= 1000
-      ? `₹${(monthRevenue / 1000).toFixed(
-          1
-        )}k`
-      : `₹${monthRevenue}`;
+        ? `₹${(monthRevenue / 1000).toFixed(1)}k`
+        : `₹${monthRevenue}`;
 
   // =========================
   // ATTENDANCE MAP
@@ -301,8 +319,7 @@ const [selectedPlans, setSelectedPlans] = useState({});
     const map = {};
 
     attendance.forEach((a) => {
-      map[a.date] =
-        (map[a.date] || 0) + 1;
+      map[a.date] = (map[a.date] || 0) + 1;
     });
 
     return map;
@@ -312,36 +329,23 @@ const [selectedPlans, setSelectedPlans] = useState({});
   // WEEK DATA
   // =========================
   const weekDays = useMemo(() => {
-    return Array.from(
-      { length: 7 },
-      (_, i) => {
-        const d = subDays(now, 6 - i);
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = subDays(now, 6 - i);
 
-        const dateKey = format(
-          d,
-          "yyyy-MM-dd"
-        );
+      const dateKey = format(d, "yyyy-MM-dd");
 
-        return {
-          day: format(d, "EEE"),
-          checkins:
-            attendanceMap[dateKey] || 0,
-        };
-      }
-    );
+      return {
+        day: format(d, "EEE"),
+        checkins: attendanceMap[dateKey] || 0,
+      };
+    });
   }, [attendanceMap, now]);
 
   // =========================
   // EMAIL SET
   // =========================
   const memberEmails = useMemo(() => {
-    return new Set(
-      members.map((m) =>
-        (m.email || "")
-          .trim()
-          .toLowerCase()
-      )
-    );
+    return new Set(members.map((m) => (m.email || "").trim().toLowerCase()));
   }, [members]);
 
   // =========================
@@ -349,72 +353,54 @@ const [selectedPlans, setSelectedPlans] = useState({});
   // =========================
   const newAppSignups = useMemo(() => {
     return signups.filter(
-      (u) =>
-        u.email &&
-        !memberEmails.has(
-          u.email
-            .trim()
-            .toLowerCase()
-        )
+      (u) => u.email && !memberEmails.has(u.email.trim().toLowerCase()),
     );
   }, [signups, memberEmails]);
 
+  const handleAssignPlan = async (user) => {
+    const plan = selectedPlans[user.id];
 
-const handleAssignPlan = async (user) => {
-  const plan = selectedPlans[user.id];
+    if (!plan) return toast.error("Select a plan first");
 
-  if (!plan) return toast.error("Select a plan first");
+    try {
+      console.log("ASSIGN STARTED");
 
-  try {
-    console.log("ASSIGN STARTED");
+      const amount =
+        plan === "Monthly" ? 1499 : plan === "Quarterly" ? 3999 : 9999;
 
-    const amount =
-      plan === "Monthly"
-        ? 1499
-        : plan === "Quarterly"
-        ? 3999
-        : 9999;
+      const planMonths = plan === "Monthly" ? 1 : plan === "Quarterly" ? 3 : 12;
 
-    const planMonths =
-      plan === "Monthly"
-        ? 1
-        : plan === "Quarterly"
-        ? 3
-        : 12;
-
-    // 1. CREATE MEMBER FIRST
-    const memberRef = await addDoc(collection(db, "members"), {
-      name: user.name,
-      email: user.email,
-      status: "active",
-      plan,
-      createdAt: serverTimestamp(),
-    });
-
-    // 2. RECORD PAYMENT + ACTIVATE
-    await recordPaymentAndActivate(
-      {
-        memberId: memberRef.id,
-        memberName: user.name,
+      // 1. CREATE MEMBER FIRST
+      const memberRef = await addDoc(collection(db, "members"), {
+        name: user.name,
         email: user.email,
+        status: "active",
         plan,
-        amount,
-        method: "Admin",
-      },
-      memberRef.id,
-      planMonths
-    );
+        createdAt: serverTimestamp(),
+      });
 
-    toast.success(`${user.name} assigned ${plan}`);
+      // 2. RECORD PAYMENT + ACTIVATE
+      await recordPaymentAndActivate(
+        {
+          memberId: memberRef.id,
+          memberName: user.name,
+          email: user.email,
+          plan,
+          amount,
+          method: "Admin",
+        },
+        memberRef.id,
+        planMonths,
+      );
 
-    setSignups((prev) =>
-      prev.filter((u) => u.id !== user.id)
-    );
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to assign plan");
-  }
-};
+      toast.success(`${user.name} assigned ${plan}`);
+
+      setSignups((prev) => prev.filter((u) => u.id !== user.id));
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to assign plan");
+    }
+  };
   // =========================
   // STATS
   // =========================
@@ -477,9 +463,7 @@ const handleAssignPlan = async (user) => {
     <div className="page-enter">
       {/* TOPBAR */}
       <div className="topbar">
-        <div className="page-title">
-          Dashboard
-        </div>
+        <div className="page-title">Dashboard</div>
 
         <div className="topbar-right">
           <span
@@ -488,17 +472,12 @@ const handleAssignPlan = async (user) => {
               color: "var(--muted2)",
             }}
           >
-            {format(
-              now,
-              "EEE, d MMM yyyy"
-            )}
+            {format(now, "EEE, d MMM yyyy")}
           </span>
 
           <button
             className="btn btn-primary btn-sm tap-scale btn-ripple"
-            onClick={() =>
-              navigate("/add-member")
-            }
+            onClick={() => navigate("/add-member")}
           >
             + Add Member
           </button>
@@ -514,19 +493,13 @@ const handleAssignPlan = async (user) => {
               className={`stat-card ${s.cls}`}
               style={anim(i * 0.07)}
             >
-              <div className="stat-label">
-                {s.label}
-              </div>
+              <div className="stat-label">{s.label}</div>
 
-              <div
-                className={`stat-value ${s.val}`}
-              >
+              <div className={`stat-value ${s.val}`}>
                 {loading ? "—" : s.value}
               </div>
 
-              <div className="stat-sub">
-                {s.sub}
-              </div>
+              <div className="stat-sub">{s.sub}</div>
             </div>
           ))}
         </div>
@@ -534,18 +507,10 @@ const handleAssignPlan = async (user) => {
         {/* CHARTS */}
         <div className="grid-2 mb-20">
           {/* ATTENDANCE */}
-          <div
-            className="card"
-            style={anim(0.28)}
-          >
-            <div className="card-title">
-              Weekly Attendance
-            </div>
+          <div className="card" style={anim(0.28)}>
+            <div className="card-title">Weekly Attendance</div>
 
-            <ResponsiveContainer
-              width="100%"
-              height={140}
-            >
+            <ResponsiveContainer width="100%" height={140}>
               <BarChart
                 data={weekDays}
                 margin={{
@@ -574,47 +539,25 @@ const handleAssignPlan = async (user) => {
                   tickLine={false}
                 />
 
-                <Tooltip
-                  contentStyle={
-                    tooltipStyle
-                  }
-                />
+                <Tooltip contentStyle={tooltipStyle} />
 
-                <Bar
-                  dataKey="checkins"
-                  radius={[4, 4, 0, 0]}
-                >
-                  {weekDays.map(
-                    (_, i) => (
-                      <Cell
-                        key={i}
-                        fill={
-                          i === 6
-                            ? "#f5c842"
-                            : "#c9a227"
-                        }
-                      />
-                    )
-                  )}
+                <Bar dataKey="checkins" radius={[4, 4, 0, 0]}>
+                  {weekDays.map((_, i) => (
+                    <Cell key={i} fill={i === 6 ? "#f5c842" : "#c9a227"} />
+                  ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
 
           {/* PAYMENTS */}
-          <div
-            className="card"
-            style={anim(0.32)}
-          >
-            <div className="card-title">
-              Recent Payments
-            </div>
+          <div className="card" style={anim(0.32)}>
+            <div className="card-title">Recent Payments</div>
 
             {payments.length === 0 ? (
               <div
                 style={{
-                  color:
-                    "var(--muted2)",
+                  color: "var(--muted2)",
                   fontSize: 13,
                   padding: "20px 0",
                   textAlign: "center",
@@ -623,73 +566,57 @@ const handleAssignPlan = async (user) => {
                 No payments yet
               </div>
             ) : (
-              payments
-                .slice(0, 5)
-                .map((p) => (
-                  <div
-                    key={p.id}
-                    className="activity-item"
-                  >
-                    <div className="activity-dot green" />
+              payments.slice(0, 5).map((p) => (
+                <div key={p.id} className="activity-item">
+                  <div className="activity-dot green" />
 
-                    <div>
-                      <div className="activity-text">
-                        ₹
-                        {Number(
-                          p.amount
-                        ).toLocaleString()}{" "}
-                        —{" "}
-                        <strong>
-                          {
-                            p.memberName
-                          }
-                        </strong>
-                      </div>
+                  <div>
+                    <div className="activity-text">
+                      ₹{Number(p.amount).toLocaleString()} —{" "}
+                      <strong>{p.memberName}</strong>
+                    </div>
 
-                      <div className="activity-time">
-                        {p.date} ·{" "}
-                        {p.method}
-                      </div>
+                    <div className="activity-time">
+                      {p.date} · {p.method}
                     </div>
                   </div>
-                ))
+                </div>
+              ))
             )}
           </div>
         </div>
-{/* PENDING CONVERSIONS */}
-<div className="card mb-20" style={anim(0.22)}>
-  <div className="card-title">
-    📲 Pending Conversions ({newAppSignups.length})
-  </div>
-
-  {newAppSignups.length === 0 ? (
-    <div style={{ color: "var(--muted2)", fontSize: 13 }}>
-      No pending signups
-    </div>
-  ) : (
-    newAppSignups.slice(0, 6).map((u) => (
-      <div
-        key={u.id}
-        className="activity-item"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 10,
-        }}
-      >
-        {/* LEFT */}
-        <div>
-          <div className="activity-text">
-            {u.name || "No Name"}
+        {/* PENDING CONVERSIONS */}
+        <div className="card mb-20" style={anim(0.22)}>
+          <div className="card-title">
+            📲 Pending Memberships ({newAppSignups.length})
           </div>
-          <div className="activity-time">{u.email}</div>
-        </div>
 
-        {/* RIGHT CONTROLS */}
-        <div style={{ display: "flex", gap: 8 }}>
-          {/* PLAN SELECT */}
-          <select
+          {newAppSignups.length === 0 ? (
+            <div style={{ color: "var(--muted2)", fontSize: 13 }}>
+              No pending signups
+            </div>
+          ) : (
+            newAppSignups.slice(0, 6).map((u) => (
+              <div
+                key={u.id}
+                className="activity-item"
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: 10,
+                }}
+              >
+                {/* LEFT */}
+                <div>
+                  <div className="activity-text">{u.name || "No Name"}</div>
+                  <div className="activity-time">{u.email}</div>
+                </div>
+
+                {/* RIGHT CONTROLS */}
+                <div style={{ display: "flex", gap: 8 }}>
+                  {/* PLAN SELECT */}
+                  {/* <select
             className="btn btn-outline btn-sm"
             value={selectedPlans[u.id] || ""}
             onChange={(e) =>
@@ -698,30 +625,37 @@ const handleAssignPlan = async (user) => {
                 [u.id]: e.target.value,
               }))
             }
-          >
-            <option value="">Plan</option>
-            <option value="Monthly">Monthly</option>
-            <option value="Quarterly">Quarterly</option>
-            <option value="Yearly">Yearly</option>
-          </select>
+          > */}
+                  <select
+                    className="plan-select"
+                    value={selectedPlans[u.id] || ""}
+                    onChange={(e) =>
+                      setSelectedPlans((prev) => ({
+                        ...prev,
+                        [u.id]: e.target.value,
+                      }))
+                    }
+                  >
+                    <option value="">Plan</option>
+                    <option value="Monthly">Monthly</option>
+                    <option value="Quarterly">Quarterly</option>
+                    <option value="Yearly">Yearly</option>
+                  </select>
 
-          {/* ASSIGN BUTTON */}
-          <button
-            className="btn btn-primary btn-sm"
-            onClick={() => handleAssignPlan(u)}
-          >
-            Assign
-          </button>
+                  {/* ASSIGN BUTTON */}
+                  <button
+                    className="btn btn-primary btn-sm"
+                    onClick={() => handleAssignPlan(u)}
+                  >
+                    Assign
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
-      </div>
-    ))
-  )}
-</div>
         {/* EXPIRING MEMBERS */}
-        <div
-          className="section-header mb-12"
-          style={anim(0.4)}
-        >
+        <div className="section-header mb-12" style={anim(0.4)}>
           <div
             style={{
               display: "flex",
@@ -731,8 +665,7 @@ const handleAssignPlan = async (user) => {
             }}
           >
             <div className="section-title">
-              ⚠ Membership Expiry (
-              {expiringMembers.length})
+              ⚠ Membership Expiry ({expiringMembers.length})
             </div>
 
             {/* FILTERS */}
@@ -767,15 +700,9 @@ const handleAssignPlan = async (user) => {
                 <button
                   key={f.key}
                   className={`btn btn-sm ${
-                    expiryFilter === f.key
-                      ? "btn-primary"
-                      : "btn-outline"
+                    expiryFilter === f.key ? "btn-primary" : "btn-outline"
                   }`}
-                  onClick={() =>
-                    setExpiryFilter(
-                      f.key
-                    )
-                  }
+                  onClick={() => setExpiryFilter(f.key)}
                 >
                   {f.label}
                 </button>
@@ -802,34 +729,27 @@ const handleAssignPlan = async (user) => {
             </div>
 
             {/* REMIND ALL */}
-            {expiringMembers.length >
-              0 && (
+            {expiringMembers.length > 0 && (
               <button
                 className="btn btn-outline btn-sm tap-scale"
                 onClick={async () => {
                   try {
                     for (const m of expiringMembers) {
                       await addNotification({
-  memberId: m.id,
-  memberEmail: m.email,
-  title: "Membership Expiry",
-  message: `Hi ${m.name}! Your membership expires on ${m.expiryDate}. Renew now 💪`,
-  read: false,
-  createdAt: serverTimestamp(),
-});
+                        memberId: m.id,
+                        memberEmail: m.email,
+                        title: "Membership Expiry",
+                        message: `Hi ${m.name}! Your membership expires on ${m.expiryDate}. Renew now 💪`,
+                        read: false,
+                        createdAt: serverTimestamp(),
+                      });
                     }
 
-                    toast.success(
-                      "Reminders sent!"
-                    );
+                    toast.success("Reminders sent!");
                   } catch (err) {
-                    console.error(
-                      err
-                    );
+                    console.error(err);
 
-                    toast.error(
-                      "Failed to send reminders"
-                    );
+                    toast.error("Failed to send reminders");
                   }
                 }}
               >
@@ -840,10 +760,7 @@ const handleAssignPlan = async (user) => {
         </div>
 
         {/* TABLE */}
-        <div
-          className="table-wrap"
-          style={anim(0.45)}
-        >
+        <div className="table-wrap" style={anim(0.45)}>
           <table>
             <thead>
               <tr>
@@ -862,91 +779,69 @@ const handleAssignPlan = async (user) => {
                   <td
                     colSpan={6}
                     style={{
-                      textAlign:
-                        "center",
+                      textAlign: "center",
                       padding: 24,
                     }}
                   >
                     Loading...
                   </td>
                 </tr>
-              ) : expiringMembers.length ===
-                0 ? (
+              ) : expiringMembers.length === 0 ? (
                 <tr>
                   <td
                     colSpan={6}
                     style={{
-                      textAlign:
-                        "center",
+                      textAlign: "center",
 
                       padding: 24,
 
-                      color:
-                        "var(--muted2)",
+                      color: "var(--muted2)",
                     }}
                   >
-                    No expiring
-                    memberships found
+                    No expiring memberships found
                   </td>
                 </tr>
               ) : (
-                expiringMembers.map(
-                  (m) => (
-                    <tr key={m.id}>
-                      <td>
-                        <strong>
-                          {m.name}
-                        </strong>
-                      </td>
+                expiringMembers.map((m) => (
+                  <tr key={m.id}>
+                    <td>
+                      <strong>{m.name}</strong>
+                    </td>
 
-                      <td>{m.plan}</td>
+                    <td>{m.plan}</td>
 
-                      <td
-                        style={{
-                          color:
-                            "var(--red)",
-                          fontWeight: 600,
-                        }}
+                    <td
+                      style={{
+                        color: "var(--red)",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {m.expiryDate}
+                    </td>
+
+                    <td>
+                      <span className="badge badge-green">{m.status}</span>
+                    </td>
+
+                    <td
+                      style={{
+                        fontSize: 12,
+                        color: "var(--muted2)",
+                      }}
+                    >
+                      {m.email || "—"}
+                    </td>
+
+                    <td>
+                      <button
+                        className="btn btn-primary btn-sm"
+                        onClick={() => navigate(`/members/${m.id}/edit`)}
                       >
-                        {
-                          m.expiryDate
-                        }
-                      </td>
-
-                      <td>
-                        <span className="badge badge-green">
-                          {
-                            m.status
-                          }
-                        </span>
-                      </td>
-
-                      <td
-                        style={{
-                          fontSize: 12,
-                          color:
-                            "var(--muted2)",
-                        }}
-                      >
-                        {m.email ||
-                          "—"}
-                      </td>
-
-                      <td>
-                        <button
-                          className="btn btn-primary btn-sm"
-                          onClick={() =>
-                            navigate(
-                              `/members/${m.id}/edit`
-                            )
-                          }
-                        >
-                          Renew
-                        </button>
-                      </td>
-                    </tr>
-                  )
-                )
+                        Renew
+                      </button>
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
@@ -956,13 +851,10 @@ const handleAssignPlan = async (user) => {
       {/* FAB */}
       <button
         className="fab tap-scale btn-ripple"
-        onClick={() =>
-          navigate("/add-member")
-        }
+        onClick={() => navigate("/add-member")}
       >
         +
       </button>
     </div>
   );
 }
-
