@@ -15,6 +15,8 @@ import {
   addBCAReading,
 } from "../../firebase/service";
 import BcaScanner from "../../components/BcaScanner";
+import Tesseract from "tesseract.js";
+// import { Html5QrcodeScanner } from "html5-qrcode";
 // const empty = { weight: "", fat: "", muscle: "", water: "", bmi: "" };
 const empty = {
   // Main
@@ -128,7 +130,6 @@ const [showScanner, setShowScanner] = useState(false);
       </span>
     );
   };
-  import Tesseract from "tesseract.js";
 const handleScan = async (url) => {
   try {
     setShowScanner(false);

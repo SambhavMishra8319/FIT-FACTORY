@@ -10,8 +10,11 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, Cell, PieChart, Pie, Legend,
 } from "recharts";
-import { exportToCSV } from "../../firebase/service";
+// import { exportToCSV } from "../../firebase/service";
 import { getPayments } from "../../firebase/service";
+// import { exportBalanceSheetExcel } from "../../utils/exportBalanceSheet";
+// import { exportBalanceSheetExcel } from "../../utils/exportBalanceSheetPDF.js"
+import { exportBalanceSheetPDF } from "../../utils/exportBalanceSheetPDF";
 // ── Expense categories
 const EXPENSE_CATEGORIES = [
   { label: "Equipment Purchase",   icon: "🏋️", color: "#e63329" },
@@ -204,19 +207,82 @@ async function fetchEntries() {
   };
 
   // ── Export
-  const handleExport = () => {
-    if (!filtered.length) { toast.error("No data to export."); return; }
-    exportToCSV(
-      filtered.map(e => ({
-        date: e.date, type: e.type, category: e.category,
-        description: e.description, amount: e.amount,
-        paymentMode: e.paymentMode, notes: e.notes || "",
-      })),
-      `f2_balance_sheet_${filterMode === "month" ? filterMonth : filterDate}`
-    );
-    toast.success("Exported! 📊");
-  };
+  // const handleExport = () => {
+  //   if (!filtered.length) { toast.error("No data to export."); return; }
+  //   exportToCSV(
+  //     filtered.map(e => ({
+  //       date: e.date, type: e.type, category: e.category,
+  //       description: e.description, amount: e.amount,
+  //       paymentMode: e.paymentMode, notes: e.notes || "",
+  //     })),
+  //     `f2_balance_sheet_${filterMode === "month" ? filterMonth : filterDate}`
+  //   );
+  //   toast.success("Exported! 📊");
+  // };
+// const handleExport = () => {
+//   if (!filtered.length) {
+//     toast.error("No data to export.");
+//     return;
+//   }
 
+//   exportBalanceSheetExcel({
+//     entries: filtered,
+//     totalIncome,
+//     totalExpense,
+//     netBalance,
+//     filterLabel:
+//       filterMode === "month"
+//         ? filterMonth
+//         : filterMode === "date"
+//         ? filterDate
+//         : "all_time",
+//   });
+
+//   toast.success("Balance Sheet Exported 📊");
+// };
+// const handleExport = () => {
+
+//   if (!filtered.length) {
+//     toast.error("No data to export.");
+//     return;
+//   }
+
+//   exportBalanceSheetPDF({
+//     entries: filtered,
+//     totalIncome,
+//     totalExpense,
+//     netBalance,
+//     filterLabel:
+//       filterMode === "month"
+//         ? filterMonth
+//         : filterMode === "date"
+//         ? filterDate
+//         : "all_time",
+//   });
+
+//   toast.success("Professional PDF Report Generated 📄");
+// };
+const handleExport = () => {
+  if (!filtered.length) {
+    toast.error("No data to export.");
+    return;
+  }
+
+  exportBalanceSheetPDF({
+    entries: filtered,
+    totalIncome,
+    totalExpense,
+    netBalance,
+    filterLabel:
+      filterMode === "month"
+        ? filterMonth
+        : filterMode === "date"
+        ? filterDate
+        : "all_time",
+  });
+
+  toast.success("Professional PDF Generated 📄");
+};
   const anim = delay => ({
     opacity:   visible ? 1 : 0,
     transform: visible ? "translateY(0)" : "translateY(14px)",

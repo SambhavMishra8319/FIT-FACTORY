@@ -1,9 +1,9 @@
-import { Html5QrcodeScanner } from "html5-qrcode";
 import { useEffect } from "react";
+import * as Html5Qrcode from "html5-qrcode";
 
 export default function BcaScanner({ onScan }) {
   useEffect(() => {
-    const scanner = new Html5QrcodeScanner(
+    const scanner = new Html5Qrcode.Html5QrcodeScanner(
       "reader",
       {
         fps: 10,
@@ -14,19 +14,15 @@ export default function BcaScanner({ onScan }) {
 
     scanner.render(
       (decodedText) => {
-        console.log("Scanned:", decodedText);
-
         onScan(decodedText);
 
-        scanner.clear();
+        scanner.clear().catch(console.error);
       },
-      (error) => {
-        console.warn(error);
-      }
+      () => {}
     );
 
     return () => {
-      scanner.clear().catch(() => {});
+      scanner.clear().catch(console.error);
     };
   }, [onScan]);
 
