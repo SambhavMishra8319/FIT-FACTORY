@@ -3,3 +3,301 @@ company name
 google map 
 google auth 
 f2-factory
+member dashboard
+    sidebar
+        equipment not working
+    footer 
+        mobile number 
+    header
+        small -by nimeshmishra not coming
+    dashboard 
+        equipments guide not redirecting 
+        static workout plan 
+    notification
+        no other button sidebar header
+    bca 
+        progress chart not working
+    steam 
+        cancel notification     
+    my progress
+        data not acess
+    equipment 
+        not working 
+    workout
+        after reset points does not cut 
+        new workouts 
+    
+admin 
+    dashboard
+        PENDING conversion 
+            rename as memberships
+            yearly dropdown color white-black
+        member expiry 
+            by defalut 3 months 
+            filter of time to add
+        weekly attendence not working 
+
+    add member 
+        add button not coming 
+
+    bca 
+        from bca report field change
+    workout plans 
+        days wise plans 
+    my progress
+        not working
+    payments  
+        serch filter styls
+        member name click-profile
+    balance sheet 
+        csv format 
+    notification 
+    member 
+        edit option not working 
+    
+
+trainer add
+bca barcode 
+therpy machines 
+finger print 
+google authentication 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     some console error react refresh:37 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+member/steam:1 Error while trying to use the following icon from the Manifest: http://localhost:3000/logo192.png (Download error or resource isn't a valid image)
+service.js:262 Firestore slots: Array(9)
+service.js:745 FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/f2-fit-factory/firestore/indexes?create_composite=ClRwcm9qZWN0cy9mMi1maXQtZmFjdG9yeS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvbm90aWZpY2F0aW9ucy9pbmRleGVzL18QARoMCghtZW1iZXJJZBABGggKBGRhdGUQAhoMCghfX25hbWVfXxAC
+getMemberNotifications @ service.js:745
+await in getMemberNotifications
+fetchNotifications @ MemberNotifications.jsx:21
+(anonymous) @ MemberNotifications.jsx:16
+commitHookEffectListMount @ react-dom.development.js:23189
+commitPassiveMountOnFiber @ react-dom.development.js:24965
+commitPassiveMountEffects_complete @ react-dom.development.js:24930
+commitPassiveMountEffects_begin @ react-dom.development.js:24917
+commitPassiveMountEffects @ react-dom.development.js:24905
+flushPassiveEffectsImpl @ react-dom.development.js:27078
+flushPassiveEffects @ react-dom.development.js:27023
+(anonymous) @ react-dom.development.js:26808
+workLoop @ scheduler.development.js:266
+flushWork @ scheduler.development.js:239
+(anonymous) @ scheduler.development.js:533
+postMessage
+(anonymous) @ scheduler.development.js:574
+(anonymous) @ scheduler.development.js:538
+postMessage
+(anonymous) @ scheduler.development.js:574
+(anonymous) @ scheduler.development.js:538
+postMessage
+(anonymous) @ scheduler.development.js:574
+requestHostCallback @ scheduler.development.js:588
+unstable_scheduleCallback @ scheduler.development.js:441
+scheduleCallback$1 @ react-dom.development.js:27576
+ensureRootIsScheduled @ react-dom.development.js:25722
+scheduleUpdateOnFiber @ react-dom.development.js:25570
+dispatchSetState @ react-dom.development.js:16708
+(anonymous) @ index.tsx:807
+startTransition @ react.development.js:2433
+(anonymous) @ index.tsx:807
+push @ history.ts:664
+(anonymous) @ hooks.tsx:243
+(anonymous) @ index.tsx:1452
+handleClick @ index.tsx:1027
+callCallback @ react-dom.development.js:4164
+invokeGuardedCallbackDev @ react-dom.development.js:4213
+invokeGuardedCallback @ react-dom.development.js:4277
+invokeGuardedCallbackAndCatchFirstError @ react-dom.development.js:4291
+executeDispatch @ react-dom.development.js:9041
+processDispatchQueueItemsInOrder @ react-dom.development.js:9073
+processDispatchQueue @ react-dom.development.js:9086
+dispatchEventsForPlugins @ react-dom.development.js:9097
+(anonymous) @ react-dom.development.js:9288
+batchedUpdates$1 @ react-dom.development.js:26179
+batchedUpdates @ react-dom.development.js:3991
+dispatchEventForPluginEventSystem @ react-dom.development.js:9287
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ react-dom.development.js:6465
+dispatchEvent @ react-dom.development.js:6457
+dispatchDiscreteEvent @ react-dom.development.js:6430
+service.js:745 FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/f2-fit-factory/firestore/indexes?create_composite=ClRwcm9qZWN0cy9mMi1maXQtZmFjdG9yeS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvbm90aWZpY2F0aW9ucy9pbmRleGVzL18QARoMCghtZW1iZXJJZBABGggKBGRhdGUQAhoMCghfX25hbWVfXxAC
+getMemberNotifications @ service.js:745
+await in getMemberNotifications
+fetchNotifications @ MemberNotifications.jsx:21
+(anonymous) @ MemberNotifications.jsx:16
+commitHookEffectListMount @ react-dom.development.js:23189
+invokePassiveEffectMountInDEV @ react-dom.development.js:25193
+invokeEffectsInDev @ react-dom.development.js:27390
+commitDoubleInvokeEffectsInDEV @ react-dom.development.js:27369
+flushPassiveEffectsImpl @ react-dom.development.js:27095
+flushPassiveEffects @ react-dom.development.js:27023
+(anonymous) @ react-dom.development.js:26808
+workLoop @ scheduler.development.js:266
+flushWork @ scheduler.development.js:239
+(anonymous) @ scheduler.development.js:533
+postMessage
+(anonymous) @ scheduler.development.js:574
+(anonymous) @ scheduler.development.js:538
+postMessage
+(anonymous) @ scheduler.development.js:574
+(anonymous) @ scheduler.development.js:538
+postMessage
+(anonymous) @ scheduler.development.js:574
+requestHostCallback @ scheduler.development.js:588
+unstable_scheduleCallback @ scheduler.development.js:441
+scheduleCallback$1 @ react-dom.development.js:27576
+ensureRootIsScheduled @ react-dom.development.js:25722
+scheduleUpdateOnFiber @ react-dom.development.js:25570
+dispatchSetState @ react-dom.development.js:16708
+(anonymous) @ index.tsx:807
+startTransition @ react.development.js:2433
+(anonymous) @ index.tsx:807
+push @ history.ts:664
+(anonymous) @ hooks.tsx:243
+(anonymous) @ index.tsx:1452
+handleClick @ index.tsx:1027
+callCallback @ react-dom.development.js:4164
+invokeGuardedCallbackDev @ react-dom.development.js:4213
+invokeGuardedCallback @ react-dom.development.js:4277
+invokeGuardedCallbackAndCatchFirstError @ react-dom.development.js:4291
+executeDispatch @ react-dom.development.js:9041
+processDispatchQueueItemsInOrder @ react-dom.development.js:9073
+processDispatchQueue @ react-dom.development.js:9086
+dispatchEventsForPlugins @ react-dom.development.js:9097
+(anonymous) @ react-dom.development.js:9288
+batchedUpdates$1 @ react-dom.development.js:26179
+batchedUpdates @ react-dom.development.js:3991
+dispatchEventForPluginEventSystem @ react-dom.development.js:9287
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ react-dom.development.js:6465
+dispatchEvent @ react-dom.development.js:6457
+dispatchDiscreteEvent @ react-dom.development.js:6430
+service.js:745 FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/f2-fit-factory/firestore/indexes?create_composite=ClRwcm9qZWN0cy9mMi1maXQtZmFjdG9yeS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvbm90aWZpY2F0aW9ucy9pbmRleGVzL18QARoMCghtZW1iZXJJZBABGggKBGRhdGUQAhoMCghfX25hbWVfXxAC
+getMemberNotifications @ service.js:745
+await in getMemberNotifications
+fetchNotifications @ MemberNotifications.jsx:21
+(anonymous) @ MemberNotifications.jsx:16
+commitHookEffectListMount @ react-dom.development.js:23189
+commitPassiveMountOnFiber @ react-dom.development.js:24965
+commitPassiveMountEffects_complete @ react-dom.development.js:24930
+commitPassiveMountEffects_begin @ react-dom.development.js:24917
+commitPassiveMountEffects @ react-dom.development.js:24905
+flushPassiveEffectsImpl @ react-dom.development.js:27078
+flushPassiveEffects @ react-dom.development.js:27023
+(anonymous) @ react-dom.development.js:26808
+workLoop @ scheduler.development.js:266
+flushWork @ scheduler.development.js:239
+(anonymous) @ scheduler.development.js:533
+postMessage
+(anonymous) @ scheduler.development.js:574
+(anonymous) @ scheduler.development.js:538
+postMessage
+(anonymous) @ scheduler.development.js:574
+requestHostCallback @ scheduler.development.js:588
+unstable_scheduleCallback @ scheduler.development.js:441
+scheduleCallback$1 @ react-dom.development.js:27576
+ensureRootIsScheduled @ react-dom.development.js:25722
+scheduleUpdateOnFiber @ react-dom.development.js:25570
+dispatchSetState @ react-dom.development.js:16708
+(anonymous) @ index.tsx:807
+startTransition @ react.development.js:2433
+(anonymous) @ index.tsx:807
+push @ history.ts:664
+(anonymous) @ hooks.tsx:243
+(anonymous) @ index.tsx:1452
+handleClick @ index.tsx:1027
+callCallback @ react-dom.development.js:4164
+invokeGuardedCallbackDev @ react-dom.development.js:4213
+invokeGuardedCallback @ react-dom.development.js:4277
+invokeGuardedCallbackAndCatchFirstError @ react-dom.development.js:4291
+executeDispatch @ react-dom.development.js:9041
+processDispatchQueueItemsInOrder @ react-dom.development.js:9073
+processDispatchQueue @ react-dom.development.js:9086
+dispatchEventsForPlugins @ react-dom.development.js:9097
+(anonymous) @ react-dom.development.js:9288
+batchedUpdates$1 @ react-dom.development.js:26179
+batchedUpdates @ react-dom.development.js:3991
+dispatchEventForPluginEventSystem @ react-dom.development.js:9287
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ react-dom.development.js:6465
+dispatchEvent @ react-dom.development.js:6457
+dispatchDiscreteEvent @ react-dom.development.js:6430
+service.js:745 FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/f2-fit-factory/firestore/indexes?create_composite=ClRwcm9qZWN0cy9mMi1maXQtZmFjdG9yeS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvbm90aWZpY2F0aW9ucy9pbmRleGVzL18QARoMCghtZW1iZXJJZBABGggKBGRhdGUQAhoMCghfX25hbWVfXxAC
+getMemberNotifications @ service.js:745
+await in getMemberNotifications
+fetchNotifications @ MemberNotifications.jsx:21
+(anonymous) @ MemberNotifications.jsx:16
+commitHookEffectListMount @ react-dom.development.js:23189
+invokePassiveEffectMountInDEV @ react-dom.development.js:25193
+invokeEffectsInDev @ react-dom.development.js:27390
+commitDoubleInvokeEffectsInDEV @ react-dom.development.js:27369
+flushPassiveEffectsImpl @ react-dom.development.js:27095
+flushPassiveEffects @ react-dom.development.js:27023
+(anonymous) @ react-dom.development.js:26808
+workLoop @ scheduler.development.js:266
+flushWork @ scheduler.development.js:239
+(anonymous) @ scheduler.development.js:533
+postMessage
+(anonymous) @ scheduler.development.js:574
+(anonymous) @ scheduler.development.js:538
+postMessage
+(anonymous) @ scheduler.development.js:574
+requestHostCallback @ scheduler.development.js:588
+unstable_scheduleCallback @ scheduler.development.js:441
+scheduleCallback$1 @ react-dom.development.js:27576
+ensureRootIsScheduled @ react-dom.development.js:25722
+scheduleUpdateOnFiber @ react-dom.development.js:25570
+dispatchSetState @ react-dom.development.js:16708
+(anonymous) @ index.tsx:807
+startTransition @ react.development.js:2433
+(anonymous) @ index.tsx:807
+push @ history.ts:664
+(anonymous) @ hooks.tsx:243
+(anonymous) @ index.tsx:1452
+handleClick @ index.tsx:1027
+callCallback @ react-dom.development.js:4164
+invokeGuardedCallbackDev @ react-dom.development.js:4213
+invokeGuardedCallback @ react-dom.development.js:4277
+invokeGuardedCallbackAndCatchFirstError @ react-dom.development.js:4291
+executeDispatch @ react-dom.development.js:9041
+processDispatchQueueItemsInOrder @ react-dom.development.js:9073
+processDispatchQueue @ react-dom.development.js:9086
+dispatchEventsForPlugins @ react-dom.development.js:9097
+(anonymous) @ react-dom.development.js:9288
+batchedUpdates$1 @ react-dom.development.js:26179
+batchedUpdates @ react-dom.development.js:3991
+dispatchEventForPluginEventSystem @ react-dom.development.js:9287
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ react-dom.development.js:6465
+dispatchEvent @ react-dom.development.js:6457
+dispatchDiscreteEvent @ react-dom.development.js:6430
+service.js:262 Firestore slots: (9) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]

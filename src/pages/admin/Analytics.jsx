@@ -492,7 +492,7 @@
 //   );
 // }
 import { useEffect, useState, useMemo } from "react";
-import { getAllMembers, getPayments } from "../firebase/service";
+import { getAllMembers, getPayments } from "../../firebase/service";
 import { format, subMonths, parseISO, differenceInDays } from "date-fns";
 import {
   ResponsiveContainer,

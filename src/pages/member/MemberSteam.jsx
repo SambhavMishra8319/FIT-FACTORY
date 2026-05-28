@@ -8,11 +8,11 @@ import { useAuth } from "../../context/AuthContext";
 
 import { useMembership } from "../../hooks/useMembership";
 
-import { LockGate, ExpiryBanner } from "../../components/LockGate";
+import { LockGate, ExpiryBanner } from "../../components/auth/LockGate";
 
-import LoadingSkeleton from "../../components/member/LoadingSkeleton";
-import StatCard from "../../components/member/StatCard";
-import SectionHeader from "../../components/member/SectionHeader";
+import LoadingSkeleton from "../../components/member/ui/LoadingSkeleton";
+import StatCard from "../../components/member/ui/StatCard";
+import SectionHeader from "../../components/member/ui/SectionHeader";
 
 import {
   subscribeSteamBookings,

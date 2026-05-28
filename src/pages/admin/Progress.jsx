@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAllMembers, getAttendance } from "../firebase/service";
+import { getAllMembers, getAttendance } from "../../firebase/service";
 import { format, subDays } from "date-fns";
 import toast from "react-hot-toast";
 

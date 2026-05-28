@@ -4,12 +4,12 @@ import toast from "react-hot-toast";
 import { useAuth } from "../../context/AuthContext";
 import { useMembership } from "../../hooks/useMembership";
 
-import { LockGate, ExpiryBanner } from "../../components/LockGate";
+import { LockGate, ExpiryBanner } from "../../components/auth/LockGate";
 
-import LoadingSkeleton from "../../components/member/LoadingSkeleton";
-import SectionHeader from "../../components/member/SectionHeader";
-import ProgressBar from "../../components/member/ProgressBar";
-import ExerciseRow from "../../components/member/ExerciseRow";
+import LoadingSkeleton from "../../components/member/ui/LoadingSkeleton";
+import SectionHeader from "../../components/member/ui/SectionHeader";
+import ProgressBar from "../../components/member/ui/ProgressBar";
+import ExerciseRow from "../../components/member/workout/ExerciseRow";
 
 import {
   saveWorkoutLog,

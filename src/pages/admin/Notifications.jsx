@@ -6,7 +6,7 @@ import {
   getNotifications,
   addNotification,
   getMembers,
-} from "../firebase/service";
+} from "../../firebase/service";
 
 export default function Notifications() {
   const [notifications, setNotifications] = useState([]);

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { format, addMonths } from "date-fns";
 import toast from "react-hot-toast";
-import { addMember, addPayment, getAllMembers } from "../firebase/service";
+import { addMember, addPayment, getAllMembers } from "../../firebase/service";
 
 const PLANS = [
   {

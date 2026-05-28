@@ -29,13 +29,13 @@ import {
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
-import "../styles/payments.css";
+import "../../styles/payments.css";
 
 import {
   subscribePaymentsSnapshot,
   addPayment,
   getAllMembers,
-} from "../firebase/service";
+} from "../../firebase/service";
 
 export default function Payments() {
   const [payments, setPayments] = useState([]);

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import toast from "react-hot-toast";
-import { getAllMembers, getBCAReadings, addBCAReading } from "../firebase/service";
+import { getAllMembers, getBCAReadings, addBCAReading } from "../../firebase/service";
 
 const empty = { weight: "", fat: "", muscle: "", water: "", bmi: "" };
 

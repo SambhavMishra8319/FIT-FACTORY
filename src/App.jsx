@@ -22,88 +22,88 @@ import {
 import {
   Sidebar,
   MobileHeader,
-} from "./components/Sidebar";
+} from "./components/layout/Sidebar";
 
-import BottomNav from "./components/BottomNav";
+import BottomNav from "./components/layout/BottomNav";
 
 import {
   MemberSidebar,
   MemberMobileHeader,
   MemberBottomNav,
-} from "./components/MemberLayout";
+} from "./components/layout/MemberLayout";
 
 // Shared
-import SplashScreen from "./components/SplashScreen";
-import ErrorBoundary from "./components/ErrorBoundary";
+import SplashScreen from "./components/system/SplashScreen";
+import ErrorBoundary from "./components/system/ErrorBoundary";
 
 import {
   UpgradePage,
-} from "./components/LockGate";
+} from "./components/auth/LockGate";
 import MemberNotifications from "./pages/member/MemberNotifications";
 // Styles
 import "./index.css";
 import "./styles/animations.css";
-import MemberProfile from "./pages/MemberProfile";
-import { Workout, Diet } from "./pages/StaticPages";
+import MemberProfile from "./pages/admin/MemberProfile";
+import { Workout, Diet } from "./pages/static/StaticPages";
 // ── Lazy Admin Pages ─────────────────────────────────────
 const Login = lazy(() =>
   import("./pages/Login")
 );
 
 const Dashboard = lazy(() =>
-  import("./pages/Dashboard")
+  import("./pages/admin/Dashboard")
 );
 
 const Members = lazy(() =>
-  import("./pages/Members")
+  import("./pages/admin/Members")
 );
 
 const AddMember = lazy(() =>
-  import("./pages/AddMember")
+  import("./pages/admin/AddMember")
 );
 
 const EditMember = lazy(() =>
-  import("./pages/EditMember")
+  import("./pages/admin/EditMember")
 );
 
 const BCA = lazy(() =>
-  import("./pages/BCA")
+  import("./pages/admin/BCA")
 );
 
 const SteamBath = lazy(() =>
-  import("./pages/SteamBath")
+  import("./pages/admin/SteamBath")
 );
 
 const Payments = lazy(() =>
-  import("./pages/Payments")
+  import("./pages/admin/Payments")
 );
 
 const Notifications = lazy(() =>
-  import("./pages/Notifications")
+  import("./pages/admin/Notifications")
 );
 
 const Equipment = lazy(() =>
-  import("./pages/EquipmentGuide")
+  import("./pages/admin/EquipmentGuide")
 );
 
 const Analytics = lazy(() =>
-  import("./pages/Analytics")
+  import("./pages/admin/Analytics")
 );
 
 const BalanceSheet = lazy(() =>
-  import("./pages/BalanceSheet")
+  import("./pages/admin/BalanceSheet")
 );
 
 const Progress = lazy(() =>
-  import("./pages/Progress")
+  import("./pages/admin/Progress")
 );
 
 const Leaderboard = lazy(() =>
-  import("./pages/Leaderboard")
+  import("./pages/admin/Leaderboard")
 );
 
 const StaticPages = lazy(() =>
-  import("./pages/StaticPages")
+  import("./pages/static/StaticPages")
 );
 
 // ── Lazy Member Pages ────────────────────────────────────

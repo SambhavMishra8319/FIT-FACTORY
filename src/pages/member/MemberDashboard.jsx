@@ -5,7 +5,7 @@ import { collection, query, where, getDocs, orderBy, limit } from "firebase/fire
 import { db } from "../../firebase/config";
 import { format } from "date-fns";
 import { useMembership } from "../../hooks/useMembership";
-import { MembershipBanner, ExpiryBanner, SectionLock } from "../../components/LockGate";
+import { MembershipBanner, ExpiryBanner, SectionLock } from "../../components/auth/LockGate";
 import "../../styles/MemberDashboard.css"
 // Sample preview data shown to free members (blurred)
 const SAMPLE_BCA = { weight: "72.4", fat: "22.5%", muscle: "35.8 kg", bmi: "22.4" };

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import logo from "../assests/f2-logo.png";
+import logo from "../../assests/f2-logo.png";
 export default function SplashScreen({ onDone }) {
   const [phase, setPhase] = useState(0);
   // phase 0 = black screen

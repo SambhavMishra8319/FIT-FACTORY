@@ -20,15 +20,15 @@ import { useMembership } from "../../hooks/useMembership";
 import {
   LockGate,
   ExpiryBanner,
-} from "../../components/LockGate";
+} from "../../components/auth/LockGate";
 
-import LoadingSkeleton from "../../components/member/LoadingSkeleton";
+import LoadingSkeleton from "../../components/member/ui/LoadingSkeleton";
 
-import StatCard from "../../components/member/StatCard";
+import StatCard from "../../components/member/ui/StatCard";
 
-import SectionHeader from "../../components/member/SectionHeader";
+import SectionHeader from "../../components/member/ui/SectionHeader";
 
-import AchievementCard from "../../components/member/AchievementCard";
+import AchievementCard from "../../components/member/gamification/AchievementCard";
 
 import {
   getBCAReadings,

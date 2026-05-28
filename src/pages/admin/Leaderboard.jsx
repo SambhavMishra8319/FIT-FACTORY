@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { subscribeLeaderboard } from "../firebase/service";
+import { subscribeLeaderboard } from "../../firebase/service";
 
 const rankColor = r => r === 1 ? "var(--gold)" : r === 2 ? "#9ca3af" : r === 3 ? "#cd7c4a" : "var(--muted2)";
 const rankLabel = r => r === 1 ? "🥇" : r === 2 ? "🥈" : r === 3 ? "🥉" : r;

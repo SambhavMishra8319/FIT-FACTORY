@@ -12,9 +12,9 @@ import {
   rejectSteamBooking,
   removeSteamSlot,
   subscribeSteamSlots,
-} from "../firebase/service";
-import "../styles/steam.css";
-import { useAuth } from "../context/AuthContext";
+} from "../../firebase/service";
+import "../../styles/steam.css";
+import { useAuth } from "../../context/AuthContext";
 
 const ALL_SLOTS = [
   { time: "6:00 AM", period: "Morning" },

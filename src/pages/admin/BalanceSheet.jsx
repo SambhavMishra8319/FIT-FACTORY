@@ -5,13 +5,13 @@ import {
   collection, addDoc, getDocs, deleteDoc, doc,
   query, orderBy, serverTimestamp,
 } from "firebase/firestore";
-import { db } from "../firebase/config";
+import { db } from "../../firebase/config";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, Cell, PieChart, Pie, Legend,
 } from "recharts";
-import { exportToCSV } from "../firebase/service";
-import { getPayments } from "../firebase/service";
+import { exportToCSV } from "../../firebase/service";
+import { getPayments } from "../../firebase/service";
 // ── Expense categories
 const EXPENSE_CATEGORIES = [
   { label: "Equipment Purchase",   icon: "🏋️", color: "#e63329" },

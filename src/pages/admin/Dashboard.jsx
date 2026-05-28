@@ -1,7 +1,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { recordPaymentAndActivate } from "../firebase/service";
+import { recordPaymentAndActivate } from "../../firebase/service";
 import {
   BarChart,
   Bar,
@@ -35,14 +35,14 @@ import {
   serverTimestamp 
 } from "firebase/firestore";
 import { doc, setDoc } from "firebase/firestore";
-import { db } from "../firebase/config";
+import { db } from "../../firebase/config";
 
 import {
   getAllMembers,
   getPayments,
   getAttendance,
   addNotification,
-} from "../firebase/service";
+} from "../../firebase/service";
 
 export default function Dashboard() {
   const navigate = useNavigate();

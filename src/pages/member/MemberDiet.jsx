@@ -15,12 +15,12 @@ import { useMembership } from "../../hooks/useMembership";
 import {
   LockGate,
   ExpiryBanner,
-} from "../../components/LockGate";
+} from "../../components/auth/LockGate";
 
-import LoadingSkeleton from "../../components/member/LoadingSkeleton";
-import SectionHeader from "../../components/member/SectionHeader";
-import StatCard from "../../components/member/StatCard";
-import MealCard from "../../components/member/MealCard";
+import LoadingSkeleton from "../../components/member/ui/LoadingSkeleton";
+import SectionHeader from "../../components/member/ui/SectionHeader";
+import StatCard from "../../components/member/ui/StatCard";
+import MealCard from "../../components/member/diet/MealCard";
 
 const DIET_PLANS = {
   "Muscle Gain": {

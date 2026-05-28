@@ -10,8 +10,8 @@ import {
   getMember,
   getMemberAttendance,
   getSteamBookingsByMember,
-} from "../firebase/service";
-import { db } from "../firebase/config";
+} from "../../firebase/service";
+import { db } from "../../firebase/config";
 
 // import { getMember, getMemberAttendance } from "../firebase/service";
 export default function MemberProfile() {

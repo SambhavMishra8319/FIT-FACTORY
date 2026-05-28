@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { format, addMonths } from "date-fns";
 import toast from "react-hot-toast";
-import { getMember, updateMember, recordPaymentAndActivate } from "../firebase/service";
+import { getMember, updateMember, recordPaymentAndActivate } from "../../firebase/service";
 
 const PLANS = [
   { label: "Monthly",   months: 1,  price: 1500 },
