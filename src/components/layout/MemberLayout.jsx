@@ -20,7 +20,7 @@ const memberNav = [
   { to: "/member/progress",  icon: "📈", label: "Progress" },
   // { to: "/equipment",        icon: "🔧", label: "Equipment" },
   //  { to: "/member/equipment", icon: "🔧", label: "Equipment" },
-  { to: "/member/equipment", icon: "🔧", label: "Equipment" },
+  { to: "/member/equipment", icon: "🔧", label: "Equipment Guide" },
 ];
 
 function MemberNavLinks({ onClose }) {

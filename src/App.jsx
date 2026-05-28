@@ -83,7 +83,7 @@ const Notifications = lazy(() =>
 );
 
 const Equipment = lazy(() =>
-  import("./pages/admin/EquipmentGuide")
+  import("./pages/shared/EquipmentGuide") // OR move later
 );
 
 const Analytics = lazy(() =>
@@ -626,7 +626,25 @@ function AppRoutes() {
         path="*"
         element={<RootRedirect />}
       />
+      <Route
+  path="/member/equipment"
+  element={
+    <MemberLayout>
+      <Equipment />
+    </MemberLayout>
+  }
+/>
+
+<Route
+  path="/equipments"
+  element={
+    <AdminLayout>
+      <Equipment />
+    </AdminLayout>
+  }
+/>
     </Routes>
+    
   );
 }
 
