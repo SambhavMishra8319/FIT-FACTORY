@@ -2457,3 +2457,98 @@ select.form-input option {
   font-size:18px;
 }
 
+.page-container {
+  padding: 20px;
+}
+
+.trainer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
+  gap: 20px;
+}
+
+.trainer-card {
+  background: #111;
+  border-radius: 16px;
+  padding: 20px;
+  cursor: pointer;
+  border: 1px solid #222;
+}
+
+.trainer-card:hover {
+  transform: translateY(-4px);
+}
+
+.trainer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 500px;
+}
+
+.trainer-form input,
+.trainer-form select {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #333;
+}
+
+.trainer-form button {
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: orange;
+  font-weight: bold;
+  cursor: pointer;
+}
+.salary-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:20px;
+  margin:20px 0;
+}
+
+.salary-card{
+  background:#111;
+  padding:20px;
+  border-radius:18px;
+  border:1px solid #222;
+}
+
+.custom-table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+.custom-table th,
+.custom-table td{
+  padding:14px;
+  border-bottom:1px solid #222;
+  text-align:left;
+}
+
+.table-wrapper{
+  margin-top:30px;
+}
+
+.trainer-profile-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+  flex-wrap:wrap;
+}
+
+.trainer-actions{
+  display:flex;
+  gap:10px;
+}
+
+.trainer-actions button{
+  padding:12px 18px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  background:orange;
+  font-weight:bold;
+}

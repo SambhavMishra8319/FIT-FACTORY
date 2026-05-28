@@ -13,139 +13,144 @@ import {
 
 import { Toaster } from "react-hot-toast";
 
+// import {
+//   AuthProvider,
+//   useAuth,
+// } from "./context/AuthContext";
+
 import {
   AuthProvider,
   useAuth,
-} from "./context/AuthContext";
+} from "../../../context/AuthContext";
 
 // Layouts
 import {
   Sidebar,
   MobileHeader,
-} from "./components/layout/Sidebar";
+} from "../../../components/layout/Sidebar";
 
-import BottomNav from "./components/layout/BottomNav";
+import BottomNav from "../../../components/layout/BottomNav";
 
 import {
   MemberSidebar,
   MemberMobileHeader,
   MemberBottomNav,
-} from "./components/layout/MemberLayout";
+} from "../../../components/layout/MemberLayout";
 
 // Shared
-import SplashScreen from "./components/system/SplashScreen";
-import ErrorBoundary from "./components/system/ErrorBoundary";
+import SplashScreen from "../../../components/system/SplashScreen";
+import ErrorBoundary from "../../../components/system/ErrorBoundary";
 
 import {
   UpgradePage,
-} from "./components/auth/LockGate";
-import MemberNotifications from "./pages/member/MemberNotifications";
+} from "../../../components/auth/LockGate";
+import MemberNotifications from "../../../pages/member/MemberNotifications";
 // Styles
-import "./index.css";
-import "./styles/animations.css";
-import MemberProfile from "./pages/admin/MemberProfile";
-import Trainers from "./pages/admin/trainer/Trainers";
-import AddTrainer from "./pages/admin/trainer/AddTrainer";
+import "../../../index.css";
+import "../../../styles/animations.css";
+import MemberProfile from "../../../pages/admin/MemberProfile";
+import Trainers from "../../../pages/admin/trainer/Trainers";
+import AddTrainer from "../../../pages/admin/trainer/AddTrainer";
 // import Trainers from "./pages/admin/trainer/Trainers";
 // import AddTrainer from "./pages/admin/trainer/AddTrainer";
-import TrainerProfile from "./pages/admin/trainer/TrainerProfile";
-import TrainerPayments from "./pages/admin/trainer/TrainerPayments";
-import { Workout, Diet } from "./pages/static/StaticPages";
+import TrainerProfile from "../../../pages/admin/trainer/TrainerProfile";
+import TrainerPayments from "../../../pages/admin/trainer/TrainerPayments";
+import { Workout, Diet } from "../../../pages/static/StaticPages";
 // ── Lazy Admin Pages ─────────────────────────────────────
 const Login = lazy(() =>
-  import("./pages/Login")
+  import("../../../pages/Login")
 );
 
 const Dashboard = lazy(() =>
-  import("./pages/admin/Dashboard")
+  import("../../../pages/admin/Dashboard")
 );
 
 const Members = lazy(() =>
-  import("./pages/admin/Members")
+  import("../../../pages/admin/Members")
 );
 
 const AddMember = lazy(() =>
-  import("./pages/admin/AddMember")
+  import("../../../pages/admin/AddMember")
 );
 
 const EditMember = lazy(() =>
-  import("./pages/admin/EditMember")
+  import("../../../pages/admin/EditMember")
 );
 
 const BCA = lazy(() =>
-  import("./pages/admin/BCA")
+  import("../../../pages/admin/BCA")
 );
 
 const SteamBath = lazy(() =>
-  import("./pages/admin/SteamBath")
+  import("../../../pages/admin/SteamBath")
 );
 
 const Payments = lazy(() =>
-  import("./pages/admin/Payments")
+  import("../../../pages/admin/Payments")
 );
 
 const Notifications = lazy(() =>
-  import("./pages/admin/Notifications")
+  import("../../../pages/admin/Notifications")
 );
 
 const Equipment = lazy(() =>
-  import("./pages/shared/EquipmentGuide") // OR move later
+  import("../../../pages/shared/EquipmentGuide") // OR move later
 );
 
 const Analytics = lazy(() =>
-  import("./pages/admin/Analytics")
+  import("../../../pages/admin/Analytics")
 );
 
 const BalanceSheet = lazy(() =>
-  import("./pages/admin/BalanceSheet")
+  import("../../../pages/admin/BalanceSheet")
 );
 
 const Progress = lazy(() =>
-  import("./pages/admin/Progress")
+  import("../../../pages/admin/Progress")
 );
 
 const Leaderboard = lazy(() =>
-  import("./pages/admin/Leaderboard")
+  import("../../../pages/admin/Leaderboard")
 );
 
 const StaticPages = lazy(() =>
-  import("./pages/static/StaticPages")
+  import("../../../pages/static/StaticPages")
 );
 
 // ── Lazy Member Pages ────────────────────────────────────
 const MemberDashboard = lazy(() =>
   import(
-    "./pages/member/MemberDashboard"
+    "../../../pages/member/MemberDashboard"
   )
 );
 
 const MemberWorkout = lazy(() =>
   import(
-    "./pages/member/MemberWorkout"
+    "../../../pages/member/MemberWorkout"
   )
 );
 
 const MemberDiet = lazy(() =>
   import(
-    "./pages/member/MemberDiet"
+    "../../../pages/member/MemberDiet"
   )
 );
 
 const MemberBCA = lazy(() =>
   import(
-    "./pages/member/MemberBCA"
+    "../../../pages/member/MemberBCA"
   )
 );
 
 const MemberSteam = lazy(() =>
   import(
-    "./pages/member/MemberSteam"
+    "../../../pages/member/MemberSteam"
   )
 );
 
 const MemberProgress = lazy(() =>
   import(
-    "./pages/member/MemberProgress"
+    "../../../pages/member/MemberProgress"
   )
 );
 
@@ -531,9 +536,44 @@ function AppRoutes() {
           </AdminLayout>
         }
       />
-<Route path="/admin/trainers" element={<Trainers />} />
+{/* <Route path="/admin/trainers" element={<Trainers />} />
 
-<Route path="/admin/add-trainer" element={<AddTrainer />} />
+<Route path="/admin/add-trainer" element={<AddTrainer />} /> */}
+      <Route
+  path="/trainers"
+  element={
+    <AdminLayout>
+      <Trainers />
+    </AdminLayout>
+  }
+/>
+
+<Route
+  path="/add-trainer"
+  element={
+    <AdminLayout>
+      <AddTrainer />
+    </AdminLayout>
+  }
+/>
+
+<Route
+  path="/trainers/:id"
+  element={
+    <AdminLayout>
+      <TrainerProfile />
+    </AdminLayout>
+  }
+/>
+
+<Route
+  path="/trainer-payments"
+  element={
+    <AdminLayout>
+      <TrainerPayments />
+    </AdminLayout>
+  }
+/>
       <Route
         path="/analytics"
         element={

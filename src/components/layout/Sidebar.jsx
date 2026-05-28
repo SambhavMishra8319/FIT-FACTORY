@@ -22,16 +22,35 @@ const navItems = [
     ],
   },
   {
-    section: "Admin",
-    items: [
-      { to: "/members", icon: "👥", label: "Members" },
-      { to: "/payments", icon: "💳", label: "Payments" },
-      { to: "/balance-sheet", icon: "📒", label: "Balance Sheet" },
-      { to: "/analytics", icon: "📉", label: "Analytics" },
-      { to: "/add-member", icon: "➕", label: "Add Member" },
-      { to: "/notifications", icon: "🔔", label: "Notifications" },
-      { to: "/equipments", icon: "🏋️", label: "Equipment Guide" },
-    ],
+  section: "Admin",
+  items: [
+    { to: "/members", icon: "👥", label: "Members" },
+    { to: "/payments", icon: "💳", label: "Payments" },
+    { to: "/balance-sheet", icon: "📒", label: "Balance Sheet" },
+    { to: "/analytics", icon: "📉", label: "Analytics" },
+
+    // TRAINERS
+    { to: "/trainers", icon: "🧑‍🏫", label: "Trainers" },
+    { to: "/add-trainer", icon: "➕", label: "Add Trainer" },
+    { to: "/trainer-payments", icon: "💰", label: "Trainer Payments" },
+
+    { to: "/add-member", icon: "➕", label: "Add Member" },
+    { to: "/notifications", icon: "🔔", label: "Notifications" },
+    { to: "/equipments", icon: "🏋️", label: "Equipment Guide" },
+  ],
+
+    // section: "Admin",
+
+    // items: [
+    //   { to: "/members", icon: "👥", label: "Members" },
+    //   { to: "/payments", icon: "💳", label: "Payments" },
+    //   { to: "/balance-sheet", icon: "📒", label: "Balance Sheet" },
+    //   { to: "/analytics", icon: "📉", label: "Analytics" },
+    //   { to: "/add-member", icon: "➕", label: "Add Member" },
+    //   { to: "/notifications", icon: "🔔", label: "Notifications" },
+    //   { to: "/equipments", icon: "🏋️", label: "Equipment Guide" },
+    // ],
+    
   },
 ];
 
