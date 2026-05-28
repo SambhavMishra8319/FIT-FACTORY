@@ -93,13 +93,34 @@ export async function getPayments(filters = {}) {
   return payments;
 }
 
+// export async function addPayment(data) {
+//   return await addDoc(collection(db, "payments"), {
+//     ...data,
+//     createdAt: serverTimestamp(),
+//   });
+// }
 export async function addPayment(data) {
   return await addDoc(collection(db, "payments"), {
-    ...data,
+    type: data.type || "member", // 👈 NEW
+
+    memberId: data.memberId || null,
+    trainerId: data.trainerId || null,
+
+    memberName: data.memberName || "",
+    trainerName: data.trainerName || "",
+
+    amount: Number(data.amount || 0),
+    method: data.method || "Cash",
+
+    plan: data.plan || null,
+    date: data.date,
+    status: data.status || "paid",
+
+    notes: data.notes || "",
+
     createdAt: serverTimestamp(),
   });
 }
-
 // ✅ FIX #3: Payment + membership activation in one atomic batch
 export async function recordPaymentAndActivate(
   paymentData,
@@ -745,4 +766,83 @@ export async function getMemberNotifications(memberId) {
     console.error(err);
     return [];
   }
+}
+export const getAllTrainers = async () => {
+  const snap = await getDocs(collection(db, "trainers"));
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+};
+export async function getTrainerPayments() {
+  const snap = await getDocs(
+    query(
+      collection(db, "payments"),
+      where("type", "==", "trainer"),
+      orderBy("createdAt", "desc"),
+    )
+  );
+
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+export async function getBalanceSheet() {
+  const snap = await getDocs(collection(db, "payments"));
+  const payments = snap.docs.map(d => d.data());
+
+  const income = payments
+    .filter(p => p.type === "member")
+    .reduce((s, p) => s + (Number(p.amount) || 0), 0);
+
+  const trainerExpense = payments
+    .filter(p => p.type === "trainer")
+    .reduce((s, p) => s + (Number(p.amount) || 0), 0);
+
+  const otherExpense = payments
+    .filter(p => p.type === "expense")
+    .reduce((s, p) => s + (Number(p.amount) || 0), 0);
+
+  return {
+    income,
+    trainerExpense,
+    otherExpense,
+    profit: income - (trainerExpense + otherExpense),
+  };
+}
+// export async function assignTrainerToMembeexport async function assignTrainerToMembeexport async function assignTrainerToMembeexport async function assignTrainerToMembeexport async function assignTrainerToMembe
+export async function assignTrainerToMember(memberId, trainer) {
+  const batch = writeBatch(db);
+
+  const memberRef = doc(db, "members", memberId);
+
+  batch.update(memberRef, {
+    trainerId: trainer.id,
+    trainerName: trainer.name,
+    trainerFee: trainer.fee || 0,
+    updatedAt: serverTimestamp(),
+  });
+
+  const trainerRef = doc(db, "trainers", trainer.id);
+
+  batch.update(trainerRef, {
+    updatedAt: serverTimestamp(),
+  });
+
+  return await batch.commit();
+}
+// export async function payTrainer(trainerId, amount, month) {
+//   return await addDoc(collection(db, "trainer_payments"), {
+//     trainerId,
+//     amount: Number(amount),
+//     month,
+//     status: "paid",
+//     createdAt: serverTimestamp(),
+//   });
+// }
+export async function getTrainerEarnings(trainerId) {
+  const snap = await getDocs(collection(db, "payments"));
+
+  const payments = snap.docs.map(d => d.data());
+
+  const trainerIncome = payments
+    .filter(p => p.type === "member" && p.trainerId === trainerId)
+    .reduce((s, p) => s + (Number(p.amount) || 0), 0);
+
+  return trainerIncome;
 }

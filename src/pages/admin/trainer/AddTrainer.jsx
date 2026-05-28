@@ -2,7 +2,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 
 import { addTrainer } from "../../../firebase/trainerService";
-
+import "../../../styles/trainer-pages.css";
 export default function AddTrainer() {
   const [loading, setLoading] = useState(false);
 
@@ -58,79 +58,133 @@ export default function AddTrainer() {
 
   return (
     <div className="page-container">
-      <h2>Add Trainer</h2>
+  <div className="page-header">
+    <h1>Add Trainer</h1>
 
-      <form onSubmit={handleSubmit} className="trainer-form">
-        <input
-          type="text"
-          name="name"
-          placeholder="Trainer Name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
+    <p>
+      Create and manage trainer profiles,
+      salaries and PT commissions
+    </p>
+  </div>
 
-        <input
-          type="text"
-          name="phone"
-          placeholder="Phone"
-          value={formData.phone}
-          onChange={handleChange}
-        />
+  <div className="glass-card">
+    <form
+      onSubmit={handleSubmit}
+      className="trainer-form"
+    >
+      <div className="form-grid">
+        <div className="form-group">
+          <label>Trainer Name</label>
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-        />
+          <input
+            type="text"
+            name="name"
+            placeholder="Enter trainer name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-        <input
-          type="text"
-          name="specialization"
-          placeholder="Specialization"
-          value={formData.specialization}
-          onChange={handleChange}
-        />
+        <div className="form-group">
+          <label>Phone Number</label>
 
-        <input
-          type="number"
-          name="salary"
-          placeholder="Monthly Salary"
-          value={formData.salary}
-          onChange={handleChange}
-        />
+          <input
+            type="text"
+            name="phone"
+            placeholder="Enter phone"
+            value={formData.phone}
+            onChange={handleChange}
+          />
+        </div>
 
-        <input
-          type="number"
-          name="ptShare"
-          placeholder="Trainer PT %"
-          value={formData.ptShare}
-          onChange={handleChange}
-        />
+        <div className="form-group">
+          <label>Email</label>
 
-        <input
-          type="number"
-          name="gymShare"
-          placeholder="Gym %"
-          value={formData.gymShare}
-          onChange={handleChange}
-        />
+          <input
+            type="email"
+            name="email"
+            placeholder="Enter email"
+            value={formData.email}
+            onChange={handleChange}
+          />
+        </div>
 
-        <select
-          name="status"
-          value={formData.status}
-          onChange={handleChange}
-        >
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
+        <div className="form-group">
+          <label>Specialization</label>
 
-        <button disabled={loading}>
-          {loading ? "Adding..." : "Add Trainer"}
-        </button>
-      </form>
-    </div>
+          <input
+            type="text"
+            name="specialization"
+            placeholder="Strength Coach"
+            value={formData.specialization}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Monthly Salary</label>
+
+          <input
+            type="number"
+            name="salary"
+            placeholder="15000"
+            value={formData.salary}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Trainer PT Share %</label>
+
+          <input
+            type="number"
+            name="ptShare"
+            value={formData.ptShare}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Gym Share %</label>
+
+          <input
+            type="number"
+            name="gymShare"
+            value={formData.gymShare}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Status</label>
+
+          <select
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+          >
+            <option value="active">
+              Active
+            </option>
+
+            <option value="inactive">
+              Inactive
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <button
+        className="primary-btn"
+        disabled={loading}
+      >
+        {loading
+          ? "Adding Trainer..."
+          : "Add Trainer"}
+      </button>
+    </form>
+  </div>
+</div>
   );
 }

@@ -1,0 +1,575 @@
+/* ======================================================
+   TRAINERS PAGE
+====================================================== */
+
+.page-container {
+  padding: 24px;
+  min-height: 100vh;
+  background: #0b0b0b;
+  color: #fff;
+}
+
+/* ======================================================
+   PAGE HEADER
+====================================================== */
+
+.page-title-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.page-title {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #fff;
+}
+
+.page-subtitle {
+  color: #8b8b8b;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+/* ======================================================
+   GRID
+====================================================== */
+
+.trainer-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(300px, 1fr)
+  );
+
+  gap: 24px;
+}
+
+/* ======================================================
+   TRAINER CARD
+====================================================== */
+
+.trainer-card {
+  position: relative;
+
+  background: linear-gradient(
+    145deg,
+    #111111,
+    #181818
+  );
+
+  border: 1px solid #232323;
+
+  border-radius: 24px;
+
+  padding: 22px;
+
+  overflow: hidden;
+
+  transition: 0.3s ease;
+
+  cursor: pointer;
+}
+
+.trainer-card:hover {
+  transform: translateY(-6px);
+
+  border-color: rgba(255, 165, 0, 0.5);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.45),
+    0 0 20px rgba(255,165,0,0.12);
+}
+
+/* ======================================================
+   TOP SECTION
+====================================================== */
+
+.trainer-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Avatar */
+
+.trainer-avatar {
+  width: 68px;
+  height: 68px;
+
+  border-radius: 50%;
+
+  background: linear-gradient(
+    135deg,
+    orange,
+    #ffbf00
+  );
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 24px;
+  font-weight: 800;
+
+  color: #111;
+
+  flex-shrink: 0;
+}
+
+/* Info */
+
+.trainer-name {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.trainer-specialization {
+  font-size: 13px;
+  color: #9f9f9f;
+}
+
+.trainer-status {
+  margin-top: 8px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  font-size: 12px;
+
+  padding: 6px 12px;
+
+  border-radius: 999px;
+}
+
+.trainer-status.active {
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+}
+
+.trainer-status.inactive {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+/* ======================================================
+   STATS
+====================================================== */
+
+.trainer-stats {
+  margin-top: 22px;
+
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+
+  gap: 14px;
+}
+
+.stat-box {
+  background: rgba(255,255,255,0.03);
+
+  border: 1px solid #222;
+
+  border-radius: 16px;
+
+  padding: 14px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #8a8a8a;
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* ======================================================
+   BOTTOM
+====================================================== */
+
+.trainer-footer {
+  margin-top: 24px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.view-profile-btn {
+  width: 100%;
+
+  padding: 12px;
+
+  border: none;
+
+  border-radius: 14px;
+
+  background: linear-gradient(
+    90deg,
+    orange,
+    #ffbf00
+  );
+
+  color: #111;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.25s ease;
+}
+
+.view-profile-btn:hover {
+  transform: scale(1.02);
+}
+
+/* ======================================================
+   EMPTY STATE
+====================================================== */
+
+.empty-state {
+  margin-top: 60px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+.empty-state h3 {
+  margin-top: 18px;
+  font-size: 24px;
+}
+
+.empty-state p {
+  margin-top: 8px;
+  color: #888;
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 768px) {
+  .page-container {
+    padding: 16px;
+  }
+
+  .page-title {
+    font-size: 24px;
+  }
+
+  .trainer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .trainer-card {
+    padding: 18px;
+  }
+}
+/* ======================================================
+   PREMIUM ADD TRAINER PAGE
+====================================================== */
+
+.page-container {
+  min-height: 100vh;
+  padding: 28px;
+  background:
+    radial-gradient(circle at top left, rgba(255,165,0,0.08), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(255,191,0,0.06), transparent 30%),
+    #080808;
+
+  color: #fff;
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.page-header {
+  margin-bottom: 32px;
+}
+
+.page-header h1 {
+  font-size: 38px;
+  font-weight: 900;
+  letter-spacing: 1px;
+
+  background: linear-gradient(
+    90deg,
+    #fff,
+    #ffcc70
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  margin-bottom: 10px;
+}
+
+.page-header p {
+  color: #9b9b9b;
+  font-size: 15px;
+  max-width: 600px;
+  line-height: 1.6;
+}
+
+/* ======================================================
+   MAIN CARD
+====================================================== */
+
+.glass-card {
+  position: relative;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(20,20,20,0.92),
+      rgba(10,10,10,0.96)
+    );
+
+  border: 1px solid rgba(255,255,255,0.06);
+
+  border-radius: 30px;
+
+  padding: 34px;
+
+  overflow: hidden;
+
+  backdrop-filter: blur(16px);
+
+  box-shadow:
+    0 10px 40px rgba(0,0,0,0.45),
+    0 0 30px rgba(255,165,0,0.05);
+}
+
+/* glow */
+
+.glass-card::before {
+  content: "";
+
+  position: absolute;
+
+  width: 240px;
+  height: 240px;
+
+  border-radius: 50%;
+
+  background: rgba(255,165,0,0.08);
+
+  top: -100px;
+  right: -80px;
+
+  filter: blur(40px);
+}
+
+/* ======================================================
+   FORM
+====================================================== */
+
+.trainer-form {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+/* ======================================================
+   GRID
+====================================================== */
+
+.form-grid {
+  display: grid;
+
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(260px,1fr)
+  );
+
+  gap: 22px;
+}
+
+/* ======================================================
+   INPUT GROUP
+====================================================== */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-group label {
+  font-size: 13px;
+  color: #b0b0b0;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* ======================================================
+   INPUTS
+====================================================== */
+
+.trainer-form input,
+.trainer-form select {
+  height: 56px;
+
+  border-radius: 18px;
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.03),
+      rgba(255,255,255,0.015)
+    );
+
+  padding: 0 18px;
+
+  color: #fff;
+
+  font-size: 15px;
+
+  outline: none;
+
+  transition: all 0.28s ease;
+
+  backdrop-filter: blur(10px);
+}
+
+/* placeholder */
+
+.trainer-form input::placeholder {
+  color: #707070;
+}
+
+/* focus */
+
+.trainer-form input:focus,
+.trainer-form select:focus {
+  border-color: rgba(255,165,0,0.6);
+
+  box-shadow:
+    0 0 0 4px rgba(255,165,0,0.12),
+    0 10px 25px rgba(255,165,0,0.08);
+
+  transform: translateY(-2px);
+}
+
+/* ======================================================
+   BUTTON
+====================================================== */
+
+.primary-btn {
+  height: 58px;
+
+  border: none;
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #ff9900,
+      #ffbf00
+    );
+
+  color: #111;
+
+  font-size: 16px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.6px;
+
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 12px 25px rgba(255,165,0,0.22);
+}
+
+.primary-btn:hover {
+  transform: translateY(-3px) scale(1.01);
+
+  box-shadow:
+    0 18px 35px rgba(255,165,0,0.3);
+}
+
+.primary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ======================================================
+   SECTION TITLE
+====================================================== */
+
+.section-title {
+  font-size: 15px;
+
+  font-weight: 700;
+
+  color: orange;
+
+  margin-bottom: -4px;
+
+  letter-spacing: 1px;
+
+  text-transform: uppercase;
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 768px) {
+  .page-container {
+    padding: 16px;
+  }
+
+  .glass-card {
+    padding: 22px;
+    border-radius: 22px;
+  }
+
+  .page-header h1 {
+    font-size: 28px;
+  }
+
+  .page-header p {
+    font-size: 13px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .trainer-form input,
+  .trainer-form select {
+    height: 52px;
+    border-radius: 14px;
+  }
+
+  .primary-btn {
+    height: 54px;
+    border-radius: 14px;
+  }
+}

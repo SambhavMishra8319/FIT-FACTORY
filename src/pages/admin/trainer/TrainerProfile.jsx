@@ -1,771 +1,256 @@
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import {
-  useState,
-  lazy,
-  Suspense,
-} from "react";
+  getTrainerById,
+  getTrainerPTs,
+  getTrainerPayments,
+  addPTEntry,
+  addTrainerPayment,
+} from "../../../firebase/trainerService";
 
-import { Toaster } from "react-hot-toast";
+import PTTable from "../../../components/trainer/PTTable";
+import SalaryCard from "../../../components/trainer/SalaryCard";
 
-// import {
-//   AuthProvider,
-//   useAuth,
-// } from "./context/AuthContext";
+export default function TrainerProfile() {
+  const { id } = useParams();
 
-import {
-  AuthProvider,
-  useAuth,
-} from "../../../context/AuthContext";
+  const [trainer, setTrainer] = useState(null);
+  const [ptHistory, setPtHistory] = useState([]);
+  const [payments, setPayments] = useState([]);
 
-// Layouts
-import {
-  Sidebar,
-  MobileHeader,
-} from "../../../components/layout/Sidebar";
+  const [loading, setLoading] = useState(true);
 
-import BottomNav from "../../../components/layout/BottomNav";
+  /* ======================================================
+     LOAD DATA
+  ====================================================== */
 
-import {
-  MemberSidebar,
-  MemberMobileHeader,
-  MemberBottomNav,
-} from "../../../components/layout/MemberLayout";
+  useEffect(() => {
+    loadData();
+  }, [id]);
 
-// Shared
-import SplashScreen from "../../../components/system/SplashScreen";
-import ErrorBoundary from "../../../components/system/ErrorBoundary";
+  const loadData = async () => {
+    setLoading(true);
 
-import {
-  UpgradePage,
-} from "../../../components/auth/LockGate";
-import MemberNotifications from "../../../pages/member/MemberNotifications";
-// Styles
-import "../../../index.css";
-import "../../../styles/animations.css";
-import MemberProfile from "../../../pages/admin/MemberProfile";
-import Trainers from "../../../pages/admin/trainer/Trainers";
-import AddTrainer from "../../../pages/admin/trainer/AddTrainer";
-// import Trainers from "./pages/admin/trainer/Trainers";
-// import AddTrainer from "./pages/admin/trainer/AddTrainer";
-import TrainerProfile from "../../../pages/admin/trainer/TrainerProfile";
-import TrainerPayments from "../../../pages/admin/trainer/TrainerPayments";
-import { Workout, Diet } from "../../../pages/static/StaticPages";
-// ── Lazy Admin Pages ─────────────────────────────────────
-const Login = lazy(() =>
-  import("../../../pages/Login")
-);
+    const trainerData = await getTrainerById(id);
 
-const Dashboard = lazy(() =>
-  import("../../../pages/admin/Dashboard")
-);
+    const pts = await getTrainerPTs(id);
 
-const Members = lazy(() =>
-  import("../../../pages/admin/Members")
-);
+    const paymentHistory = await getTrainerPayments(id);
 
-const AddMember = lazy(() =>
-  import("../../../pages/admin/AddMember")
-);
+    setTrainer(trainerData);
+    setPtHistory(pts);
+    setPayments(paymentHistory);
 
-const EditMember = lazy(() =>
-  import("../../../pages/admin/EditMember")
-);
+    setLoading(false);
+  };
 
-const BCA = lazy(() =>
-  import("../../../pages/admin/BCA")
-);
+  /* ======================================================
+     CALCULATIONS
+  ====================================================== */
 
-const SteamBath = lazy(() =>
-  import("../../../pages/admin/SteamBath")
-);
+  const totalPTRevenue = useMemo(() => {
+    return ptHistory.reduce(
+      (sum, item) => sum + Number(item.amount || 0),
+      0
+    );
+  }, [ptHistory]);
 
-const Payments = lazy(() =>
-  import("../../../pages/admin/Payments")
-);
+  const trainerEarnings = useMemo(() => {
+    return ptHistory.reduce(
+      (sum, item) => sum + Number(item.trainerShare || 0),
+      0
+    );
+  }, [ptHistory]);
 
-const Notifications = lazy(() =>
-  import("../../../pages/admin/Notifications")
-);
+  const gymRevenue = useMemo(() => {
+    return ptHistory.reduce(
+      (sum, item) => sum + Number(item.gymShare || 0),
+      0
+    );
+  }, [ptHistory]);
 
-const Equipment = lazy(() =>
-  import("../../../pages/shared/EquipmentGuide") // OR move later
-);
+  const totalPaid = useMemo(() => {
+    return payments.reduce(
+      (sum, item) => sum + Number(item.amount || 0),
+      0
+    );
+  }, [payments]);
 
-const Analytics = lazy(() =>
-  import("../../../pages/admin/Analytics")
-);
+  const totalSalary = useMemo(() => {
+    return Number(trainer?.salary || 0) + trainerEarnings;
+  }, [trainer, trainerEarnings]);
 
-const BalanceSheet = lazy(() =>
-  import("../../../pages/admin/BalanceSheet")
-);
+  const pendingAmount = useMemo(() => {
+    return totalSalary - totalPaid;
+  }, [totalSalary, totalPaid]);
 
-const Progress = lazy(() =>
-  import("../../../pages/admin/Progress")
-);
+  /* ======================================================
+     ADD PT
+  ====================================================== */
 
-const Leaderboard = lazy(() =>
-  import("../../../pages/admin/Leaderboard")
-);
+  const handleAddPT = async () => {
+    const memberName = prompt("Member Name");
 
-const StaticPages = lazy(() =>
-  import("../../../pages/static/StaticPages")
-);
+    const amount = Number(prompt("PT Amount"));
 
-// ── Lazy Member Pages ────────────────────────────────────
-const MemberDashboard = lazy(() =>
-  import(
-    "../../../pages/member/MemberDashboard"
-  )
-);
+    if (!memberName || !amount) return;
 
-const MemberWorkout = lazy(() =>
-  import(
-    "../../../pages/member/MemberWorkout"
-  )
-);
+    const trainerShare =
+      (amount * Number(trainer.ptShare || 50)) / 100;
 
-const MemberDiet = lazy(() =>
-  import(
-    "../../../pages/member/MemberDiet"
-  )
-);
+    const gymShare =
+      (amount * Number(trainer.gymShare || 50)) / 100;
 
-const MemberBCA = lazy(() =>
-  import(
-    "../../../pages/member/MemberBCA"
-  )
-);
+    const res = await addPTEntry({
+      trainerId: trainer.id,
+      trainerName: trainer.name,
 
-const MemberSteam = lazy(() =>
-  import(
-    "../../../pages/member/MemberSteam"
-  )
-);
+      memberName,
 
-const MemberProgress = lazy(() =>
-  import(
-    "../../../pages/member/MemberProgress"
-  )
-);
+      amount,
 
-// ── Loading Screen ───────────────────────────────────────
-function LoadingScreen() {
-  return (
-    <div
-      style={{
-        minHeight: "100vh",
+      trainerShare,
+      gymShare,
+    });
 
-        display: "flex",
+    if (res.success) {
+      toast.success("PT Added");
+      loadData();
+    }
+  };
 
-        alignItems: "center",
+  /* ======================================================
+     PAY SALARY
+  ====================================================== */
 
-        justifyContent: "center",
+  const handlePaySalary = async () => {
+    const amount = Number(prompt("Payment Amount"));
 
-        background:
-          "var(--black)",
+    if (!amount) return;
 
-        flexDirection: "column",
+    const res = await addTrainerPayment({
+      trainerId: trainer.id,
+      trainerName: trainer.name,
+      amount,
+      type: "salary",
+    });
 
-        gap: 16,
-      }}
-    >
-      <div
-        style={{
-          fontFamily:
-            "var(--font-display)",
-
-          fontSize: 28,
-
-          letterSpacing: 6,
-
-          fontWeight: 900,
-
-          background:
-            "var(--grad-gold2)",
-
-          WebkitBackgroundClip:
-            "text",
-
-          WebkitTextFillColor:
-            "transparent",
-        }}
-      >
-        F2 FIT-FACTORY
-      </div>
-
-      <div
-        style={{
-          color: "var(--muted2)",
-
-          fontSize: 12,
-
-          fontFamily:
-            "var(--font-body)",
-
-          letterSpacing: 2,
-        }}
-      >
-        LOADING…
-      </div>
-    </div>
-  );
-}
-
-// ── Root Redirect ────────────────────────────────────────
-function RootRedirect() {
-  const {
-    user,
-    role,
-    loading,
-  } = useAuth();
+    if (res.success) {
+      toast.success("Payment Added");
+      loadData();
+    }
+  };
 
   if (loading) {
-    return <LoadingScreen />;
+    return <h2>Loading...</h2>;
   }
 
-  if (!user) {
-    return (
-      <Navigate
-        to="/login"
-        replace
-      />
-    );
+  if (!trainer) {
+    return <h2>Trainer Not Found</h2>;
   }
 
   return (
-    <Navigate
-      to={
-        role === "admin"
-          ? "/dashboard"
-          : "/member/dashboard"
-      }
-      replace
-    />
-  );
-}
+    <div className="page-container">
+      {/* HEADER */}
 
-// ── Admin Layout ─────────────────────────────────────────
-function AdminLayout({
-  children,
-}) {
-  const {
-    user,
-    role,
-    loading,
-  } = useAuth();
+      <div className="trainer-profile-header">
+        <div>
+          <h1>{trainer.name}</h1>
 
-  if (
-    loading ||
-    (user && role === null)
-  ) {
-    return <LoadingScreen />;
-  }
+          <p>{trainer.specialization}</p>
 
-  if (!user) {
-    return (
-      <Navigate
-        to="/login"
-        replace
-      />
-    );
-  }
+          <p>Status: {trainer.status}</p>
+        </div>
 
-  if (role === "member") {
-    return (
-      <Navigate
-        to="/member/dashboard"
-        replace
-      />
-    );
-  }
+        <div className="trainer-actions">
+          <button onClick={handleAddPT}>
+            + Add PT
+          </button>
 
-  return (
-    <div className="app-layout">
-      <Sidebar />
-
-      <MobileHeader />
-
-      <div className="main-content">
-        <ErrorBoundary>
-          {children}
-        </ErrorBoundary>
+          <button onClick={handlePaySalary}>
+            Pay Salary
+          </button>
+        </div>
       </div>
 
-      <BottomNav />
-    </div>
-  );
-}
+      {/* SALARY CARDS */}
 
-// ── Member Layout ────────────────────────────────────────
-function MemberLayout({
-  children,
-}) {
-  const {
-    user,
-    role,
-    loading,
-  } = useAuth();
-
-  if (
-    loading ||
-    (user && role === null)
-  ) {
-    return <LoadingScreen />;
-  }
-
-  if (!user) {
-    return (
-      <Navigate
-        to="/login"
-        replace
-      />
-    );
-  }
-
-  if (role === "admin") {
-    return (
-      <Navigate
-        to="/dashboard"
-        replace
-      />
-    );
-  }
-
-  return (
-    <div className="app-layout">
-      <MemberSidebar />
-
-      <MemberMobileHeader />
-
-      <div className="main-content">
-        <ErrorBoundary>
-          {children}
-        </ErrorBoundary>
-      </div>
-
-      <MemberBottomNav />
-    </div>
-  );
-}
-function AuthEquipmentWrapper({ children }) {
-  const { user, role, loading } = useAuth();
-
-  if (loading) return <LoadingScreen />;
-  if (!user) return <Navigate to="/login" replace />;
-
-  return role === "admin" ? (
-    <AdminLayout>{children}</AdminLayout>
-  ) : (
-    <MemberLayout>{children}</MemberLayout>
-  );
-}
-// ── Shared Layout ────────────────────────────────────────
-function SharedLayout({
-  children,
-}) {
-  const {
-    user,
-    role,
-    loading,
-  } = useAuth();
-
-  if (loading) {
-    return <LoadingScreen />;
-  }
-
-  if (!user) {
-    return (
-      <Navigate
-        to="/login"
-        replace
-      />
-    );
-  }
-
-  return role === "admin" ? (
-    <AdminLayout>
-      {children}
-    </AdminLayout>
-  ) : (
-    <MemberLayout>
-      {children}
-    </MemberLayout>
-  );
-}
-
-// ── Routes ───────────────────────────────────────────────
-function AppRoutes() {
-  const { user } = useAuth();
-
-  return (
-    <Routes>
-      <Route
-        path="/login"
-        element={
-          user ? (
-            <RootRedirect />
-          ) : (
-            <Login />
-          )
-        }
-      />
-
-      <Route
-        path="/"
-        element={<RootRedirect />}
-      />
-
-      {/* Admin */}
-      <Route
-        path="/dashboard"
-        element={
-          <AdminLayout>
-            <Dashboard />
-          </AdminLayout>
-        }
-      />
-
-      <Route
-        path="/bca"
-        element={
-          <AdminLayout>
-            <BCA />
-          </AdminLayout>
-        }
-      />
-
-      <Route
-        path="/steam"
-        element={
-          <AdminLayout>
-            <SteamBath />
-          </AdminLayout>
-        }
-      />
-
-      <Route
-        path="/progress"
-        element={
-          <AdminLayout>
-            <Progress />
-          </AdminLayout>
-        }
-      />
-
-      <Route
-        path="/leaderboard"
-        element={
-          <AdminLayout>
-            <Leaderboard />
-          </AdminLayout>
-        }
-      />
-
-      <Route
-        path="/members"
-        element={
-          <AdminLayout>
-            <Members />
-          </AdminLayout>
-        }
-      />
-      <Route
-  path="/members/:id"
-  element={
-    <AdminLayout>
-      <MemberProfile />
-    </AdminLayout>
-  }
-/>
-      <Route
-  path="/workout"
-  element={
-    <AdminLayout>
-      <Workout />
-    </AdminLayout>
-  }
-/>
-
-<Route
-  path="/diet"
-  element={
-    <AdminLayout>
-      <Diet />
-    </AdminLayout>
-  }
-/>
-
-      <Route
-        path="/members/:id/edit"
-        element={
-          <AdminLayout>
-            <EditMember />
-          </AdminLayout>
-        }
-      />
-
-      <Route
-        path="/payments"
-        element={
-          <AdminLayout>
-            <Payments />
-          </AdminLayout>
-        }
-      />
-
-      <Route
-        path="/add-member"
-        element={
-          <AdminLayout>
-            <AddMember />
-          </AdminLayout>
-        }
-      />
-
-      <Route
-        path="/notifications"
-        element={
-          <AdminLayout>
-            <Notifications />
-          </AdminLayout>
-        }
-      />
-{/* <Route path="/admin/trainers" element={<Trainers />} />
-
-<Route path="/admin/add-trainer" element={<AddTrainer />} /> */}
-      <Route
-  path="/trainers"
-  element={
-    <AdminLayout>
-      <Trainers />
-    </AdminLayout>
-  }
-/>
-
-<Route
-  path="/add-trainer"
-  element={
-    <AdminLayout>
-      <AddTrainer />
-    </AdminLayout>
-  }
-/>
-
-<Route
-  path="/trainers/:id"
-  element={
-    <AdminLayout>
-      <TrainerProfile />
-    </AdminLayout>
-  }
-/>
-
-<Route
-  path="/trainer-payments"
-  element={
-    <AdminLayout>
-      <TrainerPayments />
-    </AdminLayout>
-  }
-/>
-      <Route
-        path="/analytics"
-        element={
-          <AdminLayout>
-            <Analytics />
-          </AdminLayout>
-        }
-      />
-
-      <Route
-        path="/balance-sheet"
-        element={
-          <AdminLayout>
-            <BalanceSheet />
-          </AdminLayout>
-        }
-      />
-
-      {/* Member */}
-      <Route
-        path="/member/dashboard"
-        element={
-          <MemberLayout>
-            <MemberDashboard />
-          </MemberLayout>
-        }
-      />
-
-      <Route
-        path="/member/workout"
-        element={
-          <MemberLayout>
-            <MemberWorkout />
-          </MemberLayout>
-        }
-      />
-
-      <Route
-        path="/member/diet"
-        element={
-          <MemberLayout>
-            <MemberDiet />
-          </MemberLayout>
-        }
-      />
-
-      <Route
-        path="/member/bca"
-        element={
-          <MemberLayout>
-            <MemberBCA />
-          </MemberLayout>
-        }
-      />
-
-      <Route
-        path="/member/steam"
-        element={
-          <MemberLayout>
-            <MemberSteam />
-          </MemberLayout>
-        }
-      />
-
-      <Route
-        path="/member/progress"
-        element={
-          <MemberLayout>
-            <MemberProgress />
-          </MemberLayout>
-        }
-      />
-
-      <Route
-        path="/member/upgrade"
-        element={
-          <MemberLayout>
-            <UpgradePage />
-          </MemberLayout>
-        }
-      />
-      <Route
-  path="/member/notifications"
-  element={<MemberNotifications />}
-/>
-
-      {/* Shared */}
-      <Route
-        path="/equipments"
-        element={
-          <SharedLayout>
-            <Equipment />
-          </SharedLayout>
-        }
-      />
-
-      <Route
-        path="*"
-        element={<RootRedirect />}
-      />
-      <Route
-  path="/member/equipment"
-  element={
-    <MemberLayout>
-      <Equipment />
-    </MemberLayout>
-  }
-/>
-
-<Route
-  path="/equipments"
-  element={
-    <AdminLayout>
-      <Equipment />
-    </AdminLayout>
-  }
-/>
-    </Routes>
-    
-  );
-}
-
-// ── App ──────────────────────────────────────────────────
-export default function App() {
-  const [showSplash, setShowSplash] =
-    useState(true);
-
-  return (
-    <AuthProvider>
-      <BrowserRouter
-  future={{
-    v7_startTransition: true,
-    v7_relativeSplatPath: true,
-  }}
->
-        {showSplash && (
-          <SplashScreen
-            onDone={() =>
-              setShowSplash(false)
-            }
-          />
-        )}
-
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            style: {
-              background:
-                "#141414",
-
-              color: "#f0f0f0",
-
-              border:
-                "1px solid #2a2a2a",
-
-              fontFamily:
-                "'Exo 2',sans-serif",
-
-              fontSize: "13px",
-
-              maxWidth: "340px",
-            },
-
-            success: {
-              iconTheme: {
-                primary:
-                  "#22c55e",
-
-                secondary:
-                  "#fff",
-              },
-            },
-
-            error: {
-              iconTheme: {
-                primary:
-                  "#e63329",
-
-                secondary:
-                  "#fff",
-              },
-            },
-          }}
+      <div className="salary-grid">
+        <SalaryCard
+          title="Monthly Salary"
+          amount={trainer.salary}
         />
 
-        <Suspense
-          fallback={<LoadingScreen />}
-        >
-          <AppRoutes />
-        </Suspense>
-      </BrowserRouter>
-    </AuthProvider>
-  );
-}   
+        <SalaryCard
+          title="PT Revenue"
+          amount={totalPTRevenue}
+        />
 
+        <SalaryCard
+          title="Trainer Earnings"
+          amount={trainerEarnings}
+        />
+
+        <SalaryCard
+          title="Gym Revenue"
+          amount={gymRevenue}
+        />
+
+        <SalaryCard
+          title="Total Salary"
+          amount={totalSalary}
+        />
+
+        <SalaryCard
+          title="Paid"
+          amount={totalPaid}
+        />
+
+        <SalaryCard
+          title="Pending"
+          amount={pendingAmount}
+        />
+      </div>
+
+      {/* PT TABLE */}
+
+      <PTTable data={ptHistory} />
+
+      {/* PAYMENTS */}
+
+      <div className="payment-section">
+        <h2>Payment History</h2>
+
+        <table className="custom-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {payments.map((item) => (
+              <tr key={item.id}>
+                <td>
+                  {item.createdAt?.seconds
+                    ? new Date(
+                        item.createdAt.seconds * 1000
+                      ).toLocaleDateString()
+                    : "-"}
+                </td>
+
+                <td>₹{item.amount}</td>
+
+                <td>{item.type}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

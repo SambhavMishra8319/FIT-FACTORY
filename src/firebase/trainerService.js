@@ -8,10 +8,13 @@ import {
   deleteDoc,
   query,
   orderBy,
+  onSnapshot,
   serverTimestamp,
   where,
 } from "firebase/firestore";
 
+  // import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+  // import { db } from "./config";
 import { db } from "./config";
 
 /* =========================================================
@@ -210,4 +213,23 @@ export const getTrainerPayments = async (trainerId) => {
     console.error(error);
     return [];
   }
+};
+
+/* ================================
+   TRAINER PAYMENTS SNAPSHOT
+================================ */
+export const subscribeTrainerPaymentsSnapshot = (callback) => {
+  const q = query(
+    collection(db, "trainerPayments"),
+    orderBy("createdAt", "desc")
+  );
+
+  return onSnapshot(q, (snapshot) => {
+    const data = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    callback(data);
+  });
 };

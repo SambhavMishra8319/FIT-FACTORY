@@ -13,6 +13,11 @@ import {
 
 import { Toaster } from "react-hot-toast";
 
+// import {
+//   AuthProvider,
+//   useAuth,
+// } from "./context/AuthContext";
+
 import {
   AuthProvider,
   useAuth,
@@ -95,7 +100,9 @@ const Equipment = lazy(() =>
 const Analytics = lazy(() =>
   import("./pages/admin/Analytics")
 );
-
+// const Analytics = lazy(() =>
+//   import("./pages/admin/")
+// );
 const BalanceSheet = lazy(() =>
   import("./pages/admin/BalanceSheet")
 );
@@ -531,9 +538,44 @@ function AppRoutes() {
           </AdminLayout>
         }
       />
-<Route path="/admin/trainers" element={<Trainers />} />
+{/* <Route path="/admin/trainers" element={<Trainers />} />
 
-<Route path="/admin/add-trainer" element={<AddTrainer />} />
+<Route path="/admin/add-trainer" element={<AddTrainer />} /> */}
+      <Route
+  path="/trainers"
+  element={
+    <AdminLayout>
+      <Trainers />
+    </AdminLayout>
+  }
+/>
+
+<Route
+  path="/add-trainer"
+  element={
+    <AdminLayout>
+      <AddTrainer />
+    </AdminLayout>
+  }
+/>
+
+<Route
+  path="/trainers/:id"
+  element={
+    <AdminLayout>
+      <TrainerProfile />
+    </AdminLayout>
+  }
+/>
+
+<Route
+  path="/trainer-payments"
+  element={
+    <AdminLayout>
+      <TrainerPayments />
+    </AdminLayout>
+  }
+/>
       <Route
         path="/analytics"
         element={

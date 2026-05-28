@@ -9,6 +9,8 @@ import {
 
 import { db } from "../../../firebase/config";
 
+import "../../../styles/trainer-pages.css";
+
 export default function TrainerPayments() {
   const [payments, setPayments] = useState([]);
 
@@ -34,29 +36,64 @@ export default function TrainerPayments() {
 
   return (
     <div className="page-container">
-      <h1>Trainer Payments</h1>
+      {/* HEADER */}
 
-      <table className="custom-table">
-        <thead>
-          <tr>
-            <th>Trainer</th>
-            <th>Amount</th>
-            <th>Type</th>
-          </tr>
-        </thead>
+      <div className="page-header">
+        <h1>Trainer Payments</h1>
 
-        <tbody>
-          {payments.map((item) => (
-            <tr key={item.id}>
-              <td>{item.trainerName}</td>
+        <p>
+          Manage trainer salary payments and
+          PT commissions
+        </p>
+      </div>
 
-              <td>₹{item.amount}</td>
+      {/* TABLE */}
 
-              <td>{item.type}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="table-card">
+        {payments.length === 0 ? (
+          <div className="empty-state">
+            <h3>No Payments Yet</h3>
+
+            <p>
+              Trainer payments will appear here
+            </p>
+          </div>
+        ) : (
+          <div className="table-scroll">
+            <table className="custom-table">
+              <thead>
+                <tr>
+                  <th>Trainer</th>
+                  <th>Amount</th>
+                  <th>Type</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {payments.map((item) => (
+                  <tr key={item.id}>
+                    <td>
+                      {item.trainerName}
+                    </td>
+
+                    <td>
+                      ₹{item.amount}
+                    </td>
+
+                    <td>
+                      <span
+                        className={`payment-badge ${item.type}`}
+                      >
+                        {item.type}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,15 +1,24 @@
 import { useEffect, useState, useMemo } from "react";
+// import {
+//   format,
+//   addMonths,
+//   differenceInDays,
+//   isAfter,
+//   subDays,
+//   subMonths,
+//   startOfMonth,
+//   startOfYear,
+// } from "date-fns";
 import {
+  isAfter,
   format,
   addMonths,
   differenceInDays,
-  isAfter,
   subDays,
   subMonths,
   startOfMonth,
   startOfYear,
 } from "date-fns";
-
 import toast from "react-hot-toast";
 
 import {
@@ -26,9 +35,12 @@ import {
   Legend,
 } from "recharts";
 
+import { getAllTrainers } from "../../firebase/service";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { addTrainerPayment } from "../../firebase/trainerService";
 
+import { subscribeTrainerPaymentsSnapshot } from "../../firebase/trainerService";
 import "../../styles/payments.css";
 import { useNavigate } from "react-router-dom";
 import {
@@ -36,17 +48,19 @@ import {
   addPayment,
   getAllMembers,
 } from "../../firebase/service";
-
+// import { addTrainerPayment } from "../../firebase/trainerService";
 export default function Payments() {
   const [payments, setPayments] = useState([]);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
-const navigate = useNavigate();
+  const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const [visible, setVisible] = useState(false);
-
+  const [trainers, setTrainers] = useState([]);
+  const [paymentType, setPaymentType] = useState("member");
+  const [trainerPayments, setTrainerPayments] = useState([]);
   // ================= FILTERS =================
   const [search, setSearch] = useState("");
   const [filterMethod, setFilterMethod] = useState("all");
@@ -83,6 +97,25 @@ const navigate = useNavigate();
       maximumFractionDigits: 0,
     }).format(amount || 0);
 
+  useEffect(() => {
+    const unsub = subscribePaymentsSnapshot((data) => {
+      setPayments(data);
+      setLoading(false);
+      setTimeout(() => setVisible(true), 60);
+    });
+
+    const unsubTrainer = subscribeTrainerPaymentsSnapshot((data) => {
+      setTrainerPayments(data);
+    });
+
+    getAllTrainers().then(setTrainers).catch(console.error);
+    getAllMembers().then(setMembers).catch(console.error);
+
+    return () => {
+      unsub();
+      unsubTrainer();
+    };
+  }, []);
   const getExpiryDate = (date, plan) => {
     const d = new Date(date);
 
@@ -115,144 +148,144 @@ const navigate = useNavigate();
   const anim = (delay) => ({
     opacity: visible ? 1 : 0,
 
-    transform: visible
-      ? "translateY(0)"
-      : "translateY(14px)",
+    transform: visible ? "translateY(0)" : "translateY(14px)",
 
     transition: `all 0.45s cubic-bezier(0.22,1,0.36,1) ${delay}s`,
   });
 
   // ================= LOAD DATA =================
-  useEffect(() => {
-    const unsub = subscribePaymentsSnapshot((data) => {
-      setPayments(data);
+  // useEffect(() => {
+  //   // const unsub = subscribePaymentsSnapshot((data) => {
+  //   //   setPayments(data);
 
-      setLoading(false);
+  //   //   setLoading(false);
 
-      setTimeout(() => setVisible(true), 60);
-    });
+  //   //   setTimeout(() => setVisible(true), 60);
+  //   // });
 
-    getAllMembers()
-      .then(setMembers)
-      .catch(console.error);
+  //   getAllTrainers().then(setTrainers).catch(console.error);
+  //   getAllMembers().then(setMembers).catch(console.error);
 
-    return () => unsub();
-  }, []);
+  //   return () => unsub();
+  // }, []);
 
   // ================= DATE FILTER =================
-  const getDateFilteredPayments = (data) => {
-    const now = new Date();
+ const getDateFilteredPayments = (data) => {
+  const now = new Date();
+
+  return data.filter((p) => {
+    const date = new Date(p.date);
 
     switch (dateRange) {
       case "7days":
-        return data.filter((p) =>
-          isAfter(new Date(p.date), subDays(now, 7)),
-        );
+        return isAfter(date, subDays(now, 7));
 
       case "30days":
-        return data.filter((p) =>
-          isAfter(new Date(p.date), subDays(now, 30)),
-        );
+        return isAfter(date, subDays(now, 30));
 
       case "month":
-        return data.filter((p) =>
-          isAfter(new Date(p.date), startOfMonth(now)),
-        );
+        return isAfter(date, startOfMonth(now));
 
       case "year":
-        return data.filter((p) =>
-          isAfter(new Date(p.date), startOfYear(now)),
-        );
+        return isAfter(date, startOfYear(now));
 
       default:
-        return data;
+        return true;
     }
-  };
+  });
+};
+// 1. FIRST: normalize all payments
+const allPayments = useMemo(() => {
+  const member = payments.map((p) => ({
+    ...p,
+    type: "member",
+  }));
 
-  // ================= FILTERED PAYMENTS =================
-  const filtered = useMemo(() => {
-    let data = getDateFilteredPayments(payments);
+ const trainer = trainerPayments.map((p) => ({
+  id: p.id,
+  type: "trainer",
+  trainerName: p.trainerName,
+  memberName: null,
+  phone: null,
+  plan: "Trainer Salary",
+  amount: p.amount,
+  method: p.method || "Cash",
+  date: p.date || format(p.createdAt?.toDate?.() || new Date(), "yyyy-MM-dd"),
+  expiryDate: null,
+  notes: p.notes || "",
+}));
 
-    return data.filter((p) => {
-      const q = search.toLowerCase();
+  return [...member, ...trainer];
+}, [payments, trainerPayments]);
 
-      const matchSearch =
-        !search ||
-        p.memberName?.toLowerCase().includes(q) ||
-        p.phone?.includes(q) ||
-        p.plan?.toLowerCase().includes(q);
+// 2. DATE FILTER FUNCTION (unchanged)
+// };
 
-      const matchMethod =
-        filterMethod === "all" ||
-        p.method === filterMethod;
+// 3. FILTERED DATA
+const filtered = useMemo(() => {
+  let data = getDateFilteredPayments(allPayments);
 
-      const matchPlan =
-        filterPlan === "all" ||
-        p.plan === filterPlan;
+  return data.filter((p) => {
+    const q = search.toLowerCase();
 
-      const matchStatus =
-        filterStatus === "all" ||
-        p.status === filterStatus;
+    const matchSearch =
+      !search ||
+      p.memberName?.toLowerCase().includes(q) ||
+      p.trainerName?.toLowerCase().includes(q) ||
+      p.phone?.includes(q) ||
+      p.plan?.toLowerCase().includes(q);
 
-      return (
-        matchSearch &&
-        matchMethod &&
-        matchPlan &&
-        matchStatus
-      );
-    });
-  }, [
-    payments,
-    search,
-    filterMethod,
-    filterPlan,
-    filterStatus,
-    dateRange,
-  ]);
+    const matchMethod =
+      filterMethod === "all" || p.method === filterMethod;
 
+    const matchPlan =
+      filterPlan === "all" || p.plan === filterPlan;
+
+    const matchStatus =
+      filterStatus === "all" || p.status === filterStatus;
+
+    return matchSearch && matchMethod && matchPlan && matchStatus;
+  });
+}, [
+  allPayments,
+  search,
+  filterMethod,
+  filterPlan,
+  filterStatus,
+  dateRange,
+]);
   // ================= STATS =================
-  const stats = useMemo(
-    () => ({
-      total: filtered.reduce(
-        (s, p) => s + (Number(p.amount) || 0),
+  const stats = useMemo(() => {
+    const all = [...payments, ...trainerPayments];
+
+    return {
+      total: all.reduce((s, p) => s + Number(p.amount || 0), 0),
+
+      monthly: payments
+        .filter((p) => p.date?.startsWith(thisMonth))
+        .reduce((s, p) => s + Number(p.amount || 0), 0),
+
+      trainerTotal: trainerPayments.reduce(
+        (s, p) => s + Number(p.amount || 0),
         0,
       ),
 
-      monthly: payments
-        .filter((p) =>
-          p.date?.startsWith(thisMonth),
-        )
-        .reduce(
-          (s, p) => s + (Number(p.amount) || 0),
-          0,
-        ),
-
-      cash: filtered
+      cash: all
         .filter((p) => p.method === "Cash")
-        .reduce(
-          (s, p) => s + Number(p.amount || 0),
-          0,
-        ),
+        .reduce((s, p) => s + Number(p.amount || 0), 0),
 
-      upi: filtered
+      upi: all
         .filter((p) => p.method === "UPI")
-        .reduce(
-          (s, p) => s + Number(p.amount || 0),
-          0,
-        ),
-    }),
-    [filtered, payments, thisMonth],
-  );
+        .reduce((s, p) => s + Number(p.amount || 0), 0),
+    };
+  }, [payments, trainerPayments, thisMonth]);
 
   // ================= REVENUE DATA =================
   const revenueData = useMemo(() => {
     const map = {};
 
     filtered.forEach((p) => {
-      const d = format(
-        new Date(p.date),
-        "dd MMM",
-      );
+      const d = format(new Date(p.date), "dd MMM");
 
       if (!map[d]) map[d] = 0;
 
@@ -274,9 +307,7 @@ const navigate = useNavigate();
         methods[p.method] = 0;
       }
 
-      methods[p.method] += Number(
-        p.amount || 0,
-      );
+      methods[p.method] += Number(p.amount || 0);
     });
 
     return Object.keys(methods).map((key) => ({
@@ -290,52 +321,65 @@ const navigate = useNavigate();
     e.preventDefault();
 
     if (!form.memberId || !form.amount) {
-      toast.error("Member and amount required.");
-
+      toast.error("Select entity and amount");
       return;
     }
 
     setSaving(true);
 
     try {
-      const member = members.find(
-        (m) => m.id === form.memberId,
-      );
+      const isTrainer = paymentType === "trainer";
 
-      const expiryDate = getExpiryDate(
-        form.date,
-        form.plan,
-      );
+      const entity = isTrainer
+        ? trainers.find((t) => t.id === form.memberId)
+        : members.find((m) => m.id === form.memberId);
 
-      await addPayment({
-        memberId: form.memberId,
-
-        memberName:
-          member?.name || "Unknown",
-
-        phone: member?.phone || "",
-
-        plan: form.plan,
-
+      const basePayload = {
+        type: paymentType, // "member" | "trainer"
+        entityId: form.memberId,
+        name: entity?.name || "Unknown",
+        phone: entity?.phone || "",
         amount: Number(form.amount),
-
         method: form.method,
-
         date: form.date,
-
-        expiryDate: format(
-          expiryDate,
-          "yyyy-MM-dd",
-        ),
-
-        type: form.type,
-
         notes: form.notes,
-
         status: form.status,
-      });
+      };
 
-      toast.success("Payment recorded!");
+      const payload =
+        paymentType === "member"
+          ? {
+              ...basePayload,
+              plan: form.plan,
+              expiryDate: format(
+                getExpiryDate(form.date, form.plan),
+                "yyyy-MM-dd",
+              ),
+            }
+          : basePayload;
+
+      await addPayment(payload);
+
+      // OPTIONAL: separate trainer ledger (only if you want accounting separation)
+      // if (isTrainer) {
+      //   await payTrainer(
+      //     form.memberId,
+      //     form.amount,
+      //     format(new Date(), "yyyy-MM")
+      //   );
+      // }
+      if (isTrainer) {
+        await addTrainerPayment({
+          trainerId: form.memberId,
+          trainerName: entity?.name || "Unknown",
+          amount: Number(form.amount),
+          type: "salary",
+          method: form.method || "Cash", // ✅ ADD THIS
+          // createdAt: new Date(),
+          date: today,
+        });
+      }
+      toast.success(`${isTrainer ? "Trainer" : "Member"} payment recorded!`);
 
       setShowForm(false);
 
@@ -345,79 +389,106 @@ const navigate = useNavigate();
         method: "Cash",
         plan: "Monthly",
         date: today,
-        type: "renewal",
         notes: "",
         status: "paid",
       });
-    } catch {
-      toast.error(
-        "Could not save payment.",
-      );
+    } catch (err) {
+      console.error(err);
+      toast.error("Could not save payment");
     } finally {
       setSaving(false);
     }
   };
-
   // ================= EXPORT =================
-  const handleExport = () => {
-    if (!filtered.length) {
-      toast.error("No data to export.");
+  // const handleExport = () => {
+  //   if (!filtered.length) {
+  //     toast.error("No data to export.");
 
-      return;
-    }
+  //     return;
+  //   }
 
-    const data = filtered.map((p) => ({
-      "Member Name": p.memberName,
-      Phone: p.phone || "",
-      Plan: p.plan,
-      "Payment Type": p.type,
-      Method: p.method,
-      Amount: p.amount,
-      Date: format(
-        new Date(p.date),
-        "dd MMM yyyy",
-      ),
-      Expiry: p.expiryDate,
-      Status: p.status,
-      Notes: p.notes || "",
-    }));
+  //   const data = filtered.map((p) => ({
+  //     "Member Name": p.memberName,
+  //     Phone: p.phone || "",
+  //     Plan: p.plan,
+  //     "Payment Type": p.type,
+  //     Method: p.method,
+  //     Amount: p.amount,
+  //     Date: format(new Date(p.date), "dd MMM yyyy"),
+  //     Expiry: p.expiryDate,
+  //     Status: p.status,
+  //     Notes: p.notes || "",
+  //   }));
+  //   const data = filtered.map((p) => ({
+  //     Name: p.type === "trainer" ? p.trainerName : p.memberName,
+  //     Type: p.type,
+  //     Phone: p.phone || "",
+  //     Plan: p.plan || "Trainer Payment",
+  //     Method: p.method,
+  //     Amount: p.amount,
+  //     Date: format(new Date(p.date), "dd MMM yyyy"),
+  //     Expiry: p.expiryDate || "-",
+  //     Notes: p.notes || "",
+  //   }));
+  //   data.push({
+  //     "Member Name": "TOTAL",
+  //     Amount: stats.total,
+  //   });
 
-    data.push({
-      "Member Name": "TOTAL",
-      Amount: stats.total,
-    });
+  //   const ws = XLSX.utils.json_to_sheet(data);
 
-    const ws =
-      XLSX.utils.json_to_sheet(data);
+  //   const wb = XLSX.utils.book_new();
 
-    const wb = XLSX.utils.book_new();
+  //   XLSX.utils.book_append_sheet(wb, ws, "Payments");
 
-    XLSX.utils.book_append_sheet(
-      wb,
-      ws,
-      "Payments",
-    );
+  //   const excelBuffer = XLSX.write(wb, {
+  //     bookType: "xlsx",
+  //     type: "array",
+  //   });
 
-    const excelBuffer = XLSX.write(wb, {
-      bookType: "xlsx",
-      type: "array",
-    });
+  //   const file = new Blob([excelBuffer], {
+  //     type: "application/octet-stream",
+  //   });
 
-    const file = new Blob([excelBuffer], {
-      type: "application/octet-stream",
-    });
+  //   saveAs(file, `F2_Payments_${format(new Date(), "dd-MM-yyyy")}.xlsx`);
 
-    saveAs(
-      file,
-      `F2_Payments_${format(
-        new Date(),
-        "dd-MM-yyyy",
-      )}.xlsx`,
-    );
+  //   toast.success("Excel exported!");
+  // };
+const handleExport = () => {
+  if (!filtered.length) {
+    toast.error("No data to export.");
+    return;
+  }
 
-    toast.success("Excel exported!");
-  };
+  const data = filtered.map((p) => ({
+    Name: p.type === "trainer" ? p.trainerName : p.memberName,
+    Type: p.type,
+    Phone: p.phone || "-",
+    Plan: p.plan || (p.type === "trainer" ? "Trainer Payment" : "-"),
+    Method: p.method,
+    Amount: p.amount,
+    Date: format(new Date(p.date), "dd MMM yyyy"),
+    Expiry: p.expiryDate || "-",
+    Notes: p.notes || "",
+  }));
 
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Payments");
+
+  const excelBuffer = XLSX.write(wb, {
+    bookType: "xlsx",
+    type: "array",
+  });
+
+  const file = new Blob([excelBuffer], {
+    type: "application/octet-stream",
+  });
+
+  saveAs(file, `F2_Payments_${format(new Date(), "dd-MM-yyyy")}.xlsx`);
+
+  toast.success("Excel exported!");
+};
   // ================= CLEAR FILTERS =================
   const clearFilters = () => {
     setSearch("");
@@ -451,22 +522,15 @@ const navigate = useNavigate();
         </div>
 
         <div className="topbar-right">
-          <button
-            className="btn btn-outline btn-sm"
-            onClick={handleExport}
-          >
+          <button className="btn btn-outline btn-sm" onClick={handleExport}>
             ⬇ Export Excel
           </button>
 
           <button
             className="btn btn-primary btn-sm"
-            onClick={() =>
-              setShowForm((p) => !p)
-            }
+            onClick={() => setShowForm((p) => !p)}
           >
-            {showForm
-              ? "✕ Cancel"
-              : "+ Record"}
+            {showForm ? "✕ Cancel" : "+ Record"}
           </button>
         </div>
       </div>
@@ -475,37 +539,23 @@ const navigate = useNavigate();
         {/* ================= FORM ================= */}
         {showForm && (
           <div className="card">
-            <div className="card-title">
-              Record Payment
-            </div>
+            <div className="card-title">Record Payment</div>
 
             <form onSubmit={handleAdd}>
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">
-                    Member
-                  </label>
+                  <label className="form-label">Member</label>
 
                   <select
                     className="form-input"
                     value={form.memberId}
-                    onChange={(e) =>
-                      set(
-                        "memberId",
-                        e.target.value,
-                      )
-                    }
+                    onChange={(e) => set("memberId", e.target.value)}
                     required
                   >
-                    <option value="">
-                      Select Member
-                    </option>
+                    <option value="">Select Member</option>
 
                     {members.map((m) => (
-                      <option
-                        key={m.id}
-                        value={m.id}
-                      >
+                      <option key={m.id} value={m.id}>
                         {m.name} ({m.phone})
                       </option>
                     ))}
@@ -513,20 +563,13 @@ const navigate = useNavigate();
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">
-                    Amount
-                  </label>
+                  <label className="form-label">Amount</label>
 
                   <input
                     className="form-input"
                     type="number"
                     value={form.amount}
-                    onChange={(e) =>
-                      set(
-                        "amount",
-                        e.target.value,
-                      )
-                    }
+                    onChange={(e) => set("amount", e.target.value)}
                     required
                   />
                 </div>
@@ -534,70 +577,53 @@ const navigate = useNavigate();
 
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">
-                    Plan
-                  </label>
+                  <label className="form-label">Plan</label>
 
                   <select
                     className="form-input"
                     value={form.plan}
-                    onChange={(e) =>
-                      set(
-                        "plan",
-                        e.target.value,
-                      )
-                    }
+                    onChange={(e) => set("plan", e.target.value)}
                   >
-                    <option>
-                      Monthly
-                    </option>
+                    <option>Monthly</option>
 
-                    <option>
-                      Quarterly
-                    </option>
+                    <option>Quarterly</option>
 
-                    <option>
-                      6 Month
-                    </option>
+                    <option>6 Month</option>
 
-                    <option>
-                      Annual
-                    </option>
+                    <option>Annual</option>
                   </select>
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">
-                    Method
-                  </label>
+                  <label className="form-label">Method</label>
 
                   <select
                     className="form-input"
                     value={form.method}
-                    onChange={(e) =>
-                      set(
-                        "method",
-                        e.target.value,
-                      )
-                    }
+                    onChange={(e) => set("method", e.target.value)}
                   >
                     <option>Cash</option>
                     <option>UPI</option>
                     <option>Card</option>
-                    <option>
-                      Bank Transfer
-                    </option>
+                    <option>Bank Transfer</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Payment Type</label>
+
+                  <select
+                    className="form-input"
+                    value={paymentType}
+                    onChange={(e) => setPaymentType(e.target.value)}
+                  >
+                    <option value="member">Member Payment</option>
+                    <option value="trainer">Trainer Payment</option>
                   </select>
                 </div>
               </div>
 
-              <button
-                className="btn btn-primary"
-                disabled={saving}
-              >
-                {saving
-                  ? "Saving..."
-                  : "💾 Save Payment"}
+              <button className="btn btn-primary" disabled={saving}>
+                {saving ? "Saving..." : "💾 Save Payment"}
               </button>
             </form>
           </div>
@@ -605,56 +631,30 @@ const navigate = useNavigate();
 
         {/* ================= STATS ================= */}
         <div className="stats-grid">
-          <div
-            className="stat-card"
-            style={anim(0.05)}
-          >
-            <div className="stat-label">
-              Total Revenue
-            </div>
+          <div className="stat-card" style={anim(0.05)}>
+            <div className="stat-label">Total Revenue</div>
 
-            <div className="stat-value c-gold">
-              {formatMoney(stats.total)}
-            </div>
+            <div className="stat-value c-gold">{formatMoney(stats.total)}</div>
           </div>
 
-          <div
-            className="stat-card"
-            style={anim(0.1)}
-          >
-            <div className="stat-label">
-              This Month
-            </div>
+          <div className="stat-card" style={anim(0.1)}>
+            <div className="stat-label">This Month</div>
 
             <div className="stat-value c-green">
               {formatMoney(stats.monthly)}
             </div>
           </div>
 
-          <div
-            className="stat-card"
-            style={anim(0.15)}
-          >
-            <div className="stat-label">
-              Cash
-            </div>
+          <div className="stat-card" style={anim(0.15)}>
+            <div className="stat-label">Cash</div>
 
-            <div className="stat-value">
-              {formatMoney(stats.cash)}
-            </div>
+            <div className="stat-value">{formatMoney(stats.cash)}</div>
           </div>
 
-          <div
-            className="stat-card"
-            style={anim(0.2)}
-          >
-            <div className="stat-label">
-              UPI
-            </div>
+          <div className="stat-card" style={anim(0.2)}>
+            <div className="stat-label">UPI</div>
 
-            <div className="stat-value">
-              {formatMoney(stats.upi)}
-            </div>
+            <div className="stat-value">{formatMoney(stats.upi)}</div>
           </div>
         </div>
 
@@ -666,38 +666,19 @@ const navigate = useNavigate();
               <div className="chart-title-wrap">
                 <div className="chart-accent" />
 
-                <h3 className="chart-title">
-                  Revenue Trend
-                </h3>
+                <h3 className="chart-title">Revenue Trend</h3>
               </div>
 
-              <div className="chart-chip">
-                Revenue
-              </div>
+              <div className="chart-chip">Revenue</div>
             </div>
 
-            <ResponsiveContainer
-              width="100%"
-              height={340}
-            >
+            <ResponsiveContainer width="100%" height={340}>
               <BarChart data={revenueData}>
                 <defs>
-                  <linearGradient
-                    id="goldBar"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop
-                      offset="0%"
-                      stopColor="#ffe45e"
-                    />
+                  <linearGradient id="goldBar" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#ffe45e" />
 
-                    <stop
-                      offset="100%"
-                      stopColor="#ffb800"
-                    />
+                    <stop offset="100%" stopColor="#ffb800" />
                   </linearGradient>
                 </defs>
 
@@ -728,13 +709,11 @@ const navigate = useNavigate();
 
                 <Tooltip
                   cursor={{
-                    fill:
-                      "rgba(255,215,0,0.04)",
+                    fill: "rgba(255,215,0,0.04)",
                   }}
                   contentStyle={{
                     background: "#0d0d0d",
-                    border:
-                      "1px solid rgba(255,215,0,0.15)",
+                    border: "1px solid rgba(255,215,0,0.15)",
                     borderRadius: 18,
                     color: "#fff",
                   }}
@@ -757,35 +736,24 @@ const navigate = useNavigate();
               <div className="chart-title-wrap">
                 <div className="chart-accent" />
 
-                <h3 className="chart-title">
-                  Payment Methods
-                </h3>
+                <h3 className="chart-title">Payment Methods</h3>
               </div>
 
-              <div className="chart-chip">
-                Distribution
-              </div>
+              <div className="chart-chip">Distribution</div>
             </div>
 
-            <ResponsiveContainer
-              width="100%"
-              height={340}
-            >
+            <ResponsiveContainer width="100%" height={340}>
               <PieChart>
                 <Tooltip
                   contentStyle={{
                     background: "#0d0d0d",
-                    border:
-                      "1px solid rgba(255,255,255,0.08)",
+                    border: "1px solid rgba(255,255,255,0.08)",
                     borderRadius: 16,
                     color: "#fff",
                   }}
                 />
 
-                <Legend
-                  verticalAlign="bottom"
-                  iconType="circle"
-                />
+                <Legend verticalAlign="bottom" iconType="circle" />
 
                 <Pie
                   data={paymentMethodData}
@@ -797,26 +765,17 @@ const navigate = useNavigate();
                   animationDuration={1800}
                   labelLine={false}
                   label={({ name, percent }) =>
-                    `${name} ${(
-                      percent * 100
-                    ).toFixed(0)}%`
+                    `${name} ${(percent * 100).toFixed(0)}%`
                   }
                 >
-                  {paymentMethodData.map(
-                    (_, index) => (
-                      <Cell
-                        key={index}
-                        fill={
-                          pieColors[
-                            index %
-                              pieColors.length
-                          ]
-                        }
-                        stroke="rgba(255,255,255,0.12)"
-                        strokeWidth={2}
-                      />
-                    ),
-                  )}
+                  {paymentMethodData.map((_, index) => (
+                    <Cell
+                      key={index}
+                      fill={pieColors[index % pieColors.length]}
+                      stroke="rgba(255,255,255,0.12)"
+                      strokeWidth={2}
+                    />
+                  ))}
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
@@ -951,117 +910,85 @@ const navigate = useNavigate();
             </div>
           </div>
         </div> */}
-<div className="premium-filter-bar">
-  <div className="filter-left">
-    <div className="search-wrap">
-      <span className="search-icon">🔍</span>
+        <div className="premium-filter-bar">
+          <div className="filter-left">
+            <div className="search-wrap">
+              <span className="search-icon">🔍</span>
 
-      <input
-        className="premium-search"
-        placeholder="Search member, phone, plan..."
-        value={search}
-        onChange={(e) =>
-          setSearch(e.target.value)
-        }
-      />
-    </div>
+              <input
+                className="premium-search"
+                placeholder="Search member, phone, plan..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
 
-    <select
-      className="premium-select"
-      value={filterMethod}
-      onChange={(e) =>
-        setFilterMethod(e.target.value)
-      }
-    >
-      <option value="all">
-        All Methods
-      </option>
+            <select
+              className="premium-select"
+              value={filterMethod}
+              onChange={(e) => setFilterMethod(e.target.value)}
+            >
+              <option value="all">All Methods</option>
 
-      <option>Cash</option>
-      <option>UPI</option>
-      <option>Card</option>
-      <option>Bank Transfer</option>
-    </select>
+              <option>Cash</option>
+              <option>UPI</option>
+              <option>Card</option>
+              <option>Bank Transfer</option>
+            </select>
 
-    <select
-      className="premium-select"
-      value={filterPlan}
-      onChange={(e) =>
-        setFilterPlan(e.target.value)
-      }
-    >
-      <option value="all">
-        All Plans
-      </option>
+            <select
+              className="premium-select"
+              value={filterPlan}
+              onChange={(e) => setFilterPlan(e.target.value)}
+            >
+              <option value="all">All Plans</option>
 
-      <option>Monthly</option>
-      <option>Quarterly</option>
-      <option>6 Month</option>
-      <option>Annual</option>
-    </select>
+              <option>Monthly</option>
+              <option>Quarterly</option>
+              <option>6 Month</option>
+              <option>Annual</option>
+            </select>
 
-    <select
-      className="premium-select"
-      value={filterStatus}
-      onChange={(e) =>
-        setFilterStatus(e.target.value)
-      }
-    >
-      <option value="all">
-        All Status
-      </option>
+            <select
+              className="premium-select"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <option value="all">All Status</option>
 
-      <option value="paid">
-        Paid
-      </option>
+              <option value="paid">Paid</option>
 
-      <option value="pending">
-        Pending
-      </option>
+              <option value="pending">Pending</option>
 
-      <option value="partial">
-        Partial
-      </option>
-    </select>
+              <option value="partial">Partial</option>
+            </select>
 
-    <select
-      className="premium-select"
-      value={dateRange}
-      onChange={(e) =>
-        setDateRange(e.target.value)
-      }
-    >
-      <option value="7days">
-        Last 7 Days
-      </option>
+            <select
+              className="premium-select"
+              value={dateRange}
+              onChange={(e) => setDateRange(e.target.value)}
+            >
+              <option value="7days">Last 7 Days</option>
 
-      <option value="30days">
-        Last 30 Days
-      </option>
+              <option value="30days">Last 30 Days</option>
 
-      <option value="month">
-        This Month
-      </option>
+              <option value="month">This Month</option>
 
-      <option value="year">
-        This Year
-      </option>
-    </select>
-  </div>
+              <option value="year">This Year</option>
+            </select>
+          </div>
 
-  <div className="filter-right">
-    <button
-      className="btn btn-outline btn-sm premium-clear-btn"
-      onClick={clearFilters}
-    >
-      ✕ Clear
-    </button>
+          <div className="filter-right">
+            <button
+              className="btn btn-outline btn-sm premium-clear-btn"
+              onClick={clearFilters}
+            >
+              ✕ Clear
+            </button>
 
-    <div className="results-chip">
-      {filtered.length} Results
-    </div>
-  </div>
-</div>
+            <div className="results-chip">{filtered.length} Results</div>
+          </div>
+        </div>
         {/* ================= TABLE ================= */}
         <div className="table-wrap">
           <table>
@@ -1080,107 +1007,106 @@ const navigate = useNavigate();
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={7}>
-                    Loading...
-                  </td>
+                  <td colSpan={7}>Loading...</td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7}>
-                    No payments found.
-                  </td>
+                  <td colSpan={7}>No payments found.</td>
                 </tr>
               ) : (
                 filtered.map((p) => {
-                  const daysLeft =
-                    differenceInDays(
-                      new Date(
-                        p.expiryDate,
-                      ),
-                      new Date(),
-                    );
+                  const expiry =
+                    p.type === "member" && p.expiryDate
+                      ? new Date(p.expiryDate)
+                      : null;
 
+                  const daysLeft = expiry
+                    ? differenceInDays(expiry, new Date())
+                    : null;
+
+             
                   return (
                     <tr key={p.id}>
                       <td>
-  <div
-    style={{
-      display: "flex",
-      flexDirection: "column",
-      gap: 2,
-    }}
-  >
-    <strong
-      style={{
-        cursor: "pointer",
-        color: "var(--gold)",
-        transition: "0.2s",
-      }}
-      onClick={() =>
-        navigate(`/members/${p.memberId}`)
-      }
-      onMouseEnter={(e) =>
-        (e.target.style.opacity = "0.8")
-      }
-      onMouseLeave={(e) =>
-        (e.target.style.opacity = "1")
-      }
-    >
-      {p.memberName}
-    </strong>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 2,
+                          }}
+                        >
+                          <strong
+                            style={{
+                              cursor: "pointer",
+                              color: "var(--gold)",
+                              transition: "0.2s",
+                            }}
+                            onClick={() => navigate(`/members/${p.memberId}`)}
+                            onMouseEnter={(e) =>
+                              (e.target.style.opacity = "0.8")
+                            }
+                            onMouseLeave={(e) => (e.target.style.opacity = "1")}
+                          >
+                            {p.memberName}
+                          </strong>
 
-    <small
-      style={{
-        color: "var(--muted2)",
-        fontSize: 11,
-      }}
-    >
-      {p.phone || "No phone"}
-    </small>
-  </div>
-</td>
+                          <small
+                            style={{
+                              color: "var(--muted2)",
+                              fontSize: 11,
+                            }}
+                          >
+                            {p.phone || "No phone"}
+                          </small>
+                        </div>
+                      </td>
 
                       <td>{p.plan}</td>
 
                       <td
                         style={{
-                          color:
-                            "var(--green)",
+                          color: "var(--green)",
                           fontWeight: 700,
                         }}
                       >
-                        {formatMoney(
-                          p.amount,
-                        )}
+                        {formatMoney(p.amount)}
                       </td>
-
+                     <td>
+  {p.type === "trainer" ? (
+    <div>
+      <strong style={{ color: "#a855f7" }}>
+        👤 {p.trainerName}
+      </strong>
+      <small>Trainer Payment</small>
+    </div>
+  ) : (
+    <div>
+      <strong
+        style={{ cursor: "pointer", color: "var(--gold)" }}
+        onClick={() => navigate(`/members/${p.memberId}`)}
+      >
+        {p.memberName}
+      </strong>
+      <small>{p.phone || "No phone"}</small>
+    </div>
+  )}
+</td>
                       <td>{p.method}</td>
 
                       <td>
-                        <div>
-                          {p.expiryDate}
-                        </div>
+                        <div>{p.expiryDate}</div>
 
                         <small
                           style={{
-                            color:
-                              daysLeft < 0
-                                ? "#ef4444"
-                                : "#888",
+                            color: daysLeft < 0 ? "#ef4444" : "#888",
                           }}
                         >
-                          {daysLeft < 0
-                            ? "Expired"
-                            : `${daysLeft} days left`}
+                          {daysLeft < 0 ? "Expired" : `${daysLeft} days left`}
                         </small>
                       </td>
 
                       <td>
-                        <span
-                          className={`badge ${getStatusColor(
-                            daysLeft,
-                          )}`}
-                        >
+                        <span className={`badge ${getStatusColor(daysLeft)}`}>
                           {daysLeft < 0
                             ? "Expired"
                             : daysLeft <= 3
@@ -1189,9 +1115,7 @@ const navigate = useNavigate();
                         </span>
                       </td>
 
-                      <td>
-                        {p.notes || "—"}
-                      </td>
+                      <td>{p.notes || "—"}</td>
                     </tr>
                   );
                 })

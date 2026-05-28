@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
+
 import { getAllTrainers } from "../../../firebase/trainerService";
 
 import TrainerCard from "../../../components/trainer/TrainerCard";
+
+import "../../../styles/trainers.css";
 
 export default function Trainers() {
   const [trainers, setTrainers] = useState([]);
@@ -17,13 +20,41 @@ export default function Trainers() {
 
   return (
     <div className="page-container">
-      <h2>All Trainers</h2>
+      {/* HEADER */}
 
-      <div className="trainer-grid">
-        {trainers.map((trainer) => (
-          <TrainerCard key={trainer.id} trainer={trainer} />
-        ))}
+      <div className="page-title-wrap">
+        <div>
+          <h1 className="page-title">
+            Trainers
+          </h1>
+
+          <p className="page-subtitle">
+            Manage trainers, PT revenue,
+            salaries & performance
+          </p>
+        </div>
       </div>
+
+      {/* EMPTY */}
+
+      {trainers.length === 0 ? (
+        <div className="empty-state">
+          <h3>No Trainers Found</h3>
+
+          <p>
+            Add your first trainer to begin
+          </p>
+        </div>
+      ) : (
+        <div className="trainer-grid">
+          {trainers.map((trainer) => (
+            <TrainerCard
+              key={trainer.id}
+              trainer={trainer}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

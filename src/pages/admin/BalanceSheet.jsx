@@ -65,7 +65,15 @@ const [payments, setPayments] = useState([]);
     paymentMode: "Cash",
     notes:       "",
   });
+const memberIncome = payments
+  .filter(p => p.type === "member")
+  .reduce((s, p) => s + Number(p.amount || 0), 0);
 
+const trainerExpense = payments
+  .filter(p => p.type === "trainer")
+  .reduce((s, p) => s + Number(p.amount || 0), 0);
+
+const netProfit = memberIncome - trainerExpense;
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
   useEffect(() => {
@@ -105,18 +113,21 @@ async function fetchEntries() {
     }));
 
     const paymentData = (paySnap || []).map((p, i) => ({
-      id: p.id || `pay_${i}`,
-      source: "payments",
-      type: "income",
-      category: "Membership Fee",
-      description: p.memberName
-        ? `Payment from ${p.memberName}`
-        : "Payment",
-      amount: Number(p.amount) || 0,
-      date: p.date,
-      paymentMode: p.method || "Cash",
-      notes: "",
-    }));
+  id: p.id || `pay_${i}`,
+  source: "payments",
+  type: p.type === "trainer" ? "expense" : "income",
+
+  category: p.type === "trainer" ? "Staff Salary" : "Membership Fee",
+
+  description: p.name
+    ? `Payment from ${p.name}`
+    : "Payment",
+
+  amount: Number(p.amount) || 0,
+  date: p.date,
+  paymentMode: p.method || "Cash",
+  notes: p.notes || "",
+}));
 
     const merged = [...balanceData, ...paymentData].sort(
       (a, b) => (b.date || "").localeCompare(a.date || "")
