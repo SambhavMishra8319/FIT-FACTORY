@@ -5,8 +5,7 @@ google map
 f2-factory
 member dashboard
    
-    footer 
-        mobile number 
+   
     
     dashboard 
          
@@ -42,9 +41,9 @@ no alerts  convert them to pop ups
 workout plan of admin to be added to member 
 
 
-no assign plan without number
 
-member ship expire but access is there 
+
+
 
 
 

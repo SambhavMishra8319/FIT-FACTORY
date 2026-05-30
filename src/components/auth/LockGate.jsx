@@ -306,7 +306,7 @@ const FEATURE_LABELS = {
   leaderboard: "Leaderboard",
 };
 
-const CONTACT_PHONE = "+91 XXXXX XXXXX";
+const CONTACT_PHONE = "+91 8319802425";
 
 /* ─────────────────────────────────────────────
    PLANS
