@@ -1,22 +1,19 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
+// import { format } from "date-fns";
 import toast from "react-hot-toast";
+import { getMembershipStatus } from "../../utils/membershipStatus";
 import {
   subscribeMembersSnapshot,
   deleteMember,
   addAttendance,
 } from "../../firebase/service";
 // import "../styles/member.css";
-const statusBadge = (s) => {
-  if (s === "active") return <span className="badge badge-green">Active</span>;
-  if (s === "expiring")
-    return <span className="badge badge-red">Expiring</span>;
-  if (s === "inactive")
-    return <span className="badge badge-gray">Inactive</span>;
-  return <span className="badge badge-gold">{s}</span>;
+const normalizeAmount = (val) => {
+  if (!val) return 0;
+  if (typeof val === "number") return val;
+  return Number(String(val).replace(/[^0-9]/g, "")) || 0;
 };
-
 export default function Members() {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,42 +25,29 @@ export default function Members() {
   useEffect(() => {
     // ✅ Realtime listener — updates instantly when admin adds/edits member
     const unsub = subscribeMembersSnapshot((data) => {
-      // const now = new Date();
-      // const weekLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-      // const updated = data.map(m => {
-      //   if (!m.expiryDate) return m;
-      //   const exp = new Date(m.expiryDate);
-      //   const status = exp < now ? "inactive" : exp <= weekLater ? "expiring" : "active";
-      //   return { ...m, status };
-      // });
-      const todayStr = format(new Date(), "yyyy-MM-dd");
+      
 
-      const weekLater = new Date();
-      weekLater.setDate(weekLater.getDate() + 7);
+ const updated = data
+  .map((m) => {
+    const status = m.expiryDate
+      ? getMembershipStatus(m.expiryDate)
+      : "pending";
 
-      const weekLaterStr = format(weekLater, "yyyy-MM-dd");
+    return {
+      ...m,
+      status,
+    };
+  })
+  .sort((a, b) => {
+    const order = {
+      active: 1,
+      expiring: 2,
+      expired: 3,
+      pending: 4,
+    };
 
-      const updated = data.map((m) => {
-        if (!m.expiryDate) {
-          return {
-            ...m,
-            status: "inactive",
-          };
-        }
-
-        let status = "active";
-
-        if (m.expiryDate < todayStr) {
-          status = "inactive";
-        } else if (m.expiryDate >= todayStr && m.expiryDate <= weekLaterStr) {
-          status = "expiring";
-        }
-
-        return {
-          ...m,
-          status,
-        };
-      });
+    return order[a.status] - order[b.status];
+  });
       setMembers(updated);
       setLoading(false);
       setTimeout(() => setVisible(true), 60);
@@ -115,8 +99,15 @@ export default function Members() {
       (m) => m.status === "active" || m.status === "expiring",
     ).length,
     expiring: members.filter((m) => m.status === "expiring").length,
-    inactive: members.filter((m) => m.status === "inactive").length,
-    revenue: members.reduce((s, m) => s + (Number(m.amountPaid) || 0), 0),
+    // inactive: members.filter((m) => m.status === "inactive").length,
+    expired: members.filter((m) => m.status === "expired").length,
+
+    pending: members.filter((m) => m.status === "pending").length,
+    // revenue: members.reduce((s, m) => s + (Number(m.amountPaid) || 0), 0),
+    revenue: members.reduce(
+  (s, m) => s + normalizeAmount(m.amountPaid),
+  0
+),
   };
 
   const anim = (delay) => ({
@@ -124,6 +115,21 @@ export default function Members() {
     transform: visible ? "translateY(0)" : "translateY(14px)",
     transition: `all 0.45s cubic-bezier(0.22,1,0.36,1) ${delay}s`,
   });
+  const statusBadge = (status) => {
+    switch (status) {
+      case "active":
+        return <span className="badge badge-green">Active</span>;
+
+      case "expiring":
+        return <span className="badge badge-gold">Expiring Soon</span>;
+
+      case "expired":
+        return <span className="badge badge-red">Expired</span>;
+
+      default:
+        return <span className="badge badge-gray">Pending</span>;
+    }
+  };
 
   return (
     <div className="page-enter">
@@ -145,7 +151,9 @@ export default function Members() {
             <option value="all">All</option>
             <option value="active">Active</option>
             <option value="expiring">Expiring</option>
-            <option value="inactive">Inactive</option>
+            {/* <option value="inactive">Inactive</option> */}
+            <option value="expired">Expired</option>
+            <option value="pending">Pending</option>
           </select>
           <button
             className="btn btn-primary btn-sm tap-scale btn-ripple"
@@ -173,8 +181,14 @@ export default function Members() {
               val: "c-red",
             },
             {
-              label: "Inactive",
-              value: stats.inactive,
+              label: "Expired",
+              value: stats.expired,
+              cls: "s-red",
+              val: "c-red",
+            },
+            {
+              label: "Pending",
+              value: stats.pending,
               cls: "s-gold",
               val: "c-gold",
             },
@@ -214,7 +228,6 @@ export default function Members() {
             <tbody>
               {loading ? (
                 [1, 2, 3, 4].map((i) => (
-                  
                   <tr key={i}>
                     <td colSpan={7} style={{ padding: 16 }}>
                       <div
@@ -227,11 +240,9 @@ export default function Members() {
                       />
                     </td>
                   </tr>
-
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  
                   <td
                     colSpan={7}
                     style={{
@@ -286,36 +297,39 @@ export default function Members() {
                             .toUpperCase()}
                         </div>
                         <div>
-  <strong
-    style={{
-      cursor: "pointer",
-      color: "var(--gold)",
-    }}
-    onClick={() => navigate(`/members/${m.id}`)}
-  >
-    {m.name}
-  </strong>
+                          <strong
+                            style={{
+                              cursor: "pointer",
+                              color: "var(--gold)",
+                            }}
+                            onClick={() => navigate(`/members/${m.id}`)}
+                          >
+                            {m.name}
+                          </strong>
 
-  <div style={{ fontSize: 11, color: "var(--muted2)" }}>
-    {m.phone}
-  </div>
-</div>
+                          <div style={{ fontSize: 11, color: "var(--muted2)" }}>
+                            {m.phone}
+                          </div>
+                        </div>
                       </div>
                     </td>
-                    <td>{m.plan}</td>
+                    <td>{m.membershipAssigned ? m.plan : "Not Assigned"}</td>
                     <td style={{ fontSize: 12 }}>{m.goal || "—"}</td>
                     <td
                       style={{
                         fontSize: 12,
                         color:
-                          m.status === "expiring" || m.status === "inactive"
+                          m.status === "expiring" || m.status === "expired"
                             ? "var(--red)"
                             : "var(--muted2)",
                       }}
                     >
-                      {m.expiryDate}
+                      {m.expiryDate || "—"}
                     </td>
-                    <td>₹{Number(m.amountPaid || 0).toLocaleString()}</td>
+                    {/* <td>₹{Number(m.amountPaid || 0).toLocaleString()}</td> */}
+                    <td>
+                      ₹{normalizeAmount(m.amountPaid).toLocaleString()}
+                    </td>
                     <td>{statusBadge(m.status)}</td>
                     <td>
                       <div
@@ -323,8 +337,10 @@ export default function Members() {
                       >
                         <button
                           className="btn btn-outline btn-sm tap-scale"
+                          disabled={
+                            m.status === "expired" || m.status === "pending"
+                          }
                           onClick={() => handleCheckin(m)}
-                          title="Mark attendance"
                         >
                           ✓ In
                         </button>
@@ -366,7 +382,8 @@ export default function Members() {
             <span style={{ color: "var(--gold)" }}>
               Total: ₹
               {(
-                members.reduce((s, m) => s + (Number(m.amountPaid) || 0), 0) /
+                // members.reduce((s, m) => s + (Number(m.amountPaid) || 0), 0) /
+                members.reduce((s, m) => s + normalizeAmount(m.amountPaid), 0)/
                 1000
               ).toFixed(1)}
               k revenue
@@ -374,6 +391,7 @@ export default function Members() {
           </div>
         )}
       </div>
+      
 
       <button
         className="fab tap-scale btn-ripple"

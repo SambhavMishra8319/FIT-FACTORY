@@ -56,6 +56,7 @@ import AddTrainer from "./pages/admin/trainer/AddTrainer";
 import TrainerProfile from "./pages/admin/trainer/TrainerProfile";
 import TrainerPayments from "./pages/admin/trainer/TrainerPayments";
 import { Workout, Diet } from "./pages/static/StaticPages";
+
 // ── Lazy Admin Pages ─────────────────────────────────────
 const Login = lazy(() =>
   import("./pages/Login")
@@ -103,10 +104,14 @@ const Analytics = lazy(() =>
 // const Analytics = lazy(() =>
 //   import("./pages/admin/")
 // );
+// const BalanceSheet = lazy(() =>
+//   import("./pages/admin/BalanceSheet")
+// );
+// import BalanceS
+// heet from "./pages/admin/BalanceSheet";
 const BalanceSheet = lazy(() =>
   import("./pages/admin/BalanceSheet")
 );
-
 const Progress = lazy(() =>
   import("./pages/admin/Progress")
 );

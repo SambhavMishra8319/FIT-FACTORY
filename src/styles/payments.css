@@ -17,10 +17,7 @@
 }
 
 /* BUTTONS */
-.btn{
-  font-size:12px;
-  font-weight:600;
-}
+
 
 /* SMALL BUTTON */
 .btn-sm{
@@ -94,6 +91,13 @@
 .badge{
   font-size:10px;
   font-weight:600;
+
+  padding:4px 10px;
+  border-radius:999px;
+
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
 }
 
 /* MINI TEXT (EXPIRY DAYS ETC) */
@@ -101,8 +105,11 @@ small{
   font-size:11px;
 }
 
+.mini-text{
+  font-size:11px;
+}
 /* PAGE BODY DEFAULT (optional cleanup) */
-.page-enter{
+.page-body{
   font-size:14px;
   line-height:1.4;
 }
@@ -110,27 +117,7 @@ small{
    UNIFIED BUTTON SYSTEM (ALL BUTTONS SAME STYLE)
 ========================================= */
 
-.btn{
-  height:42px;
-  padding:0 14px;
 
-  border-radius:12px;
-
-  font-size:12px;
-  font-weight:600;
-  letter-spacing:0.5px;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-
-  cursor:pointer;
-
-  transition:all .2s ease;
-
-  font-family:var(--font-display);
-}
 
 /* PRIMARY BUTTON (Record / Save / Add) */
 .btn-primary{
@@ -226,7 +213,8 @@ small{
 }
 
 .premium-search{
-  width:260px;
+  width:min(260px,100%);
+
 
   padding:12px 14px 12px 40px;
 
@@ -339,4 +327,79 @@ small{
     width:100%;
     justify-content:space-between;
   }
+}
+.btn{
+  height:42px;
+  padding:0 14px;
+
+  border-radius:12px;
+
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:.5px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+
+  cursor:pointer;
+  transition:all .2s ease;
+
+  font-family:var(--font-display);
+}
+.premium-select option{
+  background:#111;
+  color:white;
+}
+.stat-card{
+  transition:.25s ease;
+}
+
+.stat-card:hover{
+  transform:translateY(-3px);
+}
+.table-wrap tbody tr{
+  transition:.2s;
+}
+
+.table-wrap tbody tr:hover{
+  background:rgba(255,255,255,.03);
+}
+.form-input:focus{
+  outline:none;
+  border-color:rgba(255,215,0,.45);
+
+  box-shadow:
+    0 0 0 4px rgba(255,215,0,.08);
+}
+.currency{
+  font-variant-numeric:tabular-nums;
+}
+.page-enter{
+  animation:fadeUp .35s ease;
+}
+
+@keyframes fadeUp{
+  from{
+    opacity:0;
+    transform:translateY(10px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+.card{
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,.06);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.04),
+      rgba(255,255,255,.02)
+    );
+
+  backdrop-filter:blur(14px);
 }

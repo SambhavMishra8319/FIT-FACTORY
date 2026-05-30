@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { format, addMonths } from "date-fns";
 import toast from "react-hot-toast";
+import { getMembershipStatus } from "../../utils/membershipStatus";
 import {
   getMember,
   updateMember,
@@ -63,7 +64,8 @@ export default function EditMember() {
         height: m.height || "",
         goal: m.goal || "General Fitness",
         notes: m.notes || "",
-        status: m.status || "active",
+        // status: m.status || "active",
+        status: getMembershipStatus(m.expiryDate || ""),
         expiryDate: m.expiryDate || "",
         plan: m.plan || "Monthly",
         amountPaid: m.amountPaid || "",
@@ -131,136 +133,36 @@ export default function EditMember() {
       setSaving(false);
     }
   };
-const handleUpdateExpiry = async () => {
-  if (!form.expiryDate) {
-    toast.error("Set an expiry date.");
-    return;
-  }
-
-  setSaving(true);
-
-  try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const expiry = new Date(form.expiryDate);
-    expiry.setHours(0, 0, 0, 0);
-
-    const weekLater = new Date(today);
-    weekLater.setDate(today.getDate() + 7);
-
-    let status = "active";
-
-    if (expiry < today) {
-      status = "inactive";
-    } else if (expiry <= weekLater) {
-      status = "expiring";
+  const handleUpdateExpiry = async () => {
+    if (!form.expiryDate) {
+      toast.error("Set an expiry date.");
+      return;
     }
 
-    await updateMember(id, {
-      expiryDate: form.expiryDate,
-      status,
-    });
+    setSaving(true);
 
-    setForm((prev) => ({
-      ...prev,
-      status,
-    }));
+    try {
+      const status = getMembershipStatus(form.expiryDate);
 
-    toast.success("Expiry & status updated!");
-  } catch (err) {
-    console.log(err);
-    toast.error("Update failed.");
-  } finally {
-    setSaving(false);
-  }
-};
-  // const handleUpdateExpiry = async () => {
-  //   if (!form.expiryDate) {
-  //     toast.error("Set an expiry date.");
-  //     return;
-  //   }
-  //   setSaving(true);
-  //   try {
-  //     const today = new Date();
-  //     today.setHours(0, 0, 0, 0);
+      await updateMember(id, {
+        expiryDate: form.expiryDate,
+        status,
+      });
 
-  //     const expiry = new Date(form.expiryDate);
-  //     expiry.setHours(0, 0, 0, 0);
+      setForm((prev) => ({
+        ...prev,
+        status,
+      }));
 
-  //     const weekLater = new Date(today);
-  //     weekLater.setDate(weekLater.getDate() + 7);
-
-  //     let status = "active";
-
-  //     if (expiry < today) {
-  //       status = "inactive";
-  //     } else if (expiry <= weekLater) {
-  //       status = "expiring";
-  //     }
-
-  //     await updateMember(id, {
-  //       expiryDate: form.expiryDate,
-  //       status,
-  //     });
-  //     // const isExpired = new Date(form.expiryDate) < new Date();
-  //     // await updateMember(id, {
-  //     //   expiryDate: form.expiryDate,
-  //     //   status: isExpired ? "inactive" : "active",
-  //     // });
-  //     toast.success("Expiry date updated!");
-  //     navigate("/members");
-  //   } catch {
-  //     toast.error("Update failed.");
-  //   } finally {
-  //     setSaving(false);
-  //   }
-  // };
-// const handleUpdateExpiry = async () => {
-//   if (!form.expiryDate) {
-//     toast.error("Set an expiry date.");
-//     return;
-//   }
-
-//   setSaving(true);
-
-//   try {
-//     const today = new Date();
-//     today.setHours(0, 0, 0, 0);
-
-//     const expiry = new Date(form.expiryDate);
-//     expiry.setHours(0, 0, 0, 0);
-
-//     const weekLater = new Date(today);
-//     weekLater.setDate(today.getDate() + 7);
-
-//     let status = "active";
-
-//     if (expiry < today) {
-//       status = "inactive";
-//     } else if (expiry <= weekLater) {
-//       status = "expiring";
-//     }
-
-//     await updateMember(id, {
-//       expiryDate: form.expiryDate,
-//       status,
-//     });
-
-//     // UPDATE LOCAL STATE ALSO
-//     setForm((prev) => ({
-//       ...prev,
-//       status,
-//     }));
-
-//     toast.success("Expiry & status updated!");
-//   } catch (err) {
-//     console.log(err);
-//     toast.error("Update failed.");
-//   } finally {
-//     setSaving(false);
-//   }
-// };
+      toast.success("Expiry & status updated!");
+    } catch (err) {
+      console.log(err);
+      toast.error("Update failed.");
+    } finally {
+      setSaving(false);
+    }
+  };
+ 
   const anim = (delay) => ({
     opacity: visible ? 1 : 0,
     transform: visible ? "translateY(0)" : "translateY(14px)",
@@ -441,18 +343,19 @@ const handleUpdateExpiry = async () => {
                 {/* Status */}
                 <div className="card mb-16">
                   <div className="card-title">Member Status</div>
-                  <div className="form-group">
+                  {/* <div className="form-group">
                     <label className="form-label">Status</label>
                     <select
-                      className="form-input"
-                      value={form.status}
-                      onChange={(e) => set("status", e.target.value)}
-                    >
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                      <option value="expiring">Expiring</option>
-                    </select>
-                  </div>
+  className="form-input"
+  value={form.status}
+  onChange={(e) => set("status", e.target.value)}
+>
+  <option value="active">Active</option>
+  <option value="expiring">Expiring</option>
+  <option value="expired">Expired</option>
+  <option value="pending">Pending</option>
+</select>
+                  </div> */}
                   <div className="form-group" style={{ margin: 0 }}>
                     <label className="form-label">Expiry Date</label>
                     <input
@@ -601,7 +504,9 @@ const handleUpdateExpiry = async () => {
     ? "var(--green)"
     : form.status === "expiring"
     ? "var(--gold)"
-    : "var(--red)"
+    : form.status === "expired"
+    ? "var(--red)"
+    : "var(--muted2)",
                     },
                     {
                       label: "Expiry",

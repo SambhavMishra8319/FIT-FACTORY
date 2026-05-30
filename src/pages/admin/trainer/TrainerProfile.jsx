@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
-
+// import {
+//   collection,
+//   query,
+//   where,
+//   getDocs,
+// } from "firebase/firestore";
 import {
   getTrainerById,
   getTrainerPTs,
@@ -119,6 +124,7 @@ export default function TrainerProfile() {
       toast.success("PT Added");
       loadData();
     }
+    
   };
 
   /* ======================================================
@@ -151,6 +157,7 @@ export default function TrainerProfile() {
     return <h2>Trainer Not Found</h2>;
   }
 
+  
   return (
     <div className="page-container">
       {/* HEADER */}

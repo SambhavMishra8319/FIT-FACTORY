@@ -1,11 +1,18 @@
-
 // import { useState, useEffect } from "react";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { format, addMonths } from "date-fns";
 import toast from "react-hot-toast";
 import { addMember, addPayment, getAllMembers } from "../../firebase/service";
-
+import { db } from "../../firebase/config";
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  updateDoc,
+  doc
+} from "firebase/firestore";
 const PLANS = [
   {
     label: "1 Month",
@@ -89,7 +96,6 @@ const PLANS = [
   },
 ];
 
-
 export default function AddMember() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -105,12 +111,13 @@ export default function AddMember() {
   const [phoneExists, setPhoneExists] = useState(false);
 
   const today = format(new Date(), "yyyy-MM-dd");
-const scrollRef = useRef(null);
+  const scrollRef = useRef(null);
 
-const [showLeft, setShowLeft] = useState(false);
-// const [showRight, setShowRight] = useState(true);
-const [showRight, setShowRight] = useState(true);
-const [hasScrolled, setHasScrolled] = useState(false);
+  const [showLeft, setShowLeft] = useState(false);
+  // const [showRight, setShowRight] = useState(true);
+ 
+  const [showRight, setShowRight] = useState(true);
+  const [hasScrolled, setHasScrolled] = useState(false);
   const [form, setForm] = useState({
     name: prefill.name || "",
     phone: prefill.phone || "",
@@ -120,83 +127,45 @@ const [hasScrolled, setHasScrolled] = useState(false);
     weight: "",
     height: "",
     goal: prefill.goal || "General Fitness",
-    plan: "3 Months",
+   plan: prefill.plan || "3 Months",
     joinDate: today,
     paymentMethod: "Cash",
     notes: "",
   });
-// useEffect(() => {
 
-//   const el = scrollRef.current;
+  useEffect(() => {
+    const el = scrollRef.current;
 
-//   if (!el) return;
+    if (!el) return;
 
-//   const updateArrows = () => {
+    const updateArrows = () => {
+      const scrollLeft = el.scrollLeft;
 
-//     const scrollLeft = el.scrollLeft;
+      const maxScroll = el.scrollWidth - el.clientWidth;
 
-//     const maxScroll =
-//       el.scrollWidth - el.clientWidth;
+      setShowLeft(scrollLeft > 10);
+      // setShowRight(scrollLeft < maxScroll - 5);
+      setShowRight(Math.ceil(scrollLeft) < maxScroll - 5);
+      // setShowRight(scrollLeft < maxScroll - 10);
 
-//     setShowLeft(scrollLeft > 10);
+      // stop pulse after first scroll
+      if (scrollLeft > 20) {
+        setHasScrolled(true);
+      }
+    };
 
-//     setShowRight(scrollLeft < maxScroll - 10);
-//   };
+    updateArrows();
 
-//   updateArrows();
+    el.addEventListener("scroll", updateArrows);
 
-//   el.addEventListener("scroll", updateArrows);
+    window.addEventListener("resize", updateArrows);
 
-//   window.addEventListener("resize", updateArrows);
-// if (scrollLeft > 20) {
-//   setHasScrolled(true);
-// }
-//   return () => {
-//     el.removeEventListener("scroll", updateArrows);
-//     window.removeEventListener("resize", updateArrows);
-//   };
+    return () => {
+      el.removeEventListener("scroll", updateArrows);
 
-// }, []);
-  
-useEffect(() => {
-  const el = scrollRef.current;
-
-  if (!el) return;
-
-  const updateArrows = () => {
-    const scrollLeft = el.scrollLeft;
-
-    const maxScroll =
-      el.scrollWidth - el.clientWidth;
-
-    setShowLeft(scrollLeft > 10);
-// setShowRight(scrollLeft < maxScroll - 5);
-setShowRight(
-  Math.ceil(scrollLeft) < maxScroll - 5
-);
-    // setShowRight(scrollLeft < maxScroll - 10);
-
-    // stop pulse after first scroll
-    if (scrollLeft > 20) {
-      setHasScrolled(true);
-    }
-  };
-
-  updateArrows();
-
-  el.addEventListener("scroll", updateArrows);
-
-  window.addEventListener("resize", updateArrows);
-
-  return () => {
-    el.removeEventListener("scroll", updateArrows);
-
-    window.removeEventListener(
-      "resize",
-      updateArrows
-    );
-  };
-}, []);
+      window.removeEventListener("resize", updateArrows);
+    };
+  }, []);
   useEffect(() => {
     setTimeout(() => setVisible(true), 80);
 
@@ -218,11 +187,9 @@ setShowRight(
 
   const selectedPlan = PLANS.find((p) => p.label === form.plan) || PLANS[0];
 
-  const expiryDate = format(
-  addMonths(new Date(`${form.joinDate}T00:00:00`), selectedPlan.months),
-  "yyyy-MM-dd"
-);
-
+  const expiryDate = form.joinDate
+  ? format(addMonths(new Date(form.joinDate), selectedPlan.months), "yyyy-MM-dd")
+  : "";
   const isPrefilled = !!(prefill.name || prefill.email);
 
   // =========================
@@ -256,16 +223,14 @@ setShowRight(
       }
     }
   };
-const bmi =
-  form.weight && form.height
-    ? (
-        Number(form.weight) /
-        ((Number(form.height) / 100) ** 2)
-      ).toFixed(1)
-    : "";
- 
+  const bmi =
+    form.weight && form.height
+      ? (Number(form.weight) / (Number(form.height) / 100) ** 2).toFixed(1)
+      : "";
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+     const memberId = `F2-${Date.now()}`;
     if (saving) return;
 
     if (!form.name.trim()) {
@@ -283,11 +248,10 @@ const bmi =
       return;
     }
 
-    if (!/^[6-9]\d{9}$/.test(form.phone)){
-      toast.error("Phone number must be 10 digits.");
-      return;
-    }
-
+  //   if (!/^\d{10}$/.test(form.phone)) {
+  // toast.error("Phone number must be exactly 10 digits.");
+  // return;
+// }
     setSaving(true);
 
     try {
@@ -301,7 +265,14 @@ const bmi =
       // =========================
       const email = form.email.trim().toLowerCase();
 
+      // const phone = form.phone.trim().replace(/\D/g, "").slice(-10);
       const phone = form.phone.trim().replace(/\D/g, "").slice(-10);
+
+if (!/^\d{10}$/.test(phone)) {
+  toast.error("Phone number must be exactly 10 digits.");
+  setSaving(false);
+  return;
+}
 
       const name = form.name.trim().toLowerCase();
 
@@ -332,13 +303,22 @@ const bmi =
         setSaving(false);
         return;
       }
+      const normalizePhone = (p = "") => {
+  const digits = p.replace(/\D/g, "");
+  return digits.length >= 10 ? digits.slice(-10) : digits;
+};
 
       // NAME + PHONE CHECK
-      const samePersonExists = existing.some(
-        (m) =>
-          (m.name || "").trim().toLowerCase() === name &&
-          (m.phone || "").replace(/\D/g, "").slice(-10) === phone,
-      );
+      const samePersonExists = existing.some((m) => {
+  const existingPhone = normalizePhone(m.phone);
+  const inputPhone = normalizePhone(phone);
+
+  return (
+    (m.name || "").trim().toLowerCase() === name.trim().toLowerCase() &&
+    existingPhone === inputPhone &&
+    inputPhone.length === 10
+  );
+});
 
       if (samePersonExists) {
         toast.error("This member already exists.");
@@ -350,16 +330,16 @@ const bmi =
       // =========================
       // MEMBER ID
       // =========================
-      const lastNumber =
-        existing
-          .map((m) => {
-            const num = parseInt((m.memberId || "").replace("F2-", ""));
+      // const lastNumber =
+      //   existing
+      //     .map((m) => {
+      //       const num = parseInt((m.memberId || "").replace("F2-", ""));
 
-            return isNaN(num) ? 0 : num;
-          })
-          .sort((a, b) => b - a)[0] || 0;
+      //       return isNaN(num) ? 0 : num;
+      //     })
+      //     .sort((a, b) => b - a)[0] || 0;
 
-      const memberId = `F2-${String(lastNumber + 1).padStart(4, "0")}`;
+      // const memberId = `F2-${String(lastNumber + 1).padStart(4, "0")}`;
 
       // =========================
       // MEMBER DATA
@@ -368,12 +348,9 @@ const bmi =
         memberId,
 
         name: form.name
-  .trim()
-  .replace(/\s+/g, " ")
-  .replace(
-    /\b\w/g,
-    (c) => c.toUpperCase()
-  ),
+          .trim()
+          .replace(/\s+/g, " ")
+          .replace(/\b\w/g, (c) => c.toUpperCase()),
 
         phone,
 
@@ -401,23 +378,108 @@ const bmi =
 
         notes: form.notes.trim(),
 
-        status: "active",
+        // status: "active",
 
         createdAt: new Date(),
 
         updatedAt: new Date(),
       };
+// const today = new Date();
+const updated = allMembers
+  .map((m) => {
+    let status = "pending";
 
+    if (!m.expiryDate) status = "pending";
+    else {
+      const expiry = new Date(m.expiryDate);
+      const today = new Date();
+
+      if (expiry < today) status = "expired";
+      else if ((expiry - today) / (1000 * 60 * 60 * 24) <= 7)
+        status = "expiring";
+      else status = "active";
+    }
+
+    return { ...m, status };
+  })
+  .sort((a, b) => {
+    const order = {
+      active: 1,
+      expiring: 2,
+      expired: 3,
+      pending: 4,
+    };
+    return order[a.status] - order[b.status];
+  });
+// const updated = data
+//   .map((m) => {
+//     let status = "pending";
+
+//     if (!m.expiryDate) {
+//       status = "pending";
+//     } else {
+//       const expiry = new Date(m.expiryDate);
+
+//       if (expiry < today) {
+//         status = "expired";
+//       } else {
+//         const diffDays =
+//           (expiry - today) / (1000 * 60 * 60 * 24);
+
+//         if (diffDays <= 7) {
+//           status = "expiring";
+//         } else {
+//           status = "active";
+//         }
+//       }
+//     }
+
+//     return {
+//       ...m,
+//       status,
+//     };
+//   })
+//   .sort((a, b) => {
+//     const order = {
+//       active: 1,
+//       expiring: 2,
+//       expired: 3,
+//       pending: 4,
+//     };
+
+//     return order[a.status] - order[b.status];
+//   });
       // =========================
       // SAVE MEMBER
       // =========================
-      const memberRef = await addMember(memberData);
+      const memberRef =await addMember({
+  ...memberData,
+  memberId,
+});
+      const userQuery = await getDocs(
+        query(collection(db, "users"), where("email", "==", email)),
+      );
 
+      if (!userQuery.empty) {
+        await updateDoc(userQuery.docs[0].ref, {
+         memberId: memberId,
+
+          membershipAssigned: true,
+
+          membershipStatus: "active",
+
+          plan: form.plan,
+
+          amountPaid: selectedPlan.price,
+
+          expiryDate,
+        });
+      }
       // =========================
       // SAVE PAYMENT
       // =========================
       await addPayment({
-        memberId: memberRef.id,
+        memberId,
 
         memberName: form.name.trim(),
 
@@ -516,49 +578,18 @@ const bmi =
 
                         // checkDuplicate("phone", value);
                         setPhoneExists(
-  allMembers.some(
-    (m) =>
-      (m.phone || "")
-        .replace(/\D/g, "")
-        .slice(-10) === value
-  )
-);
+                          allMembers.some(
+                            (m) =>
+                              (m.phone || "").replace(/\D/g, "").slice(-10) ===
+                              value,
+                          ),
+                        );
                       }}
                     />
 
                     {phoneExists && (
                       <div className="error-text">Phone already exists</div>
                     )}
-                    {/* <input
-                      className={`form-input ${
-                        phoneExists ? "input-error" : ""
-                      }`}
-                      placeholder="9876543210"
-                      maxLength={10}
-                      value={form.phone}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, "");
-
-                        set("phone", value);
-
-                        setPhoneExists(false);
-                      }}
-                      onBlur={(e) =>
-                        checkDuplicate("phone", e.target.value)
-                      }
-                    />
-
-                    {phoneExists && (
-                      <div
-                        style={{
-                          color: "#ef4444",
-                          fontSize: 12,
-                          marginTop: 6,
-                        }}
-                      >
-                        ⚠ Phone number already exists
-                      </div>
-                    )} */}
                   </div>
                 </div>
 
@@ -567,32 +598,28 @@ const bmi =
                   <label className="form-label">Email *</label>
 
                   <input
-  className={`form-input ${
-    emailExists ? "input-error" : ""
-  }`}
-  type="email"
-  placeholder="member@gmail.com"
-  value={form.email}
-  onChange={(e) => {
-    set("email", e.target.value);
+                    className={`form-input ${emailExists ? "input-error" : ""}`}
+                    type="email"
+                    placeholder="member@gmail.com"
+                    value={form.email}
+                    onChange={(e) => {
+                      set("email", e.target.value);
 
-    // checkDuplicate("email", e.target.value);
-    setEmailExists(
-  allMembers.some(
-    (m) =>
-      (m.email || "").trim().toLowerCase() ===
-      e.target.value.trim().toLowerCase()
-  )
-);
-  }}
-  required
-/>
+                      // checkDuplicate("email", e.target.value);
+                      setEmailExists(
+                        allMembers.some(
+                          (m) =>
+                            (m.email || "").trim().toLowerCase() ===
+                            e.target.value.trim().toLowerCase(),
+                        ),
+                      );
+                    }}
+                    required
+                  />
 
-{emailExists && (
-  <div className="error-text">
-    Email already exists
-  </div>
-)}
+                  {emailExists && (
+                    <div className="error-text">Email already exists</div>
+                  )}
                 </div>
 
                 {/* AGE + GENDER */}
@@ -648,19 +675,18 @@ const bmi =
                       onChange={(e) => set("height", e.target.value)}
                     />
                   </div>
-                <div className="form-group">
-  <label className="form-label">
-    BMI
-  </label>
+                  <div className="form-group">
+                    <label className="form-label">BMI</label>
 
-  <input
-    className="form-input"
-    value={bmi}
-    readOnly
-    placeholder="BMI Auto"
-  />
-</div></div>
-{/* BMI */}
+                    <input
+                      className="form-input"
+                      value={bmi}
+                      readOnly
+                      placeholder="BMI Auto"
+                    />
+                  </div>
+                </div>
+                {/* BMI */}
 
                 {/* GOAL */}
                 <div className="form-group">
@@ -693,91 +719,90 @@ const bmi =
                 </div>
               </div>
             </div>
-{/* MEMBERSHIP DETAILS */}
-<div
-  style={{
-    background: `${selectedPlan.color}12`,
-    border: `1px solid ${selectedPlan.color}40`,
-    borderRadius: 18,
-    padding: 18,
-    fontSize: 14,
-    lineHeight: 2,
-    marginTop: 16,
-  }}
->
-  <div>
-    📋 Plan:
-    <strong> {selectedPlan.label}</strong>
-  </div>
+            {/* MEMBERSHIP DETAILS */}
+            <div
+              style={{
+                background: `${selectedPlan.color}12`,
+                border: `1px solid ${selectedPlan.color}40`,
+                borderRadius: 18,
+                padding: 18,
+                fontSize: 14,
+                lineHeight: 2,
+                marginTop: 16,
+              }}
+            >
+              <div>
+                📋 Plan:
+                <strong> {selectedPlan.label}</strong>
+              </div>
 
-  <div>
-    💰 Amount:
-    <strong>
-      {" "}
-      ₹{selectedPlan.price.toLocaleString()}
-    </strong>
-  </div>
+              <div>
+                💰 Amount:
+                <strong> ₹{selectedPlan.price.toLocaleString()}</strong>
+              </div>
 
-  <div>
-    📅 Valid Till:
-    <strong> {expiryDate}</strong>
-  </div>
+              <div>
+                📅 Valid Till:
+                <strong> {expiryDate}</strong>
+              </div>
 
-  <div>
-    💳 Payment:
-    <strong> {form.paymentMethod}</strong>
-  </div>
-</div>
+              <div>
+                💳 Payment:
+                <strong> {form.paymentMethod}</strong>
+              </div>
+            </div>
 
-{/* DATE + PAYMENT */}
-<div className="form-row mt-16">
-  <div className="form-group">
-    <label className="form-label">
-      Start Date
-    </label>
+            {/* DATE + PAYMENT */}
+            <div className="form-row mt-16">
+              <div className="form-group">
+                <label className="form-label">Start Date</label>
 
-    <input
-      className="form-input"
-      type="date"
-      value={form.joinDate}
-      onChange={(e) =>
-        set("joinDate", e.target.value)
-      }
-    />
-  </div>
+                <input
+                  className="form-input"
+                  type="date"
+                  value={form.joinDate}
+                  onChange={(e) => set("joinDate", e.target.value)}
+                />
+              </div>
 
-  <div className="form-group">
-    <label className="form-label">
-      Payment Method
-    </label>
+              <div className="form-group">
+                <label className="form-label">Payment Method</label>
 
-    <select
-      className="form-input"
-      value={form.paymentMethod}
-      onChange={(e) =>
-        set(
-          "paymentMethod",
-          e.target.value
-        )
-      }
-    >
-      <option>Cash</option>
-      <option>UPI</option>
-      <option>Card</option>
-      <option>Bank Transfer</option>
-    </select>
-  </div>
-</div>
+                <select
+                  className="form-input"
+                  value={form.paymentMethod}
+                  onChange={(e) => set("paymentMethod", e.target.value)}
+                >
+                  <option>Cash</option>
+                  <option>UPI</option>
+                  <option>Card</option>
+                  <option>Bank Transfer</option>
+                </select>
+              </div>
+            </div>
 
-{/* SUBMIT BUTTON */}
+            <div className="card mb-16">
+              <div className="card-title">Membership Plans</div>
 
-            {/* RIGHT */}
-            {/* RIGHT */}
-            {/* <div style={anim(0.14)}>
-              <div className="card mb-16">
-                <div className="card-title">Membership Plans</div>
+              <div className="membership-scroll-wrapper">
+                {/* LEFT ARROW */}
+                {showLeft && (
+                  <button
+                    type="button"
+                    className="scroll-arrow left"
+                    onClick={() =>
+                      scrollRef.current?.scrollBy({
+                        left: -320,
+                        behavior: "smooth",
+                      })
+                    }
+                  >
+                    ←
+                  </button>
+                )}
 
-                <div className="membership-scroll">
+                {/* SCROLL AREA */}
+                <div ref={scrollRef} className="membership-scroll">
                   {PLANS.map((p) => {
                     const active = form.plan === p.label;
 
@@ -875,278 +900,47 @@ const bmi =
                   })}
                 </div>
 
-                <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">Start Date</label>
-
-                    <input
-                      className="form-input"
-                      type="date"
-                      value={form.joinDate}
-                      onChange={(e) => set("joinDate", e.target.value)}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Expiry</label>
-
-                    <input className="form-input" value={expiryDate} readOnly />
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Payment Method</label>
-
-                  <select
-                    className="form-input"
-                    value={form.paymentMethod}
-                    onChange={(e) => set("paymentMethod", e.target.value)}
+                {/* RIGHT ARROW */}
+                {showRight && (
+                  <button
+                    type="button"
+                    className={`scroll-arrow right ${
+                      !hasScrolled ? "pulse-arrow" : ""
+                    }`}
+                    onClick={() =>
+                      scrollRef.current?.scrollBy({
+                        left: 320,
+                        behavior: "smooth",
+                      })
+                    }
                   >
-                    <option>Cash</option>
-                    <option>UPI</option>
-                    <option>Card</option>
-                    <option>Bank Transfer</option>
-                  </select>
-                </div>
-
-                <div
+                    →
+                  </button>
+                )}
+              </div>
+            </div>
+            {
+              <div style={anim(0.14)}>
+                <button
+                  type="submit"
+                  className="btn btn-primary tap-scale btn-ripple"
+                  // disabled={saving || emailExists || phoneExists}
+                  disabled={saving}
                   style={{
-                    background: `${selectedPlan.color}12`,
-                    border: `1px solid ${selectedPlan.color}40`,
-                    borderRadius: 18,
-                    padding: 18,
-                    fontSize: 14,
-                    lineHeight: 2,
+                    width: "100%",
+                    padding: 15,
+                    fontSize: 15,
+                    fontWeight: 700,
                   }}
                 >
-                  <div>
-                    📋 Plan:
-                    <strong> {selectedPlan.label}</strong>
-                  </div>
-
-                  <div>
-                    💰 Amount:
-                    <strong> ₹{selectedPlan.price.toLocaleString()}</strong>
-                  </div>
-
-                  <div>
-                    📅 Valid Till:
-                    <strong> {expiryDate}</strong>
-                  </div>
-
-                  <div>
-                    💳 Payment:
-                    <strong> {form.paymentMethod}</strong>
-                  </div>
-                </div>
+                  {saving
+                    ? "Registering..."
+                    : isPrefilled
+                      ? `✓ Assign ${form.plan}`
+                      : "✓ Register Member"}
+                </button>
               </div>
-
-              <button
-                type="submit"
-                className="btn btn-primary tap-scale btn-ripple"
-                disabled={saving || emailExists || phoneExists}
-                style={{
-                  width: "100%",
-                  padding: 15,
-                  fontSize: 15,
-                  fontWeight: 700,
-                }}
-              >
-                {saving
-                  ? "Registering..."
-                  : isPrefilled
-                    ? `✓ Assign ${form.plan}`
-                    : "✓ Register Member"}
-              </button>
-            </div> */}
-            <div className="card mb-16">
-
-  <div className="card-title">
-    Membership Plans
-  </div>
-
-  <div className="membership-scroll-wrapper">
-
-    {/* LEFT ARROW */}
-    {showLeft && (
-  <button
-    type="button"
-    className="scroll-arrow left"
-    onClick={() =>
-      scrollRef.current?.scrollBy({
-        left: -320,
-        behavior: "smooth",
-      })
-    }
-  >
-    ←
-  </button>
-)}
-
-    {/* SCROLL AREA */}
-  <div
-  ref={scrollRef}
-  className="membership-scroll"
->
-      {PLANS.map((p) => {
-
-        const active = form.plan === p.label;
-
-        return (
-          <div
-            key={p.label}
-            onClick={() => set("plan", p.label)}
-            className={`membership-card ${active ? "active" : ""}`}
-            style={{
-              borderColor: active
-                ? p.color
-                : "rgba(255,255,255,0.06)",
-
-              boxShadow: active
-                ? `0 0 35px ${p.color}25`
-                : "0 8px 25px rgba(0,0,0,0.35)",
-            }}
-          >
-
-            {active && (
-              <div
-                className="membership-badge"
-                style={{
-                  background: p.color,
-                }}
-              >
-                ACTIVE
-              </div>
-            )}
-
-            {p.label === "6 Months" && (
-              <div className="membership-popular">
-                MOST POPULAR
-              </div>
-            )}
-
-            <div
-              className="membership-tagline"
-              style={{
-                color: p.color,
-              }}
-            >
-              {p.tagline}
-            </div>
-
-            <div className="membership-price-row">
-              <div className="membership-price">
-                ₹{p.price.toLocaleString()}
-              </div>
-
-              <div className="membership-duration">
-                / {p.months} mo
-              </div>
-            </div>
-
-            <div
-              className="membership-pill"
-              style={{
-                background: `${p.color}15`,
-                color: p.color,
-                border: `1px solid ${p.color}40`,
-              }}
-            >
-              {p.perDay}
-            </div>
-
-            <div className="membership-features">
-
-              {p.features.map((f, i) => (
-                <div
-                  key={i}
-                  className="membership-feature"
-                >
-                  <div
-                    className="membership-feature-icon"
-                    style={{
-                      background: `${p.color}15`,
-                      color: p.color,
-                    }}
-                  >
-                    ✓
-                  </div>
-
-                  <span>{f}</span>
-                </div>
-              ))}
-
-            </div>
-
-            <button
-              type="button"
-              className="membership-btn"
-              style={{
-                background: active
-                  ? p.color
-                  : "#202020",
-
-                color: active
-                  ? "#000"
-                  : "#fff",
-              }}
-            >
-              {active
-                ? "✓ Selected"
-                : "Choose Plan"}
-            </button>
-
-          </div>
-        );
-      })}
-
-    </div>
-
-    {/* RIGHT ARROW */}
-    {showRight && (
-  <button
-    type="button"
-    className={`scroll-arrow right ${
-  !hasScrolled ? "pulse-arrow" : ""
-}`}
-    onClick={() =>
-      scrollRef.current?.scrollBy({
-        left: 320,
-        behavior: "smooth",
-      })
-    }
-  >
-    →
-  </button>
-)}
-
-  </div>
-
-</div>
-            { <div style={anim(0.14)}>
-              <button
-                type="submit"
-                className="btn btn-primary tap-scale btn-ripple"
-                disabled={
-                  saving ||
-                  emailExists ||
-                  phoneExists
-                }
-                style={{
-                  width: "100%",
-                  padding: 15,
-                  fontSize: 15,
-                  fontWeight: 700,
-                }}
-              >
-                {saving
-                  ? "Registering..."
-                  : isPrefilled
-                  ? `✓ Assign ${form.plan}`
-                  : "✓ Register Member"}
-              </button>
-              
-            </div> }
+            }
           </div>
         </form>
       </div>

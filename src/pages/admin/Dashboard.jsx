@@ -357,50 +357,66 @@ export default function Dashboard() {
     );
   }, [signups, memberEmails]);
 
-  const handleAssignPlan = async (user) => {
-    const plan = selectedPlans[user.id];
+  const handleAssignPlan = (user) => {
+  const plan = selectedPlans[user.id];
 
-    if (!plan) return toast.error("Select a plan first");
+  if (!plan) return toast.error("Select a plan first");
 
-    try {
-      console.log("ASSIGN STARTED");
-
-      const amount =
-        plan === "Monthly" ? 1499 : plan === "Quarterly" ? 3999 : 9999;
-
-      const planMonths = plan === "Monthly" ? 1 : plan === "Quarterly" ? 3 : 12;
-
-      // 1. CREATE MEMBER FIRST
-      const memberRef = await addDoc(collection(db, "members"), {
+  navigate("/add-member", {
+    state: {
+      prefill: {
         name: user.name,
         email: user.email,
-        status: "active",
+        phone: user.phone || "",
         plan,
-        createdAt: serverTimestamp(),
-      });
+      },
+    },
+  });
+};
+  // const handleAssignPlan = async (user) => {
+  //   const plan = selectedPlans[user.id];
 
-      // 2. RECORD PAYMENT + ACTIVATE
-      await recordPaymentAndActivate(
-        {
-          memberId: memberRef.id,
-          memberName: user.name,
-          email: user.email,
-          plan,
-          amount,
-          method: "Admin",
-        },
-        memberRef.id,
-        planMonths,
-      );
+  //   if (!plan) return toast.error("Select a plan first");
 
-      toast.success(`${user.name} assigned ${plan}`);
+  //   try {
+  //     console.log("ASSIGN STARTED");
 
-      setSignups((prev) => prev.filter((u) => u.id !== user.id));
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to assign plan");
-    }
-  };
+  //     const amount =
+  //       plan === "Monthly" ? 1499 : plan === "Quarterly" ? 3999 : 9999;
+
+  //     const planMonths = plan === "Monthly" ? 1 : plan === "Quarterly" ? 3 : 12;
+
+  //     // 1. CREATE MEMBER FIRST
+  //     // const memberRef = await addDoc(collection(db, "members"), {
+  //     //   name: user.name,
+  //     //   email: user.email,
+  //     //   status: "active",
+  //     //   plan,
+  //     //   createdAt: serverTimestamp(),
+  //     // });
+
+  //     // 2. RECORD PAYMENT + ACTIVATE
+  //     await recordPaymentAndActivate(
+  //       {
+  //         memberId: memberRef.id,
+  //         memberName: user.name,
+  //         email: user.email,
+  //         plan,
+  //         amount,
+  //         method: "Admin",
+  //       },
+  //       memberRef.id,
+  //       planMonths,
+  //     );
+
+  //     toast.success(`${user.name} assigned ${plan}`);
+
+  //     setSignups((prev) => prev.filter((u) => u.id !== user.id));
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Failed to assign plan");
+  //   }
+  // };
   // =========================
   // STATS
   // =========================

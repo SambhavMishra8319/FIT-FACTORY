@@ -4,10 +4,19 @@
 // import { db } from "../firebase/config";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { doc, onSnapshot } from "firebase/firestore";
+// import { doc, onSnapshot } from "firebase/firestore";
+import { getMembershipStatus } from "../../utils/membershipStatus";
+import {
+  doc,
+  onSnapshot,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { format } from "date-fns";
 import {
-  getMember,
   getMemberAttendance,
   getSteamBookingsByMember,
 } from "../../firebase/service";
@@ -30,49 +39,183 @@ export default function MemberProfile() {
   const [attendance, setAttendance] = useState([]);
   const [bcaReadings, setBcaReadings] = useState([]);
   const [steamHistory, setSteamHistory] = useState([]);
-  //   useEffect(() => {
-  //     const unsub = onSnapshot(doc(db, "members", id), (snap) => {
-  //       if (snap.exists()) {
-  //         setMember({
-  //           id: snap.id,
-  //           ...snap.data(),
-  //         });
-  //       }
-  //     });
-
-  //     return () => unsub();
-  //   }, [id]);
+  const [loading, setLoading] = useState(true);
+  const [trainer, setTrainer] = useState(null);
   useEffect(() => {
-    const unsub = onSnapshot(doc(db, "members", id), (snap) => {
-      if (snap.exists()) {
-        setMember({
-          id: snap.id,
-          ...snap.data(),
-        });
+  if (!id) return;
+
+  setLoading(true);
+
+  const unsub = onSnapshot(
+    doc(db, "members", id),
+    async (snap) => {
+      if (!snap.exists()) {
+        setMember(null);
+        setLoading(false);
+        return;
       }
-    });
 
-    const loadAttendance = async () => {
-      const att = await getMemberAttendance(id);
-      setAttendance(att);
-    };
-    const loadBCA = async () => {
-      const data = await getBCAReadings(id);
+      const memberData = { id: snap.id, ...snap.data() };
+      setMember(memberData);
 
-      setBcaReadings(data);
-    };
-    const loadSteamHistory = async () => {
-      const data = await getSteamBookingsByMember(id);
+      try {
+        const [att, bca, steam] = await Promise.all([
+          getMemberAttendance(id),
+          getBCAReadings(id),
+          getSteamBookingsByMember(id),
+        ]);
 
-      setSteamHistory(data);
-    };
+        att.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    loadAttendance();
-    loadSteamHistory();
-    loadBCA();
-    return () => unsub();
-  }, [id]);
-  if (!member) {
+        setAttendance(att);
+        setBcaReadings(bca);
+        setSteamHistory(steam);
+      } catch (err) {
+        console.error("Error loading extra data:", err);
+      }
+
+      setLoading(false);
+    }
+  );
+
+  return () => unsub();
+}, [id]);
+  useEffect(() => {
+  if (!id) return;
+
+  const ref = doc(db, "members", id);
+
+  const unsub = onSnapshot(ref, (snap) => {
+    if (!snap.exists()) {
+      console.log("No member found for ID:", id);
+      setMember(null);
+      return;
+    }
+
+    setMember({ id: snap.id, ...snap.data() });
+  });
+
+  return () => unsub();
+}, [id]);
+// useEffect(() => {
+//   if (!id) return;
+
+//   const unsub = onSnapshot(doc(db, "members", id), (snap) => {
+//     if (!snap.exists()) return;
+//     setMember({ id: snap.id, ...snap.data() });
+//   });
+
+//   return () => unsub();
+// }, [id]);
+// useEffect(() => {
+//   if (!id) return;
+
+//   const loadExtra = async () => {
+//     const att = await getMemberAttendance(id);
+//     att.sort((a, b) => new Date(b.date) - new Date(a.date));
+//     setAttendance(att);
+
+//     const bca = await getBCAReadings(id);
+//     setBcaReadings(bca);
+
+//     const steam = await getSteamBookingsByMember(id);
+//     setSteamHistory(steam);
+//   };
+
+//   loadExtra();
+// }, [id]);
+//  useEffect(() => {
+//   if (!id) return;
+    
+//     const unsub = onSnapshot(doc(db, "members", id), async (snap) => {
+//       if (!snap.exists()) return;
+
+//       const memberData = {
+//         id: snap.id,
+//         ...snap.data(),
+//       };
+//       console.log("Member Data:", memberData);
+//       console.log("Trainer ID:", memberData.trainerId);
+
+//       setMember(memberData);
+//       const ptQuery = query(
+//         collection(db, "personalTraining"),
+//         where("memberId", "==", memberData.id),
+//       );
+
+//       const ptSnap = await getDocs(ptQuery);
+
+//       console.log("Member Name:", memberData.name);
+//       console.log("PT Records Found:", ptSnap.size);
+
+//       let trainerData = null;
+
+// if (memberData.trainerId) {
+//   const trainerSnap = await getDoc(
+//     doc(db, "trainers", memberData.trainerId)
+//   );
+
+//   if (trainerSnap.exists()) {
+//     trainerData = {
+//       id: trainerSnap.id,
+//       ...trainerSnap.data(),
+//     };
+//   }
+// } 
+// else if (!ptSnap.empty) {
+//   const pt = ptSnap.docs[0].data();
+
+//   trainerData = {
+//     id: pt.trainerId,
+//     name: pt.trainerName,
+//   };
+// }
+
+// if (trainerData) setTrainer(trainerData);
+//       // Load assigned trainer
+//       if (memberData.trainerId) {
+//         try {
+//           const trainerSnap = await getDoc(
+//             doc(db, "trainers", memberData.trainerId),
+//           );
+
+//           if (trainerSnap.exists()) {
+//             setTrainer({
+//               id: trainerSnap.id,
+//               ...trainerSnap.data(),
+//             });
+//           }
+//         } catch (err) {
+//           console.error(err);
+//         }
+//       }
+//     });
+
+//    const loadAttendance = async () => {
+//   const att = await getMemberAttendance(id);
+
+//   att.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+//   setAttendance(att);
+// };
+
+//     const loadBCA = async () => {
+//       const data = await getBCAReadings(id);
+//       setBcaReadings(data);
+//     };
+
+//     const loadSteamHistory = async () => {
+//       const data = await getSteamBookingsByMember(id);
+//       setSteamHistory(data);
+//     };
+
+//     loadAttendance();
+//     loadBCA();
+//     loadSteamHistory();
+
+//     return () => unsub();
+//   }, [id]);
+ if (loading) {
     return (
       <div className="page-enter">
         <div className="page-body">
@@ -81,14 +224,28 @@ export default function MemberProfile() {
       </div>
     );
   }
-  const latestBCA = bcaReadings[0];
+  if (loading) {
+  return <div className="card">Loading member profile...</div>;
+}
 
-  const chartData = [...bcaReadings].reverse().map((r) => ({
+if (!member) {
+  return <div className="card">Member not found (invalid ID)</div>;
+}
+  // const latestBCA = bcaReadings[0];
+  const latestBCA = bcaReadings?.[0] || null;
+  const thisMonth = format(new Date(), "yyyy-MM");
+
+  const chartData = (bcaReadings || [])
+  .slice()
+  .reverse()
+  .map((r) => ({
     date: r.date?.slice(5),
     weight: Number(r.weight),
     fat: Number(r.fat),
     muscle: Number(r.muscle),
   }));
+  // const membershipStatus = getMembershipStatus();
+  const membershipStatus = getMembershipStatus(member?.expiryDate);
   return (
     <div className="page-enter">
       <div className="topbar">
@@ -188,9 +345,10 @@ export default function MemberProfile() {
 
             <div className="stat-value c-gold">
               {
-                attendance.filter((a) =>
-                  a.date?.startsWith(format(new Date(), "yyyy-MM")),
-                ).length
+
+attendance.filter((a) =>
+  a.date && a.date.slice(0, 7) === thisMonth
+).length
               }
             </div>
           </div>
@@ -246,7 +404,10 @@ export default function MemberProfile() {
               <div className="form-label">Goal</div>
               <div>{member.goal || "—"}</div>
             </div>
-
+            <div className="form-group">
+              <div className="form-label">Assigned Trainer</div>
+              <div>{trainer ? trainer.name : "No Trainer Assigned"}</div>
+            </div>
             <div className="form-group">
               <div className="form-label">Membership Plan</div>
               <div>{member.plan || "—"}</div>
@@ -266,65 +427,49 @@ export default function MemberProfile() {
               <div className="form-label">Expiry Date</div>
               <div>{member.expiryDate || "—"}</div>
             </div>
-
             <div className="form-group">
               <div className="form-label">Status</div>
-<div>
-  {(() => {
-    const today = new Date();
 
-    const expiry = new Date(member.expiryDate);
-
-    const days = Math.ceil(
-      (expiry - today) / (1000 * 60 * 60 * 24)
-    );
-
-    let cls = "badge-green";
-    let label = "Active";
-
-    if (days < 0) {
-      cls = "badge-red";
-      label = "Inactive";
-    } else if (days <= 7) {
-      cls = "badge-gold";
-      label = "Expiring";
-    }
-
-    return (
-      <span className={`badge ${cls}`}>
-        {label}
-      </span>
-    );
-  })()}
-</div>
-              {/* <div>
-                <span className="badge badge-green"> */}
-                  {/* {member.status || "active"} */}
-                  {/* {(() => {
-                    const today = new Date();
-
-                    const expiry = new Date(member.expiryDate);
-
-                    const days = Math.ceil(
-                      (expiry - today) / (1000 * 60 * 60 * 24),
-                    );
-
-                    let cls = "badge-green";
-                    let label = "Active";
-
-                    if (days < 0) {
-                      cls = "badge-red";
-                      label = "Inactive";
-                    } else if (days <= 7) {
-                      cls = "badge-gold";
-                      label = "Expiring";
-                    }
-
-                    return <span className={`badge ${cls}`}>{label}</span>;
-                  })()} */}
-                {/* </span>
-              </div> */}
+              <div>
+                <span
+                  className={`badge ${
+                    membershipStatus === "active"
+                      ? "badge-green"
+                      : membershipStatus === "expiring"
+                        ? "badge-gold"
+                        : membershipStatus === "expired"
+                          ? "badge-red"
+                          : "badge-gray"
+                  }`}
+                >
+                  {membershipStatus === "active"
+                    ? "Active"
+                    : membershipStatus === "expiring"
+                      ? "Expiring Soon"
+                      : membershipStatus === "expired"
+                        ? "Expired"
+                        : "Pending"}
+                </span>
+              </div>
             </div>
+            {/* <div className="form-group">
+              <div className="form-label">Status</div>
+
+              <div>
+                <span
+                  className={`badge ${
+                    member.status === "active"
+                      ? "badge-green"
+                      : member.status === "expiring"
+                        ? "badge-gold"
+                        : "badge-red"
+                  }`}
+                >
+                  {member.status || "inactive"}
+                </span>
+              </div>
+
+            </div> */}
 
             <div className="form-group">
               <div className="form-label">Address</div>

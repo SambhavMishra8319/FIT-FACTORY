@@ -826,15 +826,7 @@ export async function assignTrainerToMember(memberId, trainer) {
 
   return await batch.commit();
 }
-// export async function payTrainer(trainerId, amount, month) {
-//   return await addDoc(collection(db, "trainer_payments"), {
-//     trainerId,
-//     amount: Number(amount),
-//     month,
-//     status: "paid",
-//     createdAt: serverTimestamp(),
-//   });
-// }
+
 export async function getTrainerEarnings(trainerId) {
   const snap = await getDocs(collection(db, "payments"));
 
