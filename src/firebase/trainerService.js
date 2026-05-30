@@ -131,14 +131,19 @@ export const deleteTrainer = async (id) => {
 // ADD PT ENTRY
 export const addPTEntry = async (data) => {
   try {
+    if (!data.trainerId || !data.amount) {
+      throw new Error("Invalid PT entry data");
+    }
+
     await addDoc(collection(db, "personalTraining"), {
       ...data,
+      amount: Number(data.amount),
+      trainerShare: Number(data.trainerShare || 0),
+      gymShare: Number(data.gymShare || 0),
       createdAt: serverTimestamp(),
     });
 
-    return {
-      success: true,
-    };
+    return { success: true };
   } catch (error) {
     console.error(error);
 
@@ -159,16 +164,21 @@ export const getTrainerPTs = async (trainerId) => {
 
     const snapshot = await getDocs(q);
 
-    return snapshot.docs.map((doc) => ({
+    const data = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
+
+    return data.sort(
+      (a, b) =>
+        (b.createdAt?.seconds || 0) -
+        (a.createdAt?.seconds || 0)
+    );
   } catch (error) {
     console.error(error);
     return [];
   }
 };
-
 /* =========================================================
    TRAINER PAYMENTS
 ========================================================= */
@@ -176,14 +186,17 @@ export const getTrainerPTs = async (trainerId) => {
 // ADD SALARY PAYMENT
 export const addTrainerPayment = async (data) => {
   try {
+    if (!data.trainerId || !data.amount) {
+      throw new Error("Invalid payment data");
+    }
+
     await addDoc(collection(db, "trainerPayments"), {
       ...data,
+      amount: Number(data.amount),
       createdAt: serverTimestamp(),
     });
 
-    return {
-      success: true,
-    };
+    return { success: true };
   } catch (error) {
     console.error(error);
 
@@ -199,16 +212,23 @@ export const getTrainerPayments = async (trainerId) => {
   try {
     const q = query(
       collection(db, "trainerPayments"),
-      where("trainerId", "==", trainerId),
-      orderBy("createdAt", "desc")
+      where("trainerId", "==", trainerId)
+      // removed orderBy to avoid index crash
     );
 
     const snapshot = await getDocs(q);
 
-    return snapshot.docs.map((doc) => ({
+    const data = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
+
+    // sort safely in JS
+    return data.sort(
+      (a, b) =>
+        (b.createdAt?.seconds || 0) -
+        (a.createdAt?.seconds || 0)
+    );
   } catch (error) {
     console.error(error);
     return [];

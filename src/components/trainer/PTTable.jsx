@@ -1,4 +1,17 @@
-export default function PTTable({ data }) {
+export default function PTTable({ data = [] }) {
+  if (!data || data.length === 0) {
+    return (
+      <div className="table-wrapper">
+        <h2>PT History</h2>
+
+        <div className="empty-state">
+          <h3>No PT Records Found</h3>
+          <p>PT sessions will appear here once added</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="table-wrapper">
       <h2>PT History</h2>
@@ -16,13 +29,19 @@ export default function PTTable({ data }) {
         <tbody>
           {data.map((item) => (
             <tr key={item.id}>
-              <td>{item.memberName}</td>
+              <td>{item.memberName || "-"}</td>
 
-              <td>₹{item.amount}</td>
+              <td>
+                ₹{Number(item.amount || 0).toLocaleString("en-IN")}
+              </td>
 
-              <td>₹{item.trainerShare}</td>
+              <td>
+                ₹{Number(item.trainerShare || 0).toLocaleString("en-IN")}
+              </td>
 
-              <td>₹{item.gymShare}</td>
+              <td>
+                ₹{Number(item.gymShare || 0).toLocaleString("en-IN")}
+              </td>
             </tr>
           ))}
         </tbody>

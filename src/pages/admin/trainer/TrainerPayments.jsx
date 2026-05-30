@@ -19,6 +19,8 @@ export default function TrainerPayments() {
   }, []);
 
   const loadPayments = async () => {
+     try {
+      setLoading(true);
     const q = query(
       collection(db, "trainerPayments"),
       orderBy("createdAt", "desc")
@@ -32,8 +34,20 @@ export default function TrainerPayments() {
         ...doc.data(),
       }))
     );
-  };
+     data.sort(
+        (a, b) =>
+          (b.createdAt?.seconds || 0) -
+          (a.createdAt?.seconds || 0)
+      );
 
+      setPayments(data);
+    } catch (error) {
+      console.error(error);
+      setPayments([]);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="page-container">
       {/* HEADER */}

@@ -1,11 +1,8 @@
-// import { useEffect, useState } from "react";
-// import { useParams, useNavigate } from "react-router-dom";
-// import { doc, onSnapshot,getMemberAttendance, } from "firebase/firestore";
-// import { db } from "../firebase/config";
-import { useEffect, useState } from "react";
+// // import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-// import { doc, onSnapshot } from "firebase/firestore";
-import { getMembershipStatus } from "../../utils/membershipStatus";
+import { format } from "date-fns";
+// import { doc, onSnapshot, getDoc } from "firebase/firestore";
 import {
   doc,
   onSnapshot,
@@ -15,13 +12,14 @@ import {
   where,
   getDocs,
 } from "firebase/firestore";
-import { format } from "date-fns";
 import {
   getMemberAttendance,
   getSteamBookingsByMember,
+  getBCAReadings,
 } from "../../firebase/service";
 import { db } from "../../firebase/config";
-import { getBCAReadings } from "../../firebase/service";
+import { getMembershipStatus } from "../../utils/membershipStatus";
+
 import {
   ResponsiveContainer,
   LineChart,
@@ -30,7 +28,7 @@ import {
   YAxis,
   Tooltip,
 } from "recharts";
-// import { getMember, getMemberAttendance } from "../firebase/service";
+
 export default function MemberProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -39,183 +37,90 @@ export default function MemberProfile() {
   const [attendance, setAttendance] = useState([]);
   const [bcaReadings, setBcaReadings] = useState([]);
   const [steamHistory, setSteamHistory] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [trainer, setTrainer] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const thisMonth = format(new Date(), "yyyy-MM");
+
   useEffect(() => {
-  if (!id) return;
+    if (!id) {
+      setLoading(false);
+      return;
+    }
 
-  setLoading(true);
+    setLoading(true);
 
-  const unsub = onSnapshot(
-    doc(db, "members", id),
-    async (snap) => {
-      if (!snap.exists()) {
-        setMember(null);
-        setLoading(false);
-        return;
-      }
-
-      const memberData = { id: snap.id, ...snap.data() };
-      setMember(memberData);
-
+    const unsub = onSnapshot(doc(db, "members", id), async (snap) => {
       try {
+        if (!snap.exists()) {
+          setMember(null);
+          return;
+        }
+
+        const memberData = { id: snap.id, ...snap.data() };
+        setMember(memberData);
+
+        // trainer
+        // trainer fetch (SAFE FIX)
+const ptQuery = query(
+  collection(db, "personalTraining"),
+  where("memberName", "==", memberData.name)
+);
+
+const ptSnap = await getDocs(ptQuery);
+
+if (!ptSnap.empty) {
+  const data = ptSnap.docs[0].data();
+
+  setTrainer({
+    id: data.trainerId,
+    name: data.trainerName,
+  });
+} else {
+  setTrainer(null);
+}
         const [att, bca, steam] = await Promise.all([
           getMemberAttendance(id),
           getBCAReadings(id),
           getSteamBookingsByMember(id),
         ]);
 
-        att.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        setAttendance(att);
-        setBcaReadings(bca);
-        setSteamHistory(steam);
+        setAttendance(att || []);
+        setBcaReadings(bca || []);
+        setSteamHistory(steam || []);
       } catch (err) {
-        console.error("Error loading extra data:", err);
+        console.error("Profile load error:", err);
+        setMember(null);
+      } finally {
+        setLoading(false);
       }
+    });
 
-      setLoading(false);
-    }
-  );
+    return () => unsub();
+  }, [id]);
 
-  return () => unsub();
-}, [id]);
-  useEffect(() => {
-  if (!id) return;
+  // ✅ Hooks ALWAYS before returns
+  const membershipStatus = getMembershipStatus(member?.expiryDate);
 
-  const ref = doc(db, "members", id);
+  const latestBCA = bcaReadings?.[0] || null;
 
-  const unsub = onSnapshot(ref, (snap) => {
-    if (!snap.exists()) {
-      console.log("No member found for ID:", id);
-      setMember(null);
-      return;
-    }
+  const chartData = (bcaReadings || [])
+    .slice()
+    .reverse()
+    .map((r) => ({
+      date: r.date?.slice(5),
+      weight: Number(r.weight),
+      fat: Number(r.fat),
+      muscle: Number(r.muscle),
+    }));
 
-    setMember({ id: snap.id, ...snap.data() });
-  });
+  const thisMonthCount = useMemo(() => {
+    return attendance.filter(
+      (a) => a.date && a.date.slice(0, 7) === thisMonth
+    ).length;
+  }, [attendance, thisMonth]);
 
-  return () => unsub();
-}, [id]);
-// useEffect(() => {
-//   if (!id) return;
-
-//   const unsub = onSnapshot(doc(db, "members", id), (snap) => {
-//     if (!snap.exists()) return;
-//     setMember({ id: snap.id, ...snap.data() });
-//   });
-
-//   return () => unsub();
-// }, [id]);
-// useEffect(() => {
-//   if (!id) return;
-
-//   const loadExtra = async () => {
-//     const att = await getMemberAttendance(id);
-//     att.sort((a, b) => new Date(b.date) - new Date(a.date));
-//     setAttendance(att);
-
-//     const bca = await getBCAReadings(id);
-//     setBcaReadings(bca);
-
-//     const steam = await getSteamBookingsByMember(id);
-//     setSteamHistory(steam);
-//   };
-
-//   loadExtra();
-// }, [id]);
-//  useEffect(() => {
-//   if (!id) return;
-    
-//     const unsub = onSnapshot(doc(db, "members", id), async (snap) => {
-//       if (!snap.exists()) return;
-
-//       const memberData = {
-//         id: snap.id,
-//         ...snap.data(),
-//       };
-//       console.log("Member Data:", memberData);
-//       console.log("Trainer ID:", memberData.trainerId);
-
-//       setMember(memberData);
-//       const ptQuery = query(
-//         collection(db, "personalTraining"),
-//         where("memberId", "==", memberData.id),
-//       );
-
-//       const ptSnap = await getDocs(ptQuery);
-
-//       console.log("Member Name:", memberData.name);
-//       console.log("PT Records Found:", ptSnap.size);
-
-//       let trainerData = null;
-
-// if (memberData.trainerId) {
-//   const trainerSnap = await getDoc(
-//     doc(db, "trainers", memberData.trainerId)
-//   );
-
-//   if (trainerSnap.exists()) {
-//     trainerData = {
-//       id: trainerSnap.id,
-//       ...trainerSnap.data(),
-//     };
-//   }
-// } 
-// else if (!ptSnap.empty) {
-//   const pt = ptSnap.docs[0].data();
-
-//   trainerData = {
-//     id: pt.trainerId,
-//     name: pt.trainerName,
-//   };
-// }
-
-// if (trainerData) setTrainer(trainerData);
-//       // Load assigned trainer
-//       if (memberData.trainerId) {
-//         try {
-//           const trainerSnap = await getDoc(
-//             doc(db, "trainers", memberData.trainerId),
-//           );
-
-//           if (trainerSnap.exists()) {
-//             setTrainer({
-//               id: trainerSnap.id,
-//               ...trainerSnap.data(),
-//             });
-//           }
-//         } catch (err) {
-//           console.error(err);
-//         }
-//       }
-//     });
-
-//    const loadAttendance = async () => {
-//   const att = await getMemberAttendance(id);
-
-//   att.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-//   setAttendance(att);
-// };
-
-//     const loadBCA = async () => {
-//       const data = await getBCAReadings(id);
-//       setBcaReadings(data);
-//     };
-
-//     const loadSteamHistory = async () => {
-//       const data = await getSteamBookingsByMember(id);
-//       setSteamHistory(data);
-//     };
-
-//     loadAttendance();
-//     loadBCA();
-//     loadSteamHistory();
-
-//     return () => unsub();
-//   }, [id]);
- if (loading) {
+  if (loading) {
     return (
       <div className="page-enter">
         <div className="page-body">
@@ -224,28 +129,12 @@ export default function MemberProfile() {
       </div>
     );
   }
-  if (loading) {
-  return <div className="card">Loading member profile...</div>;
-}
 
-if (!member) {
-  return <div className="card">Member not found (invalid ID)</div>;
-}
-  // const latestBCA = bcaReadings[0];
-  const latestBCA = bcaReadings?.[0] || null;
-  const thisMonth = format(new Date(), "yyyy-MM");
+  if (!member) {
+    return <div className="card">Member not found</div>;
+  }
 
-  const chartData = (bcaReadings || [])
-  .slice()
-  .reverse()
-  .map((r) => ({
-    date: r.date?.slice(5),
-    weight: Number(r.weight),
-    fat: Number(r.fat),
-    muscle: Number(r.muscle),
-  }));
-  // const membershipStatus = getMembershipStatus();
-  const membershipStatus = getMembershipStatus(member?.expiryDate);
+  
   return (
     <div className="page-enter">
       <div className="topbar">
@@ -345,10 +234,9 @@ if (!member) {
 
             <div className="stat-value c-gold">
               {
-
-attendance.filter((a) =>
-  a.date && a.date.slice(0, 7) === thisMonth
-).length
+                attendance.filter(
+                  (a) => a.date && a.date.slice(0, 7) === thisMonth,
+                ).length
               }
             </div>
           </div>
@@ -406,7 +294,8 @@ attendance.filter((a) =>
             </div>
             <div className="form-group">
               <div className="form-label">Assigned Trainer</div>
-              <div>{trainer ? trainer.name : "No Trainer Assigned"}</div>
+              {/* <div>{trainer ? trainer.name : "No Trainer Assigned"}</div> */}
+              <div>{member.trainerName || trainer?.name || "No Trainer Assigned"}</div>
             </div>
             <div className="form-group">
               <div className="form-label">Membership Plan</div>

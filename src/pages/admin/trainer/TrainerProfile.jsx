@@ -14,7 +14,10 @@ import {
   addPTEntry,
   addTrainerPayment,
 } from "../../../firebase/trainerService";
-
+import AddPTModal from "../../../components/trainer/AddPTModal";
+import PaySalaryModal from "../../../components/trainer/PaySalaryModal";
+// import { getAl2Members } from "../../../firebase/memberService";
+import { getAllMembers, isMemberExists } from "../../../firebase/memberService";
 import PTTable from "../../../components/trainer/PTTable";
 import SalaryCard from "../../../components/trainer/SalaryCard";
 
@@ -24,9 +27,10 @@ export default function TrainerProfile() {
   const [trainer, setTrainer] = useState(null);
   const [ptHistory, setPtHistory] = useState([]);
   const [payments, setPayments] = useState([]);
-
+const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
-
+const [showPTModal, setShowPTModal] = useState(false);
+const [showSalaryModal, setShowSalaryModal] = useState(false);
   /* ======================================================
      LOAD DATA
   ====================================================== */
@@ -50,31 +54,39 @@ export default function TrainerProfile() {
 
     setLoading(false);
   };
+  useEffect(() => {
+  const loadMembers = async () => {
+    const data = await getAllMembers();
+    setMembers(data);
+  };
+
+  loadMembers();
+}, []);
 
   /* ======================================================
      CALCULATIONS
   ====================================================== */
 
   const totalPTRevenue = useMemo(() => {
-    return ptHistory.reduce(
-      (sum, item) => sum + Number(item.amount || 0),
-      0
-    );
-  }, [ptHistory]);
+  return ptHistory.reduce(
+    (sum, item) => sum + Number(item.amount || 0),
+    0
+  );
+}, [ptHistory]);
 
   const trainerEarnings = useMemo(() => {
-    return ptHistory.reduce(
-      (sum, item) => sum + Number(item.trainerShare || 0),
-      0
-    );
-  }, [ptHistory]);
+  return ptHistory.reduce(
+    (sum, item) => sum + Number(item.trainerShare || 0),
+    0
+  );
+}, [ptHistory]);
 
   const gymRevenue = useMemo(() => {
-    return ptHistory.reduce(
-      (sum, item) => sum + Number(item.gymShare || 0),
-      0
-    );
-  }, [ptHistory]);
+  return ptHistory.reduce(
+    (sum, item) => sum + Number(item.gymShare || 0),
+    0
+  );
+}, [ptHistory]);
 
   const totalPaid = useMemo(() => {
     return payments.reduce(
@@ -83,71 +95,170 @@ export default function TrainerProfile() {
     );
   }, [payments]);
 
-  const totalSalary = useMemo(() => {
-    return Number(trainer?.salary || 0) + trainerEarnings;
-  }, [trainer, trainerEarnings]);
-
-  const pendingAmount = useMemo(() => {
-    return totalSalary - totalPaid;
-  }, [totalSalary, totalPaid]);
+ const totalSalary = useMemo(() => {
+  return Number(trainer?.salary || 0) + trainerEarnings;
+}, [trainer, trainerEarnings]);
+const salaryPaid = useMemo(() => {
+  return payments
+    .filter((item) => item.type === "salary")
+    .reduce(
+      (sum, item) => sum + Number(item.amount || 0),
+      0
+    );
+}, [payments]);
+ const pendingAmount = useMemo(() => {
+  return totalSalary - salaryPaid;
+}, [totalSalary, salaryPaid]);
 
   /* ======================================================
      ADD PT
   ====================================================== */
+  const handlePTSubmit = async (data) => {
+  const res = await addPTEntry({
+    trainerId: trainer.id,
+    trainerName: trainer.name,
+    memberName: data.member?.name || "Unknown Member",
+    amount: data.amount,
+    trainerShare: data.trainerShare,
+    gymShare: data.gymShare,
+  });
 
-  const handleAddPT = async () => {
-    const memberName = prompt("Member Name");
+  if (res.success) {
+    toast.success("PT Added");
+    loadData();
+  }
+};
+const handleSalarySubmit = async (amount) => {
+  const res = await addTrainerPayment({
+    trainerId: trainer.id,
+    trainerName: trainer.name,
+    amount,
+    type: "salary",
+  });
 
-    const amount = Number(prompt("PT Amount"));
+  if (res.success) {
+    toast.success("Salary Paid");
+    loadData();
+  }
+};
+// const handleAddPT = async () => {
+//   const memberName = prompt("Member Name");
+//   const rawAmount = prompt("PT Amount");
 
-    if (!memberName || !amount) return;
+//   const amount = Number(rawAmount);
 
-    const trainerShare =
-      (amount * Number(trainer.ptShare || 50)) / 100;
+//   if (!memberName || !amount) return;
 
-    const gymShare =
-      (amount * Number(trainer.gymShare || 50)) / 100;
+//   // ✅ CHECK MEMBER EXISTS
+//   // const exists = isMemberExists(members, memberName);
+//   const exists = members.some(
+//   (m) =>
+//     (m?.name || "")
+//       .trim()
+//       .toLowerCase() === memberName.trim().toLowerCase()
+// );
 
-    const res = await addPTEntry({
-      trainerId: trainer.id,
-      trainerName: trainer.name,
+//   if (!exists) {
+//     toast.error("Member not found");
+//     return;
+//   }
 
-      memberName,
+//   const trainerShare =
+//     (amount * Number(trainer.ptShare || 50)) / 100;
 
-      amount,
+//   const gymShare =
+//     (amount * Number(trainer.gymShare || 50)) / 100;
 
-      trainerShare,
-      gymShare,
-    });
+//   await addPTEntry({
+//     trainerId: trainer.id,
+//     trainerName: trainer.name,
+//     memberName,
+//     amount,
+//     trainerShare,
+//     gymShare,
+//   });
 
-    if (res.success) {
-      toast.success("PT Added");
-      loadData();
-    }
-    
-  };
+//   toast.success("PT Added");
+//   loadData();
+// };
+//  const handleAddPT = async () => {
+//   const memberName = prompt("Member Name");
+//   const rawAmount = prompt("PT Amount");
 
+//   const amount = Number(rawAmount);
+
+//   if (!trainer) {
+//     toast.error("Trainer not found");
+//     return;
+//   }
+
+//   if (!memberName?.trim()) {
+//     toast.error("Member name required");
+//     return;
+//   }
+
+//   if (!amount || amount <= 0 || isNaN(amount)) {
+//     toast.error("Invalid PT amount");
+//     return;
+//   }
+
+//   const trainerShare =
+//     (amount * Number(trainer.ptShare || 50)) / 100;
+
+//   const gymShare =
+//     (amount * Number(trainer.gymShare || 50)) / 100;
+
+//   const res = await addPTEntry({
+//     trainerId: trainer.id,
+//     trainerName: trainer.name,
+
+//     memberName: memberName.trim(),
+
+//     amount,
+//     trainerShare,
+//     gymShare,
+//   });
+
+//   if (res.success) {
+//     toast.success("PT Added");
+//     loadData();
+//   } else {
+//     toast.error(res.error);
+//   }
+// };
   /* ======================================================
      PAY SALARY
   ====================================================== */
 
-  const handlePaySalary = async () => {
-    const amount = Number(prompt("Payment Amount"));
+//   const handlePaySalary = async () => {
+//   const rawAmount = prompt("Payment Amount");
 
-    if (!amount) return;
+//   const amount = Number(rawAmount);
 
-    const res = await addTrainerPayment({
-      trainerId: trainer.id,
-      trainerName: trainer.name,
-      amount,
-      type: "salary",
-    });
+//   if (!trainer) {
+//     toast.error("Trainer not found");
+//     return;
+//   }
 
-    if (res.success) {
-      toast.success("Payment Added");
-      loadData();
-    }
-  };
+//   if (!amount || amount <= 0 || isNaN(amount)) {
+//     toast.error("Invalid amount");
+//     return;
+//   }
+
+//   const res = await addTrainerPayment({
+//     trainerId: trainer.id,
+//     trainerName: trainer.name,
+//     amount,
+//     type: "salary",
+//   });
+
+//   if (res.success) {
+//     toast.success("Payment Added");
+//     loadData();
+//   } else {
+//     toast.error(res.error);
+//   }
+// };
 
   if (loading) {
     return <h2>Loading...</h2>;
@@ -172,13 +283,13 @@ export default function TrainerProfile() {
         </div>
 
         <div className="trainer-actions">
-          <button onClick={handleAddPT}>
-            + Add PT
-          </button>
+          <button onClick={() => setShowPTModal(true)}>
+  + Add PT
+</button>
 
-          <button onClick={handlePaySalary}>
-            Pay Salary
-          </button>
+<button onClick={() => setShowSalaryModal(true)}>
+  Pay Salary
+</button>
         </div>
       </div>
 
@@ -240,7 +351,7 @@ export default function TrainerProfile() {
           </thead>
 
           <tbody>
-            {payments.map((item) => (
+            {payments?.map((item) => (
               <tr key={item.id}>
                 <td>
                   {item.createdAt?.seconds
@@ -250,7 +361,7 @@ export default function TrainerProfile() {
                     : "-"}
                 </td>
 
-                <td>₹{item.amount}</td>
+                <td>₹{Number(item.amount || 0).toLocaleString("en-IN")}</td>
 
                 <td>{item.type}</td>
               </tr>
@@ -258,6 +369,19 @@ export default function TrainerProfile() {
           </tbody>
         </table>
       </div>
+      <AddPTModal
+  open={showPTModal}
+  onClose={() => setShowPTModal(false)}
+  members={members}
+  trainer={trainer}
+  onSubmit={handlePTSubmit}
+/>
+
+<PaySalaryModal
+  open={showSalaryModal}
+  onClose={() => setShowSalaryModal(false)}
+  onSubmit={handleSalarySubmit}
+/>
     </div>
   );
 }

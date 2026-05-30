@@ -1,8 +1,10 @@
+// import { useState } from "react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
 import { addTrainer } from "../../../firebase/trainerService";
 import "../../../styles/trainer-pages.css";
+
 export default function AddTrainer() {
   const [loading, setLoading] = useState(false);
 
@@ -27,13 +29,47 @@ export default function AddTrainer() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const name = formData.name.trim();
+    const phone = formData.phone.trim();
+    const email = formData.email.trim();
+    const specialization = formData.specialization.trim();
+
+    const salary = Number(formData.salary);
+    const ptShare = Number(formData.ptShare);
+    const gymShare = Number(formData.gymShare);
+
+    // ❌ VALIDATIONS
+    if (!name) {
+      toast.error("Trainer name is required");
+      return;
+    }
+
+    if (salary < 0 || isNaN(salary)) {
+      toast.error("Invalid salary");
+      return;
+    }
+
+    if (ptShare + gymShare !== 100) {
+      toast.error("PT + Gym share must equal 100%");
+      return;
+    }
+
+    if (ptShare < 0 || gymShare < 0) {
+      toast.error("Share cannot be negative");
+      return;
+    }
+
     setLoading(true);
 
     const res = await addTrainer({
-      ...formData,
-      salary: Number(formData.salary),
-      ptShare: Number(formData.ptShare),
-      gymShare: Number(formData.gymShare),
+      name,
+      phone,
+      email,
+      specialization,
+      salary,
+      ptShare,
+      gymShare,
+      status: formData.status,
     });
 
     setLoading(false);
@@ -55,6 +91,62 @@ export default function AddTrainer() {
       toast.error(res.error);
     }
   };
+// import toast from "react-hot-toast";
+
+// import { addTrainer } from "../../../firebase/trainerService";
+// import "../../../styles/trainer-pages.css";
+// export default function AddTrainer() {
+//   const [loading, setLoading] = useState(false);
+
+//   const [formData, setFormData] = useState({
+//     name: "",
+//     phone: "",
+//     email: "",
+//     specialization: "",
+//     salary: "",
+//     ptShare: 50,
+//     gymShare: 50,
+//     status: "active",
+//   });
+
+//   const handleChange = (e) => {
+//     setFormData({
+//       ...formData,
+//       [e.target.name]: e.target.value,
+//     });
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+
+//     setLoading(true);
+
+//     const res = await addTrainer({
+//       ...formData,
+//       salary: Number(formData.salary),
+//       ptShare: Number(formData.ptShare),
+//       gymShare: Number(formData.gymShare),
+//     });
+
+//     setLoading(false);
+
+//     if (res.success) {
+//       toast.success("Trainer Added");
+
+//       setFormData({
+//         name: "",
+//         phone: "",
+//         email: "",
+//         specialization: "",
+//         salary: "",
+//         ptShare: 50,
+//         gymShare: 50,
+//         status: "active",
+//       });
+//     } else {
+//       toast.error(res.error);
+//     }
+//   };
 
   return (
     <div className="page-container">
