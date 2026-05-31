@@ -6,21 +6,32 @@ import {
   orderBy,
   query,
 } from "firebase/firestore";
-
+import { where } from "firebase/firestore";
 import { db } from "../../../firebase/config";
-
-import "../../../styles/trainer-pages.css";
-
+import { useSearchParams } from "react-router-dom";
+// import "../../../styles/trainer-pages.css";
+import "../../../styles/TrainerPayments.css"
 export default function TrainerPayments() {
   const [payments, setPayments] = useState([]);
-
+const [loading, setLoading] = useState(false);
+const [searchParams] = useSearchParams();
+const trainerId = searchParams.get("trainer");
+const q = trainerId
+  ? query(
+      collection(db, "trainerPayments"),
+      where("trainerId", "==", trainerId)
+    )
+  : query(
+      collection(db, "trainerPayments"),
+      orderBy("createdAt", "desc")
+    );
   useEffect(() => {
     loadPayments();
   }, []);
+const loadPayments = async () => {
+  try {
+    setLoading(true);
 
-  const loadPayments = async () => {
-     try {
-      setLoading(true);
     const q = query(
       collection(db, "trainerPayments"),
       orderBy("createdAt", "desc")
@@ -28,26 +39,55 @@ export default function TrainerPayments() {
 
     const snap = await getDocs(q);
 
-    setPayments(
-      snap.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }))
-    );
-     data.sort(
-        (a, b) =>
-          (b.createdAt?.seconds || 0) -
-          (a.createdAt?.seconds || 0)
-      );
+    const data = snap.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
-      setPayments(data);
-    } catch (error) {
-      console.error(error);
-      setPayments([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    data.sort(
+      (a, b) =>
+        (b.createdAt?.seconds || 0) -
+        (a.createdAt?.seconds || 0)
+    );
+
+    setPayments(data);
+  } catch (error) {
+    console.error(error);
+    setPayments([]);
+  } finally {
+    setLoading(false);
+  }
+};
+  // const loadPayments = async () => {
+  //    try {
+  //     setLoading(true);
+  //   const q = query(
+  //     collection(db, "trainerPayments"),
+  //     orderBy("createdAt", "desc")
+  //   );
+
+  //   const snap = await getDocs(q);
+
+  //   setPayments(
+  //     snap.docs.map((doc) => ({
+  //       id: doc.id,
+  //       ...doc.data(),
+  //     }))
+  //   );
+  //    data.sort(
+  //       (a, b) =>
+  //         (b.createdAt?.seconds || 0) -
+  //         (a.createdAt?.seconds || 0)
+  //     );
+
+  //     setPayments(data);
+  //   } catch (error) {
+  //     console.error(error);
+  //     setPayments([]);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   return (
     <div className="page-container">
       {/* HEADER */}

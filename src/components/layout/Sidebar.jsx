@@ -17,27 +17,32 @@ const navItems = [
       { to: "/steam", icon: "🌫️", label: "Steam Bath" },
       { to: "/progress", icon: "📈", label: "My Progress" },
       { to: "/leaderboard", icon: "🏆", label: "Leaderboard" },
-     
+
       // { to: "/notifications", icon: "🔔", label: "Notifications" },
     ],
   },
   {
-  section: "Admin",
-  items: [
-    { to: "/members", icon: "👥", label: "Members" },
-    { to: "/payments", icon: "💳", label: "Payments" },
-    { to: "/balance-sheet", icon: "📒", label: "Balance Sheet" },
-    { to: "/analytics", icon: "📉", label: "Analytics" },
+    section: "Admin",
+    items: [
+      { to: "/members", icon: "👥", label: "Members" },
+      { to: "/payments", icon: "💳", label: "Payments" },
+      { to: "/balance-sheet", icon: "📒", label: "Balance Sheet" },
+      { to: "/analytics", icon: "📉", label: "Analytics" },
 
-    // TRAINERS
-    { to: "/trainers", icon: "🧑‍🏫", label: "Trainers" },
-    { to: "/add-trainer", icon: "➕", label: "Add Trainer" },
-    { to: "/trainer-payments", icon: "💰", label: "Trainer Payments" },
-
-    { to: "/add-member", icon: "➕", label: "Add Member" },
-    { to: "/notifications", icon: "🔔", label: "Notifications" },
-    { to: "/equipments", icon: "🏋️", label: "Equipment Guide" },
-  ],
+      // TRAINERS
+//       { to: "/trainers", icon: "🧑‍🏫", label: "Trainers" },
+//       { to: "/add-trainer", icon: "➕", label: "Add Trainer" },
+//       { to: "/trainer-payments", icon: "💰", label: "Trainer Payments" },
+// {
+//   to: "/trainer-analytics",
+//   label: "Trainer Analytics",
+//   icon: "📈",
+// },
+{ to: "/trainers", icon: "🧑‍🏫", label: "Trainers" },
+      { to: "/add-member", icon: "➕", label: "Add Member" },
+      { to: "/notifications", icon: "🔔", label: "Notifications" },
+      { to: "/equipments", icon: "🏋️", label: "Equipment Guide" },
+    ],
 
     // section: "Admin",
 
@@ -50,7 +55,6 @@ const navItems = [
     //   { to: "/notifications", icon: "🔔", label: "Notifications" },
     //   { to: "/equipments", icon: "🏋️", label: "Equipment Guide" },
     // ],
-    
   },
 ];
 

@@ -838,3 +838,175 @@ export async function getTrainerEarnings(trainerId) {
 
   return trainerIncome;
 }
+// import { format } from "date-fns";
+
+export const getTrainerIncomeAnalytics = async () => {
+  const trainers = await getAllTrainers();
+
+  const ptSnap = await getDocs(
+    collection(db, "personalTraining")
+  );
+
+  const paymentSnap = await getDocs(
+    collection(db, "trainerPayments")
+  );
+
+  const ptData = ptSnap.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  const paymentData = paymentSnap.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  const currentMonth = format(
+    new Date(),
+    "yyyy-MM"
+  );
+
+  return trainers.map((trainer) => {
+    const trainerPTs = ptData.filter(
+      (p) => p.trainerId === trainer.id
+    );
+
+    const trainerPayments = paymentData.filter(
+      (p) => p.trainerId === trainer.id
+    );
+
+    const activeClients =
+      new Set(
+        trainerPTs.map((p) => p.memberId)
+      ).size;
+
+    const ptSessions =
+      trainerPTs.length;
+
+    const revenue =
+      trainerPTs.reduce(
+        (sum, p) =>
+          sum + Number(p.amount || 0),
+        0
+      );
+
+    const earnings =
+      trainerPTs.reduce(
+        (sum, p) =>
+          sum +
+          Number(p.trainerShare || 0),
+        0
+      );
+
+    const paid =
+      trainerPayments.reduce(
+        (sum, p) =>
+          sum + Number(p.amount || 0),
+        0
+      );
+
+    const monthlyRevenue =
+      trainerPTs
+        .filter((p) => {
+          const d =
+            p.createdAt?.toDate?.();
+
+          return (
+            d &&
+            format(d, "yyyy-MM") ===
+              currentMonth
+          );
+        })
+        .reduce(
+          (sum, p) =>
+            sum + Number(p.amount || 0),
+          0
+        );
+
+    return {
+      id: trainer.id,
+      name: trainer.name,
+
+      activeClients,
+      ptSessions,
+
+      revenue,
+      monthlyRevenue,
+
+      earnings,
+      paid,
+
+      pending: earnings - paid,
+    };
+  });
+};
+// export const getTrainerIncomeAnalytics = async () => {
+//   const trainers = await getAllTrainers();
+
+//   const ptSnap = await getDocs(
+//     collection(db, "personalTraining")
+//   );
+
+//   const paymentSnap = await getDocs(
+//     collection(db, "trainerPayments")
+//   );
+
+//   const ptData = ptSnap.docs.map(doc => ({
+//     id: doc.id,
+//     ...doc.data(),
+//   }));
+
+//   const paymentData = paymentSnap.docs.map(doc => ({
+//     id: doc.id,
+//     ...doc.data(),
+//   }));
+
+//   return trainers.map((trainer) => {
+//     const pts = ptData.filter(
+//       p => p.trainerId === trainer.id
+//     );
+
+//     const payments = paymentData.filter(
+//       p => p.trainerId === trainer.id
+//     );
+
+//     const revenue = pts.reduce(
+//       (sum, p) => sum + Number(p.amount || 0),
+//       0
+//     );
+
+//     const earnings = pts.reduce(
+//       (sum, p) => sum + Number(p.trainerShare || 0),
+//       0
+//     );
+
+//     const paid = payments.reduce(
+//       (sum, p) => sum + Number(p.amount || 0),
+//       0
+//     );
+
+//     return {
+//       ...trainer,
+//       clients: pts.length,
+//       revenue,
+//       earnings,
+//       paid,
+//       pending: earnings - paid,
+//     };
+//   });
+// };
+export const getAllTrainerPayments = async () => {
+  try {
+    const snapshot = await getDocs(
+      collection(db, "trainerPayments")
+    );
+
+    return snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+};

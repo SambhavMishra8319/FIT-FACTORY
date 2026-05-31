@@ -1838,95 +1838,6 @@ select.form-input option {
   }
 
 }
-/* .app-layout{
-  display:flex;
-  min-height:100vh;
-  background:#050505;
-  overflow:hidden;
-} */
-
-/* MAIN CONTENT */
-/* .main-content{
-  flex:1;
-  min-width:0;
-  overflow-y:auto;
-  overflow-x:hidden;
-  padding:24px;
-} */
-
-/* IMPORTANT */
-/* *{
-  box-sizing:border-box;
-}
-.add-member-grid{
-  display:grid;
-  grid-template-columns:380px 1fr;
-  gap:24px;
-  align-items:start;
-} */
-
-/* RESPONSIVE */
-/* @media (max-width:1100px){
-  .add-member-grid{
-    grid-template-columns:1fr;
-  }
-}
-.membership-scroll{
-  display:flex;
-  gap:20px;
-  overflow-x:auto;
-  padding-bottom:14px;
-  scroll-behavior:smooth;
-}
-
-.membership-scroll::-webkit-scrollbar{
-  height:8px;
-}
-
-.membership-scroll::-webkit-scrollbar-thumb{
-  background:#333;
-  border-radius:999px;
-}
-.membership-card{
-  width:340px;
-  min-width:340px;
-  max-width:340px;
-  border-radius:28px;
-  padding:28px;
-  background:linear-gradient(180deg,#171717,#0f0f0f);
-  border:1px solid rgba(255,255,255,0.08);
-  position:relative;
-  overflow:hidden;
-  transition:0.3s ease;
-  flex-shrink:0;
-}
-
-.membership-card.active{
-  transform:scale(1.02);
-}
-.main-content{
-  flex:1;
-  min-width:0;
-  width:100%;
-  overflow-x:hidden;
-}
-@media(max-width:900px){
-  .main-content{
-    width:100%;
-    padding:16px;
-  }
-}
-.input-error {
-  border: 1px solid #ef4444 !important;
-  box-shadow: 0 0 0 3px rgba(239,68,68,0.15);
-}
-
-.error-text {
-  color: #ef4444;
-  font-size: 12px;
-  margin-top: 6px;
-  font-weight: 500;
-} */
  /* =========================================
    MEMBERSHIP SCROLL WRAPPER
 ========================================= */
@@ -2552,3 +2463,6 @@ select.form-input option {
   background:orange;
   font-weight:bold;
 }
+/* =========================================
+   TRAINER CARD
+========================================= */
