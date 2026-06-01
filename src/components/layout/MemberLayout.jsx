@@ -39,21 +39,60 @@ const bottomTabs = [
 // ];
 
 function MemberNavLinks({ onClose }) {
-  useEffect(() => {
-  document.body.classList.toggle("drawer-open", open);
+  const memberNav = [
+    {
+      to: "/member/dashboard",
+      icon: "⚡",
+      label: "Dashboard",
+    },
+    {
+      to: "/member/bca",
+      icon: "📊",
+      label: "BCA Analysis",
+    },
+    {
+      to: "/member/workout",
+      icon: "🏋️",
+      label: "Workout Plans",
+    },
+    {
+      to: "/member/diet",
+      icon: "🥗",
+      label: "Diet Plans",
+    },
+    {
+      to: "/member/steam",
+      icon: "🌫️",
+      label: "Steam Bath",
+    },
+    {
+      to: "/member/progress",
+      icon: "📈",
+      label: "My Progress",
+    },
+    {
+      to: "/member/leaderboard",
+      icon: "🏆",
+      label: "Leaderboard",
+    },
+    {
+      to: "/member/equipment",
+      icon: "🏋️",
+      label: "Equipment Guide",
+    },
+  ];
 
-  return () => {
-    document.body.classList.remove("drawer-open");
-  };
-}, [open]);
   return (
     <nav className="nav">
-      <div className="nav-section-label"></div>
+      <div className="nav-section-label">Member</div>
+
       {memberNav.map(({ to, icon, label }) => (
         <NavLink
           key={to}
           to={to}
-          className={({ isActive }) => `nav-item${isActive ? " active" : ""}`}
+          className={({ isActive }) =>
+            `nav-item${isActive ? " active" : ""}`
+          }
           onClick={onClose}
         >
           <span style={{ fontSize: 16 }}>{icon}</span>
@@ -63,7 +102,6 @@ function MemberNavLinks({ onClose }) {
     </nav>
   );
 }
-
 // Desktop sidebar for members
 export function MemberSidebar() {
   const { logout, profile } = useAuth();

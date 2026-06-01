@@ -46,18 +46,61 @@ export async function getMember(id) {
 }
 
 export async function addMember(data) {
+  const cleanPhone = normalizePhone(data.phone || "");
+
+  if (!cleanPhone || cleanPhone.length !== 10) {
+    throw new Error("Valid 10 digit phone number is required.");
+  }
+
+  const exists = await isPhoneAlreadyUsed(cleanPhone);
+
+  if (exists) {
+    throw new Error("This phone number is already registered.");
+  }
+
   return await addDoc(collection(db, "members"), {
     ...data,
+    phone: cleanPhone,
+    authUid: data.authUid || "",
+    uid: data.uid || "",
+    appActivated: false,
     createdAt: serverTimestamp(),
   });
 }
 
-export async function updateMember(id, data) {
-  return await updateDoc(doc(db, "members", id), {
-    ...data,
-    updatedAt: serverTimestamp(),
-  });
-}
+// export async function updateMember(id, data) {
+//   return await updateDoc(doc(db, "members", id), {
+//     ...data,
+//     updatedAt: serverTimestamp(),
+//   });
+// }
+// export async function updateMember(id, data) {
+//   const payload = { ...data };
+
+//   if (
+//   payload.phone &&
+//   payload.phone !== currentMember.phone
+// ) {
+//     const cleanPhone = normalizePhone(payload.phone);
+
+//     if (!cleanPhone || cleanPhone.length !== 10) {
+//       throw new Error("Valid 10 digit phone number is required.");
+//     }
+
+//     const exists = await isPhoneAlreadyUsed(cleanPhone, id);
+
+//     if (exists) {
+//       throw new Error("This phone number is already used by another member.");
+//     }
+
+//     payload.phone = cleanPhone;
+//   }
+
+//   return await updateDoc(doc(db, "members", id), {
+//     ...payload,
+//     updatedAt: serverTimestamp(),
+//   });
+// }
 
 export async function deleteMember(id) {
   return await deleteDoc(doc(db, "members", id));
@@ -1091,3 +1134,63 @@ export const getAllTrainerPayments = async () => {
 
 //   return { id: ref.id };
 // }
+export function normalizePhone(phone = "") {
+  return phone.replace(/\D/g, "").slice(-10);
+}
+
+export async function getMemberByPhone(phone) {
+  const cleanPhone = normalizePhone(phone);
+
+  const snap = await getDocs(
+    query(collection(db, "members"), where("phone", "==", cleanPhone)),
+  );
+
+  if (snap.empty) return null;
+
+  const d = snap.docs[0];
+
+  return {
+    id: d.id,
+    ...d.data(),
+  };
+}
+
+export async function isPhoneAlreadyUsed(phone, excludeMemberId = null) {
+  const cleanPhone = normalizePhone(phone);
+
+  const snap = await getDocs(
+    query(collection(db, "members"), where("phone", "==", cleanPhone)),
+  );
+
+  if (snap.empty) return false;
+
+  if (excludeMemberId) {
+    return snap.docs.some((d) => d.id !== excludeMemberId);
+  }
+
+  return true;
+}
+export async function updateMember(id, data) {
+  const payload = { ...data };
+
+  if (payload.phone) {
+    const cleanPhone = normalizePhone(payload.phone);
+
+    if (!cleanPhone || cleanPhone.length !== 10) {
+      throw new Error("Valid 10 digit phone number is required.");
+    }
+
+    const exists = await isPhoneAlreadyUsed(cleanPhone, id);
+
+    if (exists) {
+      throw new Error("This phone number is already used by another member.");
+    }
+
+    payload.phone = cleanPhone;
+  }
+
+  return await updateDoc(doc(db, "members", id), {
+    ...payload,
+    updatedAt: serverTimestamp(),
+  });
+}
