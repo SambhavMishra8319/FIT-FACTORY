@@ -570,58 +570,141 @@ function AppRoutes() {
 }
 
 // ── App ──────────────────────────────────────────────────
+// export default function App() {
+//   const [showSplash, setShowSplash] = useState(true);
+
+//   return (
+//     <AuthProvider>
+//       <BrowserRouter
+//         future={{
+//           v7_startTransition: true,
+//           v7_relativeSplatPath: true,
+//         }}
+//       >if (showSplash) {
+//   return (
+//     <AuthProvider>
+//       <SplashScreen onDone={() => setShowSplash(false)} />
+//     </AuthProvider>
+//   );
+// }
+
+// return (
+//   <AuthProvider>
+//     <BrowserRouter
+//       future={{
+//         v7_startTransition: true,
+//         v7_relativeSplatPath: true,
+//       }}
+//     >
+//       <Toaster
+//         position="top-right"
+//         toastOptions={{
+//           style: {
+//             background: "#141414",
+//             color: "#f0f0f0",
+//             border: "1px solid #2a2a2a",
+//             fontFamily: "'Exo 2',sans-serif",
+//             fontSize: "13px",
+//             maxWidth: "340px",
+//           },
+//         }}
+//       />
+
+//       <Suspense fallback={<LoadingScreen />}>
+//         <AppRoutes />
+//       </Suspense>
+//     </BrowserRouter>
+//   </AuthProvider>
+// );
+//         {/* {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
+
+//         <Toaster
+//           position="top-right"
+//           toastOptions={{
+//             style: {
+//               background: "#141414",
+
+//               color: "#f0f0f0",
+
+//               border: "1px solid #2a2a2a",
+
+//               fontFamily: "'Exo 2',sans-serif",
+
+//               fontSize: "13px",
+
+//               maxWidth: "340px",
+//             },
+
+//             success: {
+//               iconTheme: {
+//                 primary: "#22c55e",
+
+//                 secondary: "#fff",
+//               },
+//             },
+
+//             error: {
+//               iconTheme: {
+//                 primary: "#e63329",
+
+//                 secondary: "#fff",
+//               },
+//             },
+//           }}
+//         />
+
+//         <Suspense fallback={<LoadingScreen />}>
+//           <AppRoutes />
+//         </Suspense> */}
+//       </BrowserRouter>
+//     </AuthProvider>
+//   );
+// }
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
 
   return (
     <AuthProvider>
-      <BrowserRouter
-        future={{
-          v7_startTransition: true,
-          v7_relativeSplatPath: true,
-        }}
-      >
-        {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
-
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            style: {
-              background: "#141414",
-
-              color: "#f0f0f0",
-
-              border: "1px solid #2a2a2a",
-
-              fontFamily: "'Exo 2',sans-serif",
-
-              fontSize: "13px",
-
-              maxWidth: "340px",
-            },
-
-            success: {
-              iconTheme: {
-                primary: "#22c55e",
-
-                secondary: "#fff",
-              },
-            },
-
-            error: {
-              iconTheme: {
-                primary: "#e63329",
-
-                secondary: "#fff",
-              },
-            },
+      {showSplash ? (
+        <SplashScreen onDone={() => setShowSplash(false)} />
+      ) : (
+        <BrowserRouter
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
           }}
-        />
+        >
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              style: {
+                background: "#141414",
+                color: "#f0f0f0",
+                border: "1px solid #2a2a2a",
+                fontFamily: "'Exo 2',sans-serif",
+                fontSize: "13px",
+                maxWidth: "340px",
+              },
+              success: {
+                iconTheme: {
+                  primary: "#22c55e",
+                  secondary: "#fff",
+                },
+              },
+              error: {
+                iconTheme: {
+                  primary: "#e63329",
+                  secondary: "#fff",
+                },
+              },
+            }}
+          />
 
-        <Suspense fallback={<LoadingScreen />}>
-          <AppRoutes />
-        </Suspense>
-      </BrowserRouter>
+          <Suspense fallback={<LoadingScreen />}>
+            <AppRoutes />
+          </Suspense>
+        </BrowserRouter>
+      )}
     </AuthProvider>
   );
 }
