@@ -122,6 +122,37 @@ export async function addPayment(data) {
   });
 }
 // ✅ FIX #3: Payment + membership activation in one atomic batch
+// export async function recordPaymentAndActivate(
+//   paymentData,
+//   memberId,
+//   planMonths,
+// ) {
+//   const batch = writeBatch(db);
+//   const today = format(new Date(), "yyyy-MM-dd");
+//   const expiry = format(addMonths(new Date(), planMonths), "yyyy-MM-dd");
+
+//   const payRef = doc(collection(db, "payments"));
+//   batch.set(payRef, {
+//     ...paymentData,
+//     status: "paid",
+//     date: today,
+//     createdAt: serverTimestamp(),
+//   });
+
+//   if (memberId) {
+//     batch.update(doc(db, "members", memberId), {
+//       status: "active",
+//       membershipStart: today,
+//       expiryDate: expiry,
+//       amountPaid: paymentData.amount,
+//       plan: paymentData.plan,
+//       updatedAt: serverTimestamp(),
+//     });
+//   }
+
+//   await batch.commit();
+//   return { paymentId: payRef.id, expiry };
+// }
 export async function recordPaymentAndActivate(
   paymentData,
   memberId,
@@ -132,8 +163,16 @@ export async function recordPaymentAndActivate(
   const expiry = format(addMonths(new Date(), planMonths), "yyyy-MM-dd");
 
   const payRef = doc(collection(db, "payments"));
+
   batch.set(payRef, {
     ...paymentData,
+    amount: Number(paymentData.amount || 0),
+    membershipFee: Number(paymentData.membershipFee || 0),
+    registrationFee: Number(paymentData.registrationFee || 0),
+    discount: Number(paymentData.discount || 0),
+    totalAmount: Number(paymentData.totalAmount || 0),
+    balanceDue: Number(paymentData.balanceDue || 0),
+    transactionId: paymentData.transactionId || "",
     status: "paid",
     date: today,
     createdAt: serverTimestamp(),
@@ -144,7 +183,14 @@ export async function recordPaymentAndActivate(
       status: "active",
       membershipStart: today,
       expiryDate: expiry,
-      amountPaid: paymentData.amount,
+      amountPaid: Number(paymentData.amount || 0),
+      membershipFee: Number(paymentData.membershipFee || 0),
+      registrationFee: Number(paymentData.registrationFee || 0),
+      discount: Number(paymentData.discount || 0),
+      totalAmount: Number(paymentData.totalAmount || 0),
+      balanceDue: Number(paymentData.balanceDue || 0),
+      transactionId: paymentData.transactionId || "",
+      paymentMethod: paymentData.method || "Cash",
       plan: paymentData.plan,
       updatedAt: serverTimestamp(),
     });
@@ -153,7 +199,6 @@ export async function recordPaymentAndActivate(
   await batch.commit();
   return { paymentId: payRef.id, expiry };
 }
-
 export function subscribePaymentsSnapshot(callback) {
   const q = query(
     collection(db, "payments"),
