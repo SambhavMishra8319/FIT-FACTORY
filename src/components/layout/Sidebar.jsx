@@ -42,6 +42,11 @@ const navItems = [
       { to: "/add-member", icon: "➕", label: "Add Member" },
       { to: "/notifications", icon: "🔔", label: "Notifications" },
       { to: "/equipments", icon: "🏋️", label: "Equipment Guide" },
+      {
+  to: "/biometric",
+  icon: "🖐️",
+  label: "Biometric"
+},
     ],
 
     // section: "Admin",

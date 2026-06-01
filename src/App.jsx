@@ -62,7 +62,12 @@ const Notifications = lazy(() => import("./pages/admin/Notifications"));
 const Equipment = lazy(
   () => import("./pages/shared/EquipmentGuide"), // OR move later
 );
-
+const Biometric = lazy(
+  () =>
+    import(
+      "./pages/admin/Biometric"
+    )
+);
 const Analytics = lazy(() => import("./pages/admin/Analytics"));
 // const TrainerAnalytics = lazy(
 //   () => import("./pages/admin/trainer/TrainerAnalytics"),
@@ -369,7 +374,14 @@ function AppRoutes() {
           </AdminLayout>
         }
       />
-
+{/* <Route
+  path="/biometric"
+  element={
+    <AdminLayout>
+      <Biometric />
+    </AdminLayout>
+  }
+/> */}
       <Route
         path="/payments"
         element={

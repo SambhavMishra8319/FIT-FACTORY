@@ -57,7 +57,30 @@ const tooltipStyle = {
   fontSize: 12,
   fontFamily: "'Exo 2',sans-serif",
 };
+const normalizeDate = (d) => {
+  if (!d) return "";
 
+  // Firestore timestamp
+  if (d?.seconds) {
+    return new Date(d.seconds * 1000).toISOString().slice(0, 10);
+  }
+
+  if (typeof d === "string") {
+    if (d.includes("/")) {
+      const [dd, mm, yyyy] = d.split("/");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    if (d.includes("-") && d.length === 10 && d.split("-")[0].length !== 4) {
+      const [dd, mm, yyyy] = d.split("-");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    return d.slice(0, 10);
+  }
+
+  return "";
+};
 export default function BalanceSheet() {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -76,9 +99,15 @@ export default function BalanceSheet() {
   // Form state
   const filtered = useMemo(() => {
     if (filterMode === "all") return entries;
+    // if (filterMode === "month") {
+    //   return entries.filter((e) => e.date?.startsWith(filterMonth));
+    // }
     if (filterMode === "month") {
-      return entries.filter((e) => e.date?.startsWith(filterMonth));
-    }
+  return entries.filter((e) => {
+    const d = normalizeDate(e.date);
+    return d?.startsWith(filterMonth);
+  });
+}
     if (filterMode === "date") {
       return entries.filter((e) => e.date === filterDate);
     }
@@ -144,25 +173,34 @@ export default function BalanceSheet() {
           ),
         ),
       ]);
+      const balanceData = snap.docs.map((d) => {
+  const data = d.data();
 
-      const balanceData = snap.docs.map((d) => ({
-        id: d.id,
-        source: "balance_sheet",
-        ...d.data(),
-      }));
+  return {
+    id: d.id,
+    source: "balance_sheet",
+    ...data,
+   date: normalizeDate(data.date),
+  };
+});
+
+      // const balanceData = snap.docs.map((d) => ({
+      //   id: d.id,
+      //   source: "balance_sheet",
+      //   ...d.data(),
+      // }));
 
       const paymentData = (paySnap || []).map((p, i) => ({
-        id: p.id || `pay_${i}`,
-        source: "payments",
-
-        type: "income",
-        category: "Membership Fee",
-        description: `Membership - ${p.memberName || ""}`,
-        amount: Number(p.amount || 0),
-        date: p.date,
-        paymentMode: p.method || "Cash",
-        notes: "",
-      }));
+  id: p.id || `pay_${i}`,
+  source: "payments",
+  type: "income",
+  category: "Membership Fee",
+  description: `Membership - ${p.memberName || ""}`,
+  amount: Number(p.amount || 0),
+  date: normalizeDate(p.date),   // ✅ FIX HERE
+  paymentMode: p.method || "Cash",
+  notes: "",
+}));
 
       const trainerPaymentData = trainerSnap.docs.map((d) => {
         const t = d.data();
@@ -179,10 +217,11 @@ export default function BalanceSheet() {
 
           amount: Number(t.amount || 0),
 
-          date: t.createdAt?.seconds
-            ? new Date(t.createdAt.seconds * 1000).toISOString().slice(0, 10)
-            : new Date().toISOString().slice(0, 10),
-
+        date: normalizeDate(
+  t.createdAt?.seconds
+    ? new Date(t.createdAt.seconds * 1000).toISOString()
+    : new Date().toISOString()
+),
           paymentMode: "Salary",
           notes: t.type || "salary",
         };
@@ -202,138 +241,6 @@ export default function BalanceSheet() {
       setLoading(false);
     }
   }
-  // async function fetchEntries() {
-  //   setLoading(true);
-  //   try {
-  //     // const [snap, paySnap] = await Promise.all([
-  //     //   getDocs(
-  //     //     query(collection(db, "balance_sheet"), orderBy("date", "desc")),
-  //     //   ),
-  //     //   getPayments(),
-  //     // ]);
-
-  //     // setPayments(paySnap || []);
-
-  //     // const balanceData = snap.docs.map((d) => ({
-  //     //   id: d.id,
-  //     //   source: "balance_sheet",
-  //     //   ...d.data(),
-  //     // }));
-  //     const [snap, paySnap, trainerSnap] = await Promise.all([
-  //       getDocs(
-  //         query(collection(db, "balance_sheet"), orderBy("date", "desc")),
-  //       ),
-
-  //       getPayments(),
-
-  //       getDocs(
-  //         query(
-  //           collection(db, "trainerPayments"),
-  //           orderBy("createdAt", "desc"),
-  //         ),
-  //       ),
-  //     ]);
-
-  //     const paymentData = (paySnap || []).map((p, i) => {
-  //       // const isTrainer = p.type === "trainer";
-  //       const isTrainer =
-  //         p.type === "trainer" ||
-  //         p.plan === "Trainer Salary" ||
-  //         p.category === "Staff Salary";
-
-  //       return {
-  //         id: p.id || `pay_${i}`,
-
-  //         type: isTrainer ? "expense" : "income",
-
-  //         category: isTrainer ? "Staff Salary" : "Membership Fee",
-
-  //         description: p.name ? `Payment from ${p.name}` : "Payment",
-  //         amount: Number(p.amount) || 0,
-  //         date: p.date || new Date().toISOString().slice(0, 10),
-  //         paymentMode: p.method || "Cash",
-  //         notes: p.notes || "",
-  //       };
-  //     });
-  //     const trainerPaymentData = trainerSnap.docs.map((d) => {
-  //       const t = d.data();
-
-  //       return {
-  //         id: d.id,
-
-  //         type: "expense",
-
-  //         category: "Staff Salary",
-
-  //         description: `Salary - ${t.trainerName || "Trainer"}`,
-
-  //         amount: Number(t.amount || 0),
-
-  //         date: t.createdAt?.seconds
-  //           ? new Date(t.createdAt.seconds * 1000).toISOString().slice(0, 10)
-  //           : new Date().toISOString().slice(0, 10),
-
-  //         paymentMode: "Salary",
-
-  //         notes: t.type || "salary",
-  //       };
-  //     });
-  //     // console.log("PAYMENTS RAW:", paySnap);
-  //     (paySnap || []).forEach((p) => {
-  //       console.log("PAYMENT DOC:", p);
-  //     });
-  //     // console.log("PAYMENT DATA:", paymentData);
-  //     const merged = [
-  //       ...balanceData,
-  //       ...paymentData,
-  //       ...trainerPaymentData,
-  //     ].sort((a, b) => (b.date || "").localeCompare(a.date || ""));
-
-  //     setEntries(merged);
-  //   } catch (e) {
-  //     console.error(e);
-  //     toast.error("Could not load balance sheet.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }
-
-  // const totalIncome = income.reduce(
-  //   (s, e) => s + (Number(e.amount) || 0),
-  //   0
-  // );
-  // const trainerExpense = useMemo(() => {
-  //   return (payments || [])
-  //     .filter((p) =>
-  //       p.type === "trainer" ||
-  //       p.category === "Staff Salary" ||
-  //       p.plan === "Trainer Salary"
-  //     )
-  //     .reduce((s, p) => s + Number(p.amount || 0), 0);
-  // }, [payments]);
-  // const trainerExpense = useMemo(() => {
-  //   return (payments || [])
-  //     .filter((p) => {
-  //       const isTrainer =
-  //         p.type === "trainer" ||
-  //         p.category === "Staff Salary" ||
-  //         p.plan === "Trainer Salary";
-
-  //       if (!isTrainer) return false;
-
-  //       const paymentDate = p.date || new Date().toISOString().slice(0, 10);
-
-  //       if (filterMode === "month") {
-  //         return paymentDate.startsWith(filterMonth);
-  //       }
-
-  //       if (filterMode === "date") {
-  //         return paymentDate === filterDate;
-  //       }
-
-  //       return true;
-  //     })
-  //     .reduce((sum, p) => sum + Number(p.amount || 0), 0);
   // }, [payments, filterMode, filterMonth, filterDate]);
   const trainerExpense = useMemo(() => {
     return filtered
@@ -498,6 +405,38 @@ export default function BalanceSheet() {
 
   // const gymProfit =
   //   totalIncome - totalExpense;
+  useEffect(() => {
+  console.log("ENTRIES:", entries);
+  console.log("FILTERED:", filtered);
+}, [entries, filtered]);
+// const normalizeDate = (d) => {
+//   if (!d) return "";
+
+//   // Firestore timestamp
+//   if (d?.seconds) {
+//     return new Date(d.seconds * 1000)
+//       .toISOString()
+//       .slice(0, 10);
+//   }
+
+//   if (typeof d === "string") {
+//     // convert DD/MM/YYYY → YYYY-MM-DD
+//     if (d.includes("/")) {
+//       const [dd, mm, yyyy] = d.split("/");
+//       return `${yyyy}-${mm}-${dd}`;
+//     }
+
+//     // convert DD-MM-YYYY → YYYY-MM-DD
+//     if (d.includes("-") && d.length === 10 && d.split("-")[0].length !== 4) {
+//       const [dd, mm, yyyy] = d.split("-");
+//       return `${yyyy}-${mm}-${dd}`;
+//     }
+
+//     return d.slice(0, 10);
+//   }
+
+//   return "";
+// };
   return (
     <div className="page-enter">
       <div className="topbar">

@@ -1010,3 +1010,39 @@ export const getAllTrainerPayments = async () => {
     return [];
   }
 };
+// export async function addBiometricAttendance({
+//   memberId,
+//   memberName,
+//   biometricId,
+// }) {
+//   const today = format(
+//     new Date(),
+//     "yyyy-MM-dd"
+//   );
+
+//   const existing = await getDocs(
+//     query(
+//       collection(db, "attendance"),
+//       where("memberId", "==", memberId),
+//       where("date", "==", today)
+//     )
+//   );
+
+//   if (!existing.empty) {
+//     return { alreadyCheckedIn: true };
+//   }
+
+//   const ref = await addDoc(
+//     collection(db, "attendance"),
+//     {
+//       memberId,
+//       memberName,
+//       biometricId,
+//       source: "biometric",
+//       date: today,
+//       createdAt: serverTimestamp(),
+//     }
+//   );
+
+//   return { id: ref.id };
+// }
