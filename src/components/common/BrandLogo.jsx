@@ -1,19 +1,20 @@
+import "../../styles/BrandLogo.css"
+
 export default function BrandLogo({ small = false }) {
   return (
-    <div className="logo-brand">
-      <div
-        className="logo-f2"
-        style={{
-          fontSize: small ? 18 : 24,
-        }}
-      >
-        F2 FIT
-        <br />
-        FACTORY
+    <div className={`brand-logo-wrap ${small ? "small" : ""}`}>
+      <div className="brand-logo-icon">
+        F2
       </div>
 
-      <div className="logo-owner">
-        by Nimesh Mishra
+      <div className="brand-logo-content">
+        <div className="brand-logo-name">
+          FIT FACTORY
+        </div>
+
+        <div className="brand-logo-owner">
+          by Nimesh Mishra
+        </div>
       </div>
     </div>
   );
