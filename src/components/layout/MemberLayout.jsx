@@ -12,7 +12,7 @@ import {
   TrendingUp,
   Activity,
 } from "lucide-react";
-
+import { useEffect } from "react";
 const bottomTabs = [
   { to: "/member/dashboard", icon: House, label: "Home" },
   { to: "/member/workout", icon: Dumbbell, label: "Workout" },
@@ -39,6 +39,13 @@ const bottomTabs = [
 // ];
 
 function MemberNavLinks({ onClose }) {
+  useEffect(() => {
+  document.body.classList.toggle("drawer-open", open);
+
+  return () => {
+    document.body.classList.remove("drawer-open");
+  };
+}, [open]);
   return (
     <nav className="nav">
       <div className="nav-section-label"></div>

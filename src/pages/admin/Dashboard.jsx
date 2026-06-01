@@ -58,59 +58,12 @@ export default function Dashboard() {
   // FILTER
   // const [expiryFilter, setExpiryFilter] = useState("week");
   const [expiryFilter, setExpiryFilter] = useState("3months");
-
+const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const now = new Date();
 
   const today = format(now, "yyyy-MM-dd");
   const thisMonth = format(now, "yyyy-MM");
-
-  // const handleAssignPlan = async (user) => {
-  //   const plan = selectedPlans[user.id];
-
-  //   if (!plan) {
-  //     toast.error("Select a plan first");
-  //     return;
-  //   }
-
-  //   try {
-  //     console.log("ASSIGN STARTED");
-
-  //     // STEP 1: Activate member + payment (BEST METHOD)
-  //     await recordPaymentAndActivate(
-  //       {
-  //         memberId: user.id,
-  //         memberName: user.name,
-  //         email: user.email,
-  //         plan,
-  //         amount:
-  //           plan === "Monthly"
-  //             ? 1499
-  //             : plan === "Quarterly"
-  //             ? 3999
-  //             : 9999,
-  //         method: "Admin",
-  //       },
-  //       user.id,
-  //       plan === "Monthly"
-  //         ? 1
-  //         : plan === "Quarterly"
-  //         ? 3
-  //         : 12
-  //     );
-
-  //     toast.success(`${user.name} assigned ${plan}`);
-
-  //     // STEP 2: REMOVE from UI instantly
-  //     setSignups((prev) =>
-  //       prev.filter((u) => u.id !== user.id)
-  //     );
-
-  //   } catch (err) {
-  //     console.error(err);
-  //     toast.error("Failed to assign plan");
-  //   }
-  // };
-  //   // =========================
+   // =========================
   // FETCH DATA
   // =========================
   useEffect(() => {
@@ -373,53 +326,46 @@ export default function Dashboard() {
     },
   });
 };
-  // const handleAssignPlan = async (user) => {
-  //   const plan = selectedPlans[user.id];
-
-  //   if (!plan) return toast.error("Select a plan first");
-
-  //   try {
-  //     console.log("ASSIGN STARTED");
-
-  //     const amount =
-  //       plan === "Monthly" ? 1499 : plan === "Quarterly" ? 3999 : 9999;
-
-  //     const planMonths = plan === "Monthly" ? 1 : plan === "Quarterly" ? 3 : 12;
-
-  //     // 1. CREATE MEMBER FIRST
-  //     // const memberRef = await addDoc(collection(db, "members"), {
-  //     //   name: user.name,
-  //     //   email: user.email,
-  //     //   status: "active",
-  //     //   plan,
-  //     //   createdAt: serverTimestamp(),
-  //     // });
-
-  //     // 2. RECORD PAYMENT + ACTIVATE
-  //     await recordPaymentAndActivate(
-  //       {
-  //         memberId: memberRef.id,
-  //         memberName: user.name,
-  //         email: user.email,
-  //         plan,
-  //         amount,
-  //         method: "Admin",
-  //       },
-  //       memberRef.id,
-  //       planMonths,
-  //     );
-
-  //     toast.success(`${user.name} assigned ${plan}`);
-
-  //     setSignups((prev) => prev.filter((u) => u.id !== user.id));
-  //   } catch (err) {
-  //     console.error(err);
-  //     toast.error("Failed to assign plan");
-  //   }
-  // };
-  // =========================
+// =====================
   // STATS
   // =========================
+  const dateFilteredPayments = useMemo(() => {
+  return payments.filter((p) => p.date === selectedDate);
+}, [payments, selectedDate]);
+
+const todaysNewMemberships = useMemo(() => {
+  return members.filter((m) => {
+    const createdDate =
+      m.createdAt?.toDate?.()
+        ? format(m.createdAt.toDate(), "yyyy-MM-dd")
+        : m.createdAt?.seconds
+        ? format(new Date(m.createdAt.seconds * 1000), "yyyy-MM-dd")
+        : m.joinDate || m.date || "";
+
+    return createdDate === selectedDate;
+  });
+}, [members, selectedDate]);
+
+const todaysRenewals = useMemo(() => {
+  return payments.filter((p) => {
+    const isSameDate = p.date === selectedDate;
+
+    const isRenewal =
+      p.type === "renewal" ||
+      p.paymentType === "renewal" ||
+      p.category === "Renewal" ||
+      p.description?.toLowerCase().includes("renew");
+
+    return isSameDate && isRenewal;
+  });
+}, [payments, selectedDate]);
+
+const selectedDateRevenue = useMemo(() => {
+  return dateFilteredPayments.reduce(
+    (sum, p) => sum + (Number(p.amount) || 0),
+    0,
+  );
+}, [dateFilteredPayments]);
   const stats = [
     {
       label: "Total Members",
@@ -452,6 +398,13 @@ export default function Dashboard() {
       cls: "s-red",
       val: "c-red",
     },
+    {
+  label: "Selected Date Revenue",
+  value: `₹${selectedDateRevenue.toLocaleString()}`,
+  sub: selectedDate,
+  cls: "s-green",
+  val: "c-green",
+},
   ];
 
   // =========================
@@ -482,14 +435,13 @@ export default function Dashboard() {
         <div className="page-title">Dashboard</div>
 
         <div className="topbar-right">
-          <span
-            style={{
-              fontSize: 11,
-              color: "var(--muted2)",
-            }}
-          >
-            {format(now, "EEE, d MMM yyyy")}
-          </span>
+          <input
+  type="date"
+  className="form-input"
+  style={{ width: 150, fontSize: 12, padding: "8px 10px" }}
+  value={selectedDate}
+  onChange={(e) => setSelectedDate(e.target.value)}
+/>
 
           <button
             className="btn btn-primary btn-sm tap-scale btn-ripple"
@@ -519,6 +471,59 @@ export default function Dashboard() {
             </div>
           ))}
         </div>
+        <div className="grid-2 mb-20">
+  <div className="card" style={anim(0.18)}>
+    <div className="card-title">
+      🆕 New Memberships ({todaysNewMemberships.length})
+    </div>
+
+    {todaysNewMemberships.length === 0 ? (
+      <div style={{ color: "var(--muted2)", fontSize: 13 }}>
+        No new memberships on this date
+      </div>
+    ) : (
+      todaysNewMemberships.map((m) => (
+        <div key={m.id} className="activity-item">
+          <div className="activity-dot green" />
+          <div>
+            <div className="activity-text">
+              <strong>{m.name || "Unnamed"}</strong> joined
+            </div>
+            <div className="activity-time">
+              {m.plan || "No plan"} · ₹{Number(m.amountPaid || 0).toLocaleString()}
+            </div>
+          </div>
+        </div>
+      ))
+    )}
+  </div>
+
+  <div className="card" style={anim(0.22)}>
+    <div className="card-title">
+      🔁 Renewed Memberships ({todaysRenewals.length})
+    </div>
+
+    {todaysRenewals.length === 0 ? (
+      <div style={{ color: "var(--muted2)", fontSize: 13 }}>
+        No renewals on this date
+      </div>
+    ) : (
+      todaysRenewals.map((p) => (
+        <div key={p.id} className="activity-item">
+          <div className="activity-dot gold" />
+          <div>
+            <div className="activity-text">
+              <strong>{p.memberName || "Member"}</strong> renewed
+            </div>
+            <div className="activity-time">
+              ₹{Number(p.amount || 0).toLocaleString()} · {p.method || "Cash"}
+            </div>
+          </div>
+        </div>
+      ))
+    )}
+  </div>
+</div>
 
         {/* CHARTS */}
         <div className="grid-2 mb-20">

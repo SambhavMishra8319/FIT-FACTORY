@@ -203,3 +203,6 @@
     z-index: 99999 !important;
   }
 }
+body.drawer-open .bottom-nav {
+  display: none !important;
+}

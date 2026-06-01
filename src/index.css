@@ -2463,9 +2463,10 @@ select.form-input option {
   background:orange;
   font-weight:bold;
 }
-/* =========================================
-   TRAINER CARD
-========================================= */
+:root {
+  --bottom-nav-h: 40px;
+}
+
 .app-layout {
   display: flex;
   min-height: 100vh;
@@ -2478,57 +2479,80 @@ select.form-input option {
   min-width: 0;
 }
 
-/* desktop hidden */
+/* hide bottom nav on desktop */
 .bottom-nav {
-  display: none;
+  display: none !important;
 }
 
+/* mobile only */
 @media (max-width: 768px) {
   .app-layout {
     display: block;
   }
 
+  .sidebar {
+    display: none !important;
+  }
+
   .main-content {
-    margin-left: 0;
+    margin-left: 0 !important;
     padding-top: var(--mobile-header-h);
-    padding-bottom: calc(var(--bottom-nav-h) + 24px);
+    padding-bottom: calc(var(--bottom-nav-h) + 1px) !important;
     min-height: 100vh;
   }
 
+  .page-body {
+    padding-bottom: calc(var(--bottom-nav-h) + 20px) !important;
+  }
+
   .bottom-nav {
-    display: flex;
+    display: flex !important;
     position: fixed;
-    bottom: 0;
     left: 0;
     right: 0;
+    bottom: 0;
     height: var(--bottom-nav-h);
-    background: rgba(15, 15, 15, 0.97);
-    border-top: 1px solid var(--border);
-    z-index: 9999;
+    z-index: 99999;
     align-items: center;
     justify-content: space-around;
+    background: rgba(15, 15, 15, 0.97);
+    border-top: 1px solid var(--border);
     backdrop-filter: blur(12px);
   }
 }
-:root {
-  --bottom-nav-h: 80px;
+.drawer.open ~ .bottom-nav {
+  display: none !important;
 }
-@media (max-width: 768px) {
-  .main-content {
-    padding-bottom: 90px !important;
-  }
 
-  .page-body {
-    padding-bottom: 20px !important;
-  }
+.drawer-overlay ~ .drawer.open ~ .bottom-nav {
+  display: none !important;
+}
+.member-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 
-  .table-wrap,
-  .table-wrapper {
-    margin-bottom: 20px !important;
-  }
+.filter-btn {
+  border: 1px solid var(--border);
+  background: var(--card2);
+  color: var(--muted2);
+  padding: 9px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
 
-  .bottom-nav {
-    height: 86px !important;
-    z-index: 99999 !important;
-  }
+.filter-btn span {
+  margin-left: 6px;
+  color: var(--gold);
+}
+
+.filter-btn.active {
+  background: var(--gold-dim);
+  color: var(--gold);
+  border-color: var(--gold);
 }

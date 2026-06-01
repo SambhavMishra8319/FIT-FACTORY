@@ -1,407 +1,4 @@
-// // import { useEffect, useState } from "react";
-// // import { useNavigate } from "react-router-dom";
-// // // import { format } from "date-fns";
-// // import toast from "react-hot-toast";
-// // import { getMembershipStatus } from "../../utils/membershipStatus";
-// // import {
-// //   subscribeMembersSnapshot,
-// //   deleteMember,
-// //   addAttendance,
-// // } from "../../firebase/service";
-// // // import "../styles/member.css";
-// // const normalizeAmount = (val) => {
-// //   if (!val) return 0;
-// //   if (typeof val === "number") return val;
-// //   return Number(String(val).replace(/[^0-9]/g, "")) || 0;
-// // };
-// // export default function Members() {
-// //   const [members, setMembers] = useState([]);
-// //   const [loading, setLoading] = useState(true);
-// //   const [search, setSearch] = useState("");
-// //   const [filter, setFilter] = useState("all");
-// //   const [visible, setVisible] = useState(false);
-// //   const navigate = useNavigate();
 
-// //   useEffect(() => {
-// //     // ✅ Realtime listener — updates instantly when admin adds/edits member
-// //     const unsub = subscribeMembersSnapshot((data) => {
-      
-
-// //  const updated = data
-// //   .map((m) => {
-// //     const status = m.expiryDate
-// //       ? getMembershipStatus(m.expiryDate)
-// //       : "pending";
-
-// //     return {
-// //       ...m,
-// //       status,
-// //     };
-// //   })
-// //   .sort((a, b) => {
-// //     const order = {
-// //       active: 1,
-// //       expiring: 2,
-// //       expired: 3,
-// //       pending: 4,
-// //     };
-
-// //     return order[a.status] - order[b.status];
-// //   });
-// //       setMembers(updated);
-// //       setLoading(false);
-// //       setTimeout(() => setVisible(true), 60);
-// //     });
-// //     return () => unsub();
-// //   }, []);
-
-// //   const filtered = members.filter((m) => {
-// //     const matchSearch =
-// //       m.name?.toLowerCase().includes(search.toLowerCase()) ||
-// //       m.phone?.includes(search) ||
-// //       m.memberId?.toLowerCase().includes(search.toLowerCase());
-// //     const matchFilter = filter === "all" || m.status === filter;
-// //     return matchSearch && matchFilter;
-// //   });
-
-// //   const handleDelete = async (id, name) => {
-// //     if (
-// //       !window.confirm(
-// //         `Remove ${name} from members list? This cannot be undone.`,
-// //       )
-// //     )
-// //       return;
-// //     try {
-// //       await deleteMember(id);
-// //       toast.success(`${name} removed.`);
-// //     } catch {
-// //       toast.error("Delete failed.");
-// //     }
-// //   };
-
-// //   const handleCheckin = async (m) => {
-// //     try {
-// //       const result = await addAttendance(m.id, m.name);
-// //       if (result.alreadyCheckedIn) {
-// //         toast(`${m.name} already checked in today!`, { icon: "ℹ️" });
-// //       } else {
-// //         toast.success(`✅ ${m.name} checked in! +10 pts`);
-// //       }
-// //     } catch {
-// //       toast.error("Check-in failed.");
-// //     }
-// //   };
-
-// //   const stats = {
-// //     total: members.length,
-// //     // active:   members.filter(m => m.status === "active").length,
-// //     active: members.filter(
-// //       (m) => m.status === "active" || m.status === "expiring",
-// //     ).length,
-// //     expiring: members.filter((m) => m.status === "expiring").length,
-// //     // inactive: members.filter((m) => m.status === "inactive").length,
-// //     expired: members.filter((m) => m.status === "expired").length,
-
-// //     pending: members.filter((m) => m.status === "pending").length,
-// //     // revenue: members.reduce((s, m) => s + (Number(m.amountPaid) || 0), 0),
-// //     revenue: members.reduce(
-// //   (s, m) => s + normalizeAmount(m.amountPaid),
-// //   0
-// // ),
-// //   };
-
-// //   const anim = (delay) => ({
-// //     opacity: visible ? 1 : 0,
-// //     transform: visible ? "translateY(0)" : "translateY(14px)",
-// //     transition: `all 0.45s cubic-bezier(0.22,1,0.36,1) ${delay}s`,
-// //   });
-// //   const statusBadge = (status) => {
-// //     switch (status) {
-// //       case "active":
-// //         return <span className="badge badge-green">Active</span>;
-
-// //       case "expiring":
-// //         return <span className="badge badge-gold">Expiring Soon</span>;
-
-// //       case "expired":
-// //         return <span className="badge badge-red">Expired</span>;
-
-// //       default:
-// //         return <span className="badge badge-gray">Pending</span>;
-// //     }
-// //   };
-
-// //   return (
-// //     <div className="page-enter">
-// //       <div className="topbar">
-// //         <div className="page-title">Members ({filtered.length})</div>
-// //         <div className="topbar-right">
-// //           <input
-// //             className="search-input"
-// //             placeholder="🔍 Name, phone, ID..."
-// //             value={search}
-// //             onChange={(e) => setSearch(e.target.value)}
-// //           />
-// //           <select
-// //             className="form-input"
-// //             style={{ width: "auto", fontSize: 12, padding: "8px 10px" }}
-// //             value={filter}
-// //             onChange={(e) => setFilter(e.target.value)}
-// //           >
-// //             <option value="all">All</option>
-// //             <option value="active">Active</option>
-// //             <option value="expiring">Expiring</option>
-// //             {/* <option value="inactive">Inactive</option> */}
-// //             <option value="expired">Expired</option>
-// //             <option value="pending">Pending</option>
-// //           </select>
-// //           <button
-// //             className="btn btn-primary btn-sm tap-scale btn-ripple"
-// //             onClick={() => navigate("/add-member")}
-// //           >
-// //             + Add
-// //           </button>
-// //         </div>
-// //       </div>
-
-// //       <div className="page-body">
-// //         {/* Stats */}
-// //         <div className="stats-grid mb-20">
-// //           {[
-// //             {
-// //               label: "Active",
-// //               value: stats.active,
-// //               cls: "s-green",
-// //               val: "c-green",
-// //             },
-// //             {
-// //               label: "Expiring",
-// //               value: stats.expiring,
-// //               cls: "s-red",
-// //               val: "c-red",
-// //             },
-// //             {
-// //               label: "Expired",
-// //               value: stats.expired,
-// //               cls: "s-red",
-// //               val: "c-red",
-// //             },
-// //             {
-// //               label: "Pending",
-// //               value: stats.pending,
-// //               cls: "s-gold",
-// //               val: "c-gold",
-// //             },
-// //             {
-// //               label: "Revenue",
-// //               value: `₹${(stats.revenue / 1000).toFixed(1)}k`,
-// //               cls: "s-gold",
-// //               val: "c-gold",
-// //             },
-// //           ].map((s, i) => (
-// //             <div
-// //               key={i}
-// //               className={`stat-card ${s.cls}`}
-// //               style={anim(i * 0.07)}
-// //             >
-// //               <div className="stat-label">{s.label}</div>
-// //               <div className={`stat-value ${s.val}`}>
-// //                 {loading ? "—" : s.value}
-// //               </div>
-// //             </div>
-// //           ))}
-// //         </div>
-
-// //         <div className="table-wrap" style={anim(0.28)}>
-// //           <table>
-// //             <thead>
-// //               <tr>
-// //                 <th>Member</th>
-// //                 <th>Plan</th>
-// //                 <th>Goal</th>
-// //                 <th>Expiry</th>
-// //                 <th>Paid</th>
-// //                 <th>Status</th>
-// //                 <th>Actions</th>
-// //               </tr>
-// //             </thead>
-// //             <tbody>
-// //               {loading ? (
-// //                 [1, 2, 3, 4].map((i) => (
-// //                   <tr key={i}>
-// //                     <td colSpan={7} style={{ padding: 16 }}>
-// //                       <div
-// //                         className="skeleton"
-// //                         style={{ height: 14, width: "70%", marginBottom: 6 }}
-// //                       />
-// //                       <div
-// //                         className="skeleton"
-// //                         style={{ height: 10, width: "40%" }}
-// //                       />
-// //                     </td>
-// //                   </tr>
-// //                 ))
-// //               ) : filtered.length === 0 ? (
-// //                 <tr>
-// //                   <td
-// //                     colSpan={7}
-// //                     style={{
-// //                       textAlign: "center",
-// //                       color: "var(--muted2)",
-// //                       padding: 40,
-// //                     }}
-// //                   >
-// //                     {members.length === 0
-// //                       ? "No members yet. Add your first member! 💪"
-// //                       : "No members match your search."}
-// //                   </td>
-// //                 </tr>
-// //               ) : (
-// //                 filtered.map((m, i) => (
-// //                   <tr
-// //                     key={m.id}
-// //                     style={{
-// //                       opacity: visible ? 1 : 0,
-// //                       transition: `opacity 0.35s ease ${0.3 + i * 0.04}s`,
-// //                     }}
-// //                   >
-// //                     <td>
-// //                       <div
-// //                         style={{
-// //                           display: "flex",
-// //                           alignItems: "center",
-// //                           gap: 8,
-// //                         }}
-// //                       >
-// //                         <div
-// //                           style={{
-// //                             width: 32,
-// //                             height: 32,
-// //                             borderRadius: "50%",
-// //                             background: "var(--grad-gold)",
-// //                             display: "flex",
-// //                             alignItems: "center",
-// //                             justifyContent: "center",
-// //                             fontFamily: "var(--font-display)",
-// //                             fontSize: 11,
-// //                             fontWeight: 700,
-// //                             color: "var(--black)",
-// //                             flexShrink: 0,
-// //                           }}
-// //                         >
-// //                           {m.name
-// //                             ?.split(" ")
-// //                             .map((n) => n[0])
-// //                             .join("")
-// //                             .slice(0, 2)
-// //                             .toUpperCase()}
-// //                         </div>
-// //                         <div>
-// //                           <strong
-// //                             style={{
-// //                               cursor: "pointer",
-// //                               color: "var(--gold)",
-// //                             }}
-// //                             onClick={() => navigate(`/members/${m.id}`)}
-// //                           >
-// //                             {m.name}
-// //                           </strong>
-
-// //                           <div style={{ fontSize: 11, color: "var(--muted2)" }}>
-// //                             {m.phone}
-// //                           </div>
-// //                         </div>
-// //                       </div>
-// //                     </td>
-// //                     <td>{m.membershipAssigned ? m.plan : "Not Assigned"}</td>
-// //                     <td style={{ fontSize: 12 }}>{m.goal || "—"}</td>
-// //                     <td
-// //                       style={{
-// //                         fontSize: 12,
-// //                         color:
-// //                           m.status === "expiring" || m.status === "expired"
-// //                             ? "var(--red)"
-// //                             : "var(--muted2)",
-// //                       }}
-// //                     >
-// //                       {m.expiryDate || "—"}
-// //                     </td>
-// //                     {/* <td>₹{Number(m.amountPaid || 0).toLocaleString()}</td> */}
-// //                     <td>
-// //                       ₹{normalizeAmount(m.amountPaid).toLocaleString()}
-// //                     </td>
-// //                     <td>{statusBadge(m.status)}</td>
-// //                     <td>
-// //                       <div
-// //                         style={{ display: "flex", gap: 4, flexWrap: "wrap" }}
-// //                       >
-// //                         <button
-// //                           className="btn btn-outline btn-sm tap-scale"
-// //                           disabled={
-// //                             m.status === "expired" || m.status === "pending"
-// //                           }
-// //                           onClick={() => handleCheckin(m)}
-// //                         >
-// //                           ✓ In
-// //                         </button>
-// //                         <button
-// //                           className="btn btn-primary btn-sm tap-scale"
-// //                           onClick={() => navigate(`/members/${m.id}/edit`)}
-// //                           title="Edit member"
-// //                         >
-// //                           Edit
-// //                         </button>
-// //                         <button
-// //                           className="btn btn-danger btn-sm tap-scale"
-// //                           onClick={() => handleDelete(m.id, m.name)}
-// //                         >
-// //                           Del
-// //                         </button>
-// //                       </div>
-// //                     </td>
-// //                   </tr>
-// //                 ))
-// //               )}
-// //             </tbody>
-// //           </table>
-// //         </div>
-
-// //         {/* Summary footer */}
-// //         {!loading && filtered.length > 0 && (
-// //           <div
-// //             style={{
-// //               textAlign: "center",
-// //               marginTop: 14,
-// //               fontSize: 12,
-// //               color: "var(--muted2)",
-// //               opacity: visible ? 1 : 0,
-// //               transition: "opacity 0.4s ease 0.5s",
-// //             }}
-// //           >
-// //             Showing {filtered.length} of {members.length} members ·{" "}
-// //             <span style={{ color: "var(--gold)" }}>
-// //               Total: ₹
-// //               {(
-// //                 // members.reduce((s, m) => s + (Number(m.amountPaid) || 0), 0) /
-// //                 members.reduce((s, m) => s + normalizeAmount(m.amountPaid), 0)/
-// //                 1000
-// //               ).toFixed(1)}
-// //               k revenue
-// //             </span>
-// //           </div>
-// //         )}
-// //       </div>
-      
-
-// //       <button
-// //         className="fab tap-scale btn-ripple"
-// //         onClick={() => navigate("/add-member")}
-// //       >
-// //         +
-// //       </button>
-// //     </div>
-// //   );
-// // }
 // import { useEffect, useState } from "react";
 // import { useNavigate } from "react-router-dom";
 // import toast from "react-hot-toast";
@@ -418,6 +15,35 @@
 //   return Number(String(val).replace(/[^0-9]/g, "")) || 0;
 // };
 
+// const getPlanPrice = (plan) => {
+//   const prices = {
+//     "1 Month": 1499,
+//     "3 Months": 3999,
+//     "6 Months": 7999,
+//     Annual: 14999,
+//     "Elite VIP": 19999,
+
+//     Monthly: 1499,
+//     Quarterly: 3999,
+//     "6 Month": 7999,
+//     Yearly: 14999,
+//   };
+
+//   return prices[plan] || 0;
+// };
+
+// const getBalanceDue = (m) => {
+//   const membershipFee =
+//     normalizeAmount(m.membershipFee) || getPlanPrice(m.plan);
+
+//   const total =
+//     membershipFee +
+//     normalizeAmount(m.registrationFee) -
+//     normalizeAmount(m.discount);
+
+//   return Math.max(total - normalizeAmount(m.amountPaid), 0);
+// };
+
 // export default function Members() {
 //   const [members, setMembers] = useState([]);
 //   const [loading, setLoading] = useState(true);
@@ -426,7 +52,14 @@
 //   const [visible, setVisible] = useState(false);
 
 //   const navigate = useNavigate();
+// const [statusFilter, setStatusFilter] = useState("all");
 
+// const filteredMembers = members.filter((member) => {
+//   const status = getMembershipStatus(member);
+
+//   if (statusFilter === "all") return true;
+//   return status === statusFilter;
+// });
 //   useEffect(() => {
 //     const unsub = subscribeMembersSnapshot((data) => {
 //       const updated = data
@@ -500,17 +133,6 @@
 //       toast.error("Check-in failed.");
 //     }
 //   };
-// const getBalanceDue = (m) => {
-//   const membershipFee =
-//     Number(m.membershipFee || 0) || getPlanPrice(m.plan);
-
-//   const total =
-//     membershipFee +
-//     normalizeAmount(m.registrationFee) -
-//     normalizeAmount(m.discount);
-
-//   return Math.max(total - normalizeAmount(m.amountPaid), 0);
-// };
 
 //   const stats = {
 //     total: members.length,
@@ -534,34 +156,14 @@
 //     switch (status) {
 //       case "active":
 //         return <span className="badge badge-green">Active</span>;
-
 //       case "expiring":
 //         return <span className="badge badge-gold">Expiring Soon</span>;
-
 //       case "expired":
 //         return <span className="badge badge-red">Expired</span>;
-
 //       default:
 //         return <span className="badge badge-gray">Pending</span>;
 //     }
 //   };
-//   const getPlanPrice = (plan) => {
-//   const prices = {
-//     "1 Month": 1499,
-//     "3 Months": 3999,
-//     "6 Months": 7999,
-//     Annual: 14999,
-//     "Elite VIP": 19999,
-
-//     Monthly: 1499,
-//     Quarterly: 3999,
-//     "6 Month": 7999,
-//     Yearly: 14999,
-//   };
-
-//   return prices[plan] || 0;
-// };
-
 
 //   return (
 //     <div className="page-enter">
@@ -601,30 +203,10 @@
 //       <div className="page-body">
 //         <div className="stats-grid mb-20">
 //           {[
-//             {
-//               label: "Active",
-//               value: stats.active,
-//               cls: "s-green",
-//               val: "c-green",
-//             },
-//             {
-//               label: "Expiring",
-//               value: stats.expiring,
-//               cls: "s-gold",
-//               val: "c-gold",
-//             },
-//             {
-//               label: "Expired",
-//               value: stats.expired,
-//               cls: "s-red",
-//               val: "c-red",
-//             },
-//             {
-//               label: "Pending",
-//               value: stats.pending,
-//               cls: "s-gold",
-//               val: "c-gold",
-//             },
+//             { label: "Active", value: stats.active, cls: "s-green", val: "c-green" },
+//             { label: "Expiring", value: stats.expiring, cls: "s-gold", val: "c-gold" },
+//             { label: "Expired", value: stats.expired, cls: "s-red", val: "c-red" },
+//             { label: "Pending", value: stats.pending, cls: "s-gold", val: "c-gold" },
 //             {
 //               label: "Revenue",
 //               value: `₹${(stats.revenue / 1000).toFixed(1)}k`,
@@ -638,20 +220,25 @@
 //               val: "c-red",
 //             },
 //           ].map((s, i) => (
-//             <div
-//               key={i}
-//               className={`stat-card ${s.cls}`}
-//               style={anim(i * 0.07)}
-//             >
+//             <div key={i} className={`stat-card ${s.cls}`} style={anim(i * 0.07)}>
 //               <div className="stat-label">{s.label}</div>
-
 //               <div className={`stat-value ${s.val}`}>
 //                 {loading ? "—" : s.value}
 //               </div>
 //             </div>
 //           ))}
 //         </div>
-
+// <div className="member-filters">
+//   {["all", "active", "expiring", "expired", "pending"].map((filter) => (
+//     <button
+//       key={filter}
+//       className={`filter-btn ${statusFilter === filter ? "active" : ""}`}
+//       onClick={() => setStatusFilter(filter)}
+//     >
+//       {filter}
+//     </button>
+//   ))}
+// </div>
 //         <div className="table-wrap" style={anim(0.28)}>
 //           <table>
 //             <thead>
@@ -709,13 +296,7 @@
 //                     }}
 //                   >
 //                     <td>
-//                       <div
-//                         style={{
-//                           display: "flex",
-//                           alignItems: "center",
-//                           gap: 8,
-//                         }}
-//                       >
+//                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
 //                         <div
 //                           style={{
 //                             width: 32,
@@ -742,10 +323,7 @@
 
 //                         <div>
 //                           <strong
-//                             style={{
-//                               cursor: "pointer",
-//                               color: "var(--gold)",
-//                             }}
+//                             style={{ cursor: "pointer", color: "var(--gold)" }}
 //                             onClick={() => navigate(`/members/${m.id}`)}
 //                           >
 //                             {m.name || "Unnamed"}
@@ -756,12 +334,7 @@
 //                           </div>
 
 //                           {m.biometricId && (
-//                             <div
-//                               style={{
-//                                 fontSize: 10,
-//                                 color: "var(--muted2)",
-//                               }}
-//                             >
+//                             <div style={{ fontSize: 10, color: "var(--muted2)" }}>
 //                               🖐️ Bio ID: {m.biometricId}
 //                             </div>
 //                           )}
@@ -770,9 +343,7 @@
 //                     </td>
 
 //                     <td>{m.plan || "Not Assigned"}</td>
-
 //                     <td style={{ fontSize: 12 }}>{m.goal || "—"}</td>
-
 //                     <td style={{ fontSize: 12 }}>
 //                       {m.preferredTime || m.batchTiming || "—"}
 //                     </td>
@@ -793,10 +364,7 @@
 
 //                     <td
 //                       style={{
-//                         color:
-//                           getBalanceDue(m) > 0
-//                             ? "var(--red)"
-//                             : "var(--green)",
+//                         color: getBalanceDue(m) > 0 ? "var(--red)" : "var(--green)",
 //                         fontWeight: 700,
 //                       }}
 //                     >
@@ -806,18 +374,10 @@
 //                     <td>{statusBadge(m.status)}</td>
 
 //                     <td>
-//                       <div
-//                         style={{
-//                           display: "flex",
-//                           gap: 4,
-//                           flexWrap: "wrap",
-//                         }}
-//                       >
+//                       <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
 //                         <button
 //                           className="btn btn-outline btn-sm tap-scale"
-//                           disabled={
-//                             m.status === "expired" || m.status === "pending"
-//                           }
+//                           disabled={m.status === "expired" || m.status === "pending"}
 //                           onClick={() => handleCheckin(m)}
 //                         >
 //                           ✓ In
@@ -826,7 +386,6 @@
 //                         <button
 //                           className="btn btn-primary btn-sm tap-scale"
 //                           onClick={() => navigate(`/members/${m.id}/edit`)}
-//                           title="Edit member"
 //                         >
 //                           Edit
 //                         </button>
@@ -901,7 +460,6 @@ const getPlanPrice = (plan) => {
     "6 Months": 7999,
     Annual: 14999,
     "Elite VIP": 19999,
-
     Monthly: 1499,
     Quarterly: 3999,
     "6 Month": 7999,
@@ -921,6 +479,19 @@ const getBalanceDue = (m) => {
     normalizeAmount(m.discount);
 
   return Math.max(total - normalizeAmount(m.amountPaid), 0);
+};
+
+const getDaysExpired = (expiryDate) => {
+  if (!expiryDate) return "-";
+
+  const today = new Date();
+  const expiry = new Date(expiryDate);
+
+  if (isNaN(expiry.getTime())) return "-";
+
+  const diff = Math.floor((today - expiry) / (1000 * 60 * 60 * 24));
+
+  return diff > 0 ? `${diff} days` : "-";
 };
 
 export default function Members() {
@@ -976,11 +547,7 @@ export default function Members() {
   });
 
   const handleDelete = async (id, name) => {
-    if (
-      !window.confirm(
-        `Remove ${name} from members list? This cannot be undone.`,
-      )
-    ) {
+    if (!window.confirm(`Remove ${name} from members list? This cannot be undone.`)) {
       return;
     }
 
@@ -1037,6 +604,14 @@ export default function Members() {
     }
   };
 
+  const filterButtons = [
+    { key: "all", label: "All", count: stats.total },
+    { key: "active", label: "Active", count: stats.active },
+    { key: "expiring", label: "Expiring", count: stats.expiring },
+    { key: "expired", label: "Expired", count: stats.expired },
+    { key: "pending", label: "Pending", count: stats.pending },
+  ];
+
   return (
     <div className="page-enter">
       <div className="topbar">
@@ -1049,19 +624,6 @@ export default function Members() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-
-          <select
-            className="form-input"
-            style={{ width: "auto", fontSize: 12, padding: "8px 10px" }}
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-          >
-            <option value="all">All</option>
-            <option value="active">Active</option>
-            <option value="expiring">Expiring</option>
-            <option value="expired">Expired</option>
-            <option value="pending">Pending</option>
-          </select>
 
           <button
             className="btn btn-primary btn-sm tap-scale btn-ripple"
@@ -1101,6 +663,19 @@ export default function Members() {
           ))}
         </div>
 
+        <div className="member-filters mb-16">
+          {filterButtons.map((item) => (
+            <button
+              key={item.key}
+              className={`filter-btn ${filter === item.key ? "active" : ""}`}
+              onClick={() => setFilter(item.key)}
+            >
+              {item.label}
+              <span>{item.count}</span>
+            </button>
+          ))}
+        </div>
+
         <div className="table-wrap" style={anim(0.28)}>
           <table>
             <thead>
@@ -1110,6 +685,7 @@ export default function Members() {
                 <th>Goal</th>
                 <th>Time</th>
                 <th>Expiry</th>
+                <th>Days Expired</th>
                 <th>Paid</th>
                 <th>Due</th>
                 <th>Status</th>
@@ -1121,7 +697,7 @@ export default function Members() {
               {loading ? (
                 [1, 2, 3, 4].map((i) => (
                   <tr key={i}>
-                    <td colSpan={9} style={{ padding: 16 }}>
+                    <td colSpan={10} style={{ padding: 16 }}>
                       <div
                         className="skeleton"
                         style={{ height: 14, width: "70%", marginBottom: 6 }}
@@ -1136,7 +712,7 @@ export default function Members() {
               ) : filtered.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={9}
+                    colSpan={10}
                     style={{
                       textAlign: "center",
                       color: "var(--muted2)",
@@ -1145,7 +721,7 @@ export default function Members() {
                   >
                     {members.length === 0
                       ? "No members yet. Add your first member! 💪"
-                      : "No members match your search."}
+                      : "No members match your search or filter."}
                   </td>
                 </tr>
               ) : (
@@ -1222,6 +798,16 @@ export default function Members() {
                       {m.expiryDate || "—"}
                     </td>
 
+                    <td
+                      style={{
+                        fontSize: 12,
+                        color: m.status === "expired" ? "var(--red)" : "var(--muted2)",
+                        fontWeight: m.status === "expired" ? 700 : 400,
+                      }}
+                    >
+                      {m.status === "expired" ? getDaysExpired(m.expiryDate) : "-"}
+                    </td>
+
                     <td>₹{normalizeAmount(m.amountPaid).toLocaleString()}</td>
 
                     <td
@@ -1237,16 +823,25 @@ export default function Members() {
 
                     <td>
                       <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                        <button
-                          className="btn btn-outline btn-sm tap-scale"
-                          disabled={m.status === "expired" || m.status === "pending"}
-                          onClick={() => handleCheckin(m)}
-                        >
-                          ✓ In
-                        </button>
+                        {m.status === "expired" ? (
+                          <button
+                            className="btn btn-primary btn-sm tap-scale"
+                            onClick={() => navigate(`/members/${m.id}/edit`)}
+                          >
+                            Renew
+                          </button>
+                        ) : (
+                          <button
+                            className="btn btn-outline btn-sm tap-scale"
+                            disabled={m.status === "pending"}
+                            onClick={() => handleCheckin(m)}
+                          >
+                            ✓ In
+                          </button>
+                        )}
 
                         <button
-                          className="btn btn-primary btn-sm tap-scale"
+                          className="btn btn-outline btn-sm tap-scale"
                           onClick={() => navigate(`/members/${m.id}/edit`)}
                         >
                           Edit
