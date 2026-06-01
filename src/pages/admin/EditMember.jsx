@@ -1360,10 +1360,11 @@ import {
 } from "../../firebase/service";
 
 const PLANS = [
-  { label: "Monthly", months: 1, price: 1500 },
-  { label: "Quarterly", months: 3, price: 3500 },
-  { label: "6 Month", months: 6, price: 7000 },
-  { label: "Annual", months: 12, price: 12000 },
+  { label: "1 Month", months: 1, price: 1499 },
+  { label: "3 Months", months: 3, price: 3999 },
+  { label: "6 Months", months: 6, price: 7999 },
+  { label: "Annual", months: 12, price: 14999 },
+  { label: "Elite VIP", months: 12, price: 19999 },
 ];
 
 const TIME_SLOTS = [
@@ -1522,15 +1523,20 @@ export default function EditMember() {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const selectedPlan = PLANS.find((p) => p.label === form.plan) || PLANS[0];
+  // const selectedPlan = PLANS.find((p) => p.label === form.plan) || PLANS[0];
+  const selectedPlan =
+  PLANS.find((p) => p.label === form.plan) || {
+    label: form.plan || "Custom",
+    months: 1,
+    price: Number(form.membershipFee || form.amountPaid || 0),
+  };
 
   const totalAmount =
-    Number(selectedPlan.price || 0) +
-    Number(form.registrationFee || 0) -
-    Number(form.discount || 0);
+  Number(selectedPlan.price || 0) +
+  Number(form.registrationFee || 0) -
+  Number(form.discount || 0);
 
-  const balanceDue = Math.max(totalAmount - Number(form.amountPaid || 0), 0);
-
+const balanceDue = Math.max(totalAmount - Number(form.amountPaid || 0), 0);
   const bmi =
     form.weight && form.height
       ? (Number(form.weight) / (Number(form.height) / 100) ** 2).toFixed(1)
