@@ -1869,7 +1869,51 @@ await updateMember(memberId, {
     setRole(null);
     await signOut(auth);
   };
+const signupNewMemberWithGoogle = async () => {
+  const result = await signInWithPopup(auth, googleProvider);
+  const firebaseUser = result.user;
 
+  const userRef = doc(db, "users", firebaseUser.uid);
+  const existing = await getDoc(userRef);
+
+  if (existing.exists()) {
+    const data = existing.data();
+    setUser(firebaseUser);
+    setProfile(data);
+    setRole(data.role || "member");
+    return result;
+  }
+
+  const cleanEmail = firebaseUser.email?.trim().toLowerCase() || "";
+
+  const profileData = {
+    uid: firebaseUser.uid,
+    authUid: firebaseUser.uid,
+    name: firebaseUser.displayName || "Member",
+    email: cleanEmail,
+    phone: "",
+    photo: firebaseUser.photoURL || "",
+
+    role: "member",
+    memberId: null,
+
+    membershipAssigned: false,
+    membershipStatus: "pending",
+    plan: null,
+    amountPaid: 0,
+    expiryDate: null,
+
+    createdAt: serverTimestamp(),
+  };
+
+  await setDoc(userRef, profileData);
+
+  setUser(firebaseUser);
+  setProfile(profileData);
+  setRole("member");
+
+  return result;
+};
   const value = useMemo(
     () => ({
       user,
@@ -1883,7 +1927,7 @@ await updateMember(memberId, {
       loginMember,
       googleMemberLogin,
       activateMemberWithGoogle,
-
+signupNewMemberWithGoogle,
       logout,
 
       isAdmin: role === "admin",
