@@ -2556,3 +2556,6 @@ select.form-input option {
   color: var(--gold);
   border-color: var(--gold);
 }
+.splash-active .bottom-nav {
+  display: none !important;
+}
