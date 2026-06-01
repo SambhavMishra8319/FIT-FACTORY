@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { format, addMonths } from "date-fns";
@@ -175,19 +174,18 @@ export default function EditMember() {
   };
 
   // const selectedPlan = PLANS.find((p) => p.label === form.plan) || PLANS[0];
-  const selectedPlan =
-  PLANS.find((p) => p.label === form.plan) || {
+  const selectedPlan = PLANS.find((p) => p.label === form.plan) || {
     label: form.plan || "Custom",
     months: 1,
     price: Number(form.membershipFee || form.amountPaid || 0),
   };
 
   const totalAmount =
-  Number(selectedPlan.price || 0) +
-  Number(form.registrationFee || 0) -
-  Number(form.discount || 0);
+    Number(selectedPlan.price || 0) +
+    Number(form.registrationFee || 0) -
+    Number(form.discount || 0);
 
-const balanceDue = Math.max(totalAmount - Number(form.amountPaid || 0), 0);
+  const balanceDue = Math.max(totalAmount - Number(form.amountPaid || 0), 0);
   const bmi =
     form.weight && form.height
       ? (Number(form.weight) / (Number(form.height) / 100) ** 2).toFixed(1)
@@ -263,73 +261,73 @@ const balanceDue = Math.max(totalAmount - Number(form.amountPaid || 0), 0);
       setSaving(false);
     }
   };
-const handleRenewMembership = async (e) => {
-  e.preventDefault();
+  const handleRenewMembership = async (e) => {
+    e.preventDefault();
 
-  if (!window.confirm("This will create a NEW payment entry. Continue?")) {
-    return;
-  }
+    if (!window.confirm("This will create a NEW payment entry. Continue?")) {
+      return;
+    }
 
-  if (!form.plan) {
-    toast.error("Select a plan.");
-    return;
-  }
+    if (!form.plan) {
+      toast.error("Select a plan.");
+      return;
+    }
 
-  setSaving(true);
+    setSaving(true);
 
-  try {
-    const result = await recordPaymentAndActivate(
-      {
-        memberId: id,
-        memberName: form.name,
+    try {
+      const result = await recordPaymentAndActivate(
+        {
+          memberId: id,
+          memberName: form.name,
+          plan: form.plan,
+          amount: Number(form.amountPaid || selectedPlan.price || 0),
+          membershipFee: Number(selectedPlan.price || 0),
+          registrationFee: Number(form.registrationFee || 0),
+          discount: Number(form.discount || 0),
+          totalAmount: Number(totalAmount || 0),
+          balanceDue: Number(balanceDue || 0),
+          method: form.paymentMethod,
+          transactionId: form.transactionId,
+          type: "renewal",
+        },
+        id,
+        selectedPlan.months,
+      );
+
+      toast.success(`New payment recorded. Renewed until ${result.expiry}`);
+      navigate("/members");
+    } catch (err) {
+      console.error(err);
+      toast.error("Renewal failed.");
+    } finally {
+      setSaving(false);
+    }
+  };
+  const handleUpdatePaymentInfo = async () => {
+    setSaving(true);
+
+    try {
+      await updateMember(id, {
         plan: form.plan,
-        amount: Number(form.amountPaid || selectedPlan.price || 0),
         membershipFee: Number(selectedPlan.price || 0),
         registrationFee: Number(form.registrationFee || 0),
         discount: Number(form.discount || 0),
         totalAmount: Number(totalAmount || 0),
+        amountPaid: Number(form.amountPaid || 0),
         balanceDue: Number(balanceDue || 0),
-        method: form.paymentMethod,
+        paymentMethod: form.paymentMethod,
         transactionId: form.transactionId,
-        type: "renewal",
-      },
-      id,
-      selectedPlan.months,
-    );
+      });
 
-    toast.success(`New payment recorded. Renewed until ${result.expiry}`);
-    navigate("/members");
-  } catch (err) {
-    console.error(err);
-    toast.error("Renewal failed.");
-  } finally {
-    setSaving(false);
-  }
-};
-const handleUpdatePaymentInfo = async () => {
-  setSaving(true);
-
-  try {
-    await updateMember(id, {
-      plan: form.plan,
-      membershipFee: Number(selectedPlan.price || 0),
-      registrationFee: Number(form.registrationFee || 0),
-      discount: Number(form.discount || 0),
-      totalAmount: Number(totalAmount || 0),
-      amountPaid: Number(form.amountPaid || 0),
-      balanceDue: Number(balanceDue || 0),
-      paymentMethod: form.paymentMethod,
-      transactionId: form.transactionId,
-    });
-
-    toast.success("Payment info updated without creating new payment.");
-  } catch (err) {
-    console.error(err);
-    toast.error("Payment info update failed.");
-  } finally {
-    setSaving(false);
-  }
-};
+      toast.success("Payment info updated without creating new payment.");
+    } catch (err) {
+      console.error(err);
+      toast.error("Payment info update failed.");
+    } finally {
+      setSaving(false);
+    }
+  };
   // const handleRenewMembership = async (e) => {
   //   e.preventDefault();
 
@@ -363,47 +361,47 @@ const handleUpdatePaymentInfo = async () => {
   //     setSaving(false);
   //   }
   // };
-// const handleRenewMembership = async (e) => {
-//   e.preventDefault();
+  // const handleRenewMembership = async (e) => {
+  //   e.preventDefault();
 
-//   if (!form.plan) {
-//     toast.error("Select a plan.");
-//     return;
-//   }
+  //   if (!form.plan) {
+  //     toast.error("Select a plan.");
+  //     return;
+  //   }
 
-//   setSaving(true);
+  //   setSaving(true);
 
-//   try {
-//     const result = await recordPaymentAndActivate(
-//       {
-//         memberId: id,
-//         memberName: form.name,
-//         plan: form.plan,
+  //   try {
+  //     const result = await recordPaymentAndActivate(
+  //       {
+  //         memberId: id,
+  //         memberName: form.name,
+  //         plan: form.plan,
 
-//         amount: Number(form.amountPaid || selectedPlan.price || 0),
-//         membershipFee: Number(selectedPlan.price || 0),
-//         registrationFee: Number(form.registrationFee || 0),
-//         discount: Number(form.discount || 0),
-//         totalAmount: Number(totalAmount || 0),
-//         balanceDue: Number(balanceDue || 0),
+  //         amount: Number(form.amountPaid || selectedPlan.price || 0),
+  //         membershipFee: Number(selectedPlan.price || 0),
+  //         registrationFee: Number(form.registrationFee || 0),
+  //         discount: Number(form.discount || 0),
+  //         totalAmount: Number(totalAmount || 0),
+  //         balanceDue: Number(balanceDue || 0),
 
-//         method: form.paymentMethod,
-//         transactionId: form.transactionId,
-//         type: "renewal",
-//       },
-//       id,
-//       selectedPlan.months,
-//     );
+  //         method: form.paymentMethod,
+  //         transactionId: form.transactionId,
+  //         type: "renewal",
+  //       },
+  //       id,
+  //       selectedPlan.months,
+  //     );
 
-//     toast.success(`Membership renewed until ${result.expiry} 🎉`);
-//     navigate("/members");
-//   } catch (err) {
-//     console.error(err);
-//     toast.error("Renewal failed.");
-//   } finally {
-//     setSaving(false);
-//   }
-// };
+  //     toast.success(`Membership renewed until ${result.expiry} 🎉`);
+  //     navigate("/members");
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Renewal failed.");
+  //   } finally {
+  //     setSaving(false);
+  //   }
+  // };
   const handleUpdateExpiry = async () => {
     if (!form.expiryDate) {
       toast.error("Set an expiry date.");
@@ -710,7 +708,9 @@ const handleUpdatePaymentInfo = async () => {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Previous Injury / Surgery</label>
+                  <label className="form-label">
+                    Previous Injury / Surgery
+                  </label>
                   <input
                     className="form-input"
                     value={form.previousInjury}
@@ -1073,21 +1073,20 @@ const handleUpdatePaymentInfo = async () => {
                       <div className="info-box success mb-12">
                         ✓ Plan: <strong>{form.plan}</strong> · Total:{" "}
                         <strong>₹{totalAmount.toLocaleString()}</strong> ·
-                        Balance:{" "}
-                        <strong>₹{balanceDue.toLocaleString()}</strong> · New
-                        expiry: <strong>{expiry}</strong>
+                        Balance: <strong>₹{balanceDue.toLocaleString()}</strong>{" "}
+                        · New expiry: <strong>{expiry}</strong>
                       </div>
                     );
                   })()}
-<button
-  type="button"
-  className="btn btn-outline tap-scale"
-  disabled={saving}
-  style={{ width: "100%", padding: 12, marginBottom: 10 }}
-  onClick={handleUpdatePaymentInfo}
->
-  ✓ Update Payment Info Only
-</button>
+                <button
+                  type="button"
+                  className="btn btn-outline tap-scale"
+                  disabled={saving}
+                  style={{ width: "100%", padding: 12, marginBottom: 10 }}
+                  onClick={handleUpdatePaymentInfo}
+                >
+                  ✓ Update Payment Info Only
+                </button>
                 <button
                   type="submit"
                   className="btn btn-primary tap-scale btn-ripple"
@@ -1200,4 +1199,3 @@ const handleUpdatePaymentInfo = async () => {
     </div>
   );
 }
-

@@ -1,52 +1,35 @@
-// import { NavLink } from "react-router-dom";
-
-// const tabs = [
-//   { to: "/dashboard", icon: "⚡", label: "Home" },
-//   { to: "/members",   icon: "👥", label: "Members" },
-//   { to: "/bca",       icon: "📊", label: "BCA" },
-//   { to: "/steam",     icon: "🌫️", label: "Steam" },
-//   { to: "/payments",  icon: "💳", label: "Payments" },
-// ];
-
-// export default function BottomNav() {
-//   return (
-//     <nav className="bottom-nav">
-//       {tabs.map(({ to, icon, label }) => (
-//         <NavLink
-//           key={to}
-//           to={to}
-//           className={({ isActive }) => `bottom-nav-item${isActive ? " active" : ""}`}
-//         >
-//           <span className="bottom-nav-icon">{icon}</span>
-//           <span className="bottom-nav-label">{label}</span>
-//         </NavLink>
-//       ))}
-//     </nav>
-//   );
-// }
 import { NavLink } from "react-router-dom";
-
+import {
+  Home,
+  UsersRound,
+  WalletCards,
+  ReceiptIndianRupee,
+  UserPlus,
+} from "lucide-react";
 const tabs = [
-  { to: "/dashboard", icon: "⚡", label: "Home", end: true },
-  { to: "/members",   icon: "👥", label: "Members" },
-  { to: "/bca",       icon: "📊", label: "BCA" },
-  { to: "/steam",     icon: "🌫️", label: "Steam" },
-  { to: "/payments",  icon: "💳", label: "Payments" },
+  { to: "/dashboard", icon: Home, label: "Home", end: true },
+  { to: "/members", icon: UsersRound, label: "Members" },
+  { to: "/payments", icon: WalletCards, label: "Payments" },
+ {
+  to: "/balance-sheet",
+  icon: ReceiptIndianRupee,
+  label: "Accounts",
+},
+  { to: "/add-member", icon: UserPlus, label: "Add" },
 ];
-
 export default function BottomNav() {
   return (
     <nav className="bottom-nav">
-      {tabs.map(({ to, icon, label, end }) => (
+      {tabs.map(({ to, icon: Icon, label, end }) => (
         <NavLink
           key={to}
           to={to}
-          end={end}   // 👈 important fix
+          end={end}
           className={({ isActive }) =>
             `bottom-nav-item${isActive ? " active" : ""}`
           }
         >
-          <span className="bottom-nav-icon">{icon}</span>
+          <Icon className="bottom-nav-icon" size={21} strokeWidth={2.4} />
           <span className="bottom-nav-label">{label}</span>
         </NavLink>
       ))}

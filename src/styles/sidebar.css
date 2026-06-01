@@ -682,3 +682,17 @@
     text-transform: uppercase;
   }
 }
+.sidebar-icon {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2;
+}
+
+.nav-link.active .sidebar-icon {
+  color: #e11d48;
+}
+
+.nav-link:hover .sidebar-icon {
+  transform: scale(1.08);
+  transition: 0.2s;
+}

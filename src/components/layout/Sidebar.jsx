@@ -3,66 +3,171 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
 import "../../styles/sidebar.css";
+import {
+  LayoutDashboard,
+  Users,
+  CreditCard,
+  BookOpenText,
+  BarChart3,
+  Waves,
+  Dumbbell,
+  Activity,
+  UserPlus,
+  Bell,
+  ShieldCheck,
+  Fingerprint,
+  ClipboardList,
+  UtensilsCrossed,
+  TrendingUp,
+  Trophy,
+} from "lucide-react";
 /* ─────────────────────────────────────────────
    NAV CONFIG
 ───────────────────────────────────────────── */
-const navItems = [
-  {
-    section: "Member",
-    items: [
-      { to: "/dashboard", icon: "⚡", label: "Dashboard" },
-      { to: "/bca", icon: "📊", label: "BCA Analysis", badge: "USP" },
-      { to: "/workout", icon: "🏋️", label: "Workout Plans" },
-      { to: "/diet", icon: "🥗", label: "Diet Plans" },
-      { to: "/steam", icon: "🌫️", label: "Steam Bath" },
-      { to: "/progress", icon: "📈", label: "My Progress" },
-      { to: "/leaderboard", icon: "🏆", label: "Leaderboard" },
+// const navItems = [
+//   {
+//     section: "Admin",
+//     items: [
+//       { to: "/dashboard", icon: "⚡", label: "Dashboard" },
+//       { to: "/members", icon: "👥", label: "Members" },
+//       { to: "/payments", icon: "💳", label: "Payments" },
+//       { to: "/balance-sheet", icon: "📒", label: "Balance Sheet" },
+//       { to: "/analytics", icon: "📉", label: "Analytics" },
+//       { to: "/steam", icon: "🌫️", label: "Steam Bath" },
+//       { to: "/trainers", icon: "🧑‍🏫", label: "Trainers" },
+//       { to: "/bca", icon: "📊", label: "BCA Analysis", badge: "USP" },
 
-      // { to: "/notifications", icon: "🔔", label: "Notifications" },
-    ],
-  },
+//       { to: "/add-member", icon: "➕", label: "Add Member" },
+
+//       { to: "/notifications", icon: "🔔", label: "Notifications" },
+//       { to: "/equipments", icon: "🏋️", label: "Equipment Guide" },
+//       {
+//         to: "/biometric",
+//         icon: "🖐️",
+//         label: "Biometric",
+//       },
+//     ],
+//   },
+//   {
+//     section: "Member",
+//     items: [
+//       { to: "/workout", icon: "🏋️", label: "Workout Plans" },
+//       { to: "/diet", icon: "🥗", label: "Diet Plans" },
+//       { to: "/progress", icon: "📈", label: "My Progress" },
+//       { to: "/leaderboard", icon: "🏆", label: "Leaderboard" },
+
+//       // { to: "/notifications", icon: "🔔", label: "Notifications" },
+//     ],
+//   },
+// ];
+const navItems = [
   {
     section: "Admin",
     items: [
-      { to: "/members", icon: "👥", label: "Members" },
-      { to: "/payments", icon: "💳", label: "Payments" },
-      { to: "/balance-sheet", icon: "📒", label: "Balance Sheet" },
-      { to: "/analytics", icon: "📉", label: "Analytics" },
-
-      // TRAINERS
-//       { to: "/trainers", icon: "🧑‍🏫", label: "Trainers" },
-//       { to: "/add-trainer", icon: "➕", label: "Add Trainer" },
-//       { to: "/trainer-payments", icon: "💰", label: "Trainer Payments" },
-// {
-//   to: "/trainer-analytics",
-//   label: "Trainer Analytics",
-//   icon: "📈",
-// },
-{ to: "/trainers", icon: "🧑‍🏫", label: "Trainers" },
-      { to: "/add-member", icon: "➕", label: "Add Member" },
-      { to: "/notifications", icon: "🔔", label: "Notifications" },
-      { to: "/equipments", icon: "🏋️", label: "Equipment Guide" },
       {
-  to: "/biometric",
-  icon: "🖐️",
-  label: "Biometric"
-},
+        to: "/dashboard",
+        icon: <LayoutDashboard size={18} />,
+        label: "Dashboard",
+      },
+
+      {
+        to: "/members",
+        icon: <Users size={18} />,
+        label: "Members",
+      },
+
+      {
+        to: "/payments",
+        icon: <CreditCard size={18} />,
+        label: "Payments",
+      },
+
+      {
+        to: "/balance-sheet",
+        icon: <BookOpenText size={18} />,
+        label: "Balance Sheet",
+      },
+
+      {
+        to: "/analytics",
+        icon: <BarChart3 size={18} />,
+        label: "Analytics",
+      },
+
+      {
+        to: "/steam",
+        icon: <Waves size={18} />,
+        label: "Steam Bath",
+      },
+
+      {
+        to: "/trainers",
+        icon: <Dumbbell size={18} />,
+        label: "Trainers",
+      },
+
+      {
+        to: "/bca",
+        icon: <Activity size={18} />,
+        label: "BCA Analysis",
+        badge: "USP",
+      },
+
+      {
+        to: "/add-member",
+        icon: <UserPlus size={18} />,
+        label: "Add Member",
+      },
+
+      {
+        to: "/notifications",
+        icon: <Bell size={18} />,
+        label: "Notifications",
+      },
+
+      {
+        to: "/equipments",
+        icon: <ShieldCheck size={18} />,
+        label: "Equipment Guide",
+      },
+
+      {
+        to: "/biometric",
+        icon: <Fingerprint size={18} />,
+        label: "Biometric",
+      },
     ],
+  },
 
-    // section: "Admin",
+  {
+    section: "Member",
+    items: [
+      {
+        to: "/workout",
+        icon: <ClipboardList size={18} />,
+        label: "Workout Plans",
+      },
 
-    // items: [
-    //   { to: "/members", icon: "👥", label: "Members" },
-    //   { to: "/payments", icon: "💳", label: "Payments" },
-    //   { to: "/balance-sheet", icon: "📒", label: "Balance Sheet" },
-    //   { to: "/analytics", icon: "📉", label: "Analytics" },
-    //   { to: "/add-member", icon: "➕", label: "Add Member" },
-    //   { to: "/notifications", icon: "🔔", label: "Notifications" },
-    //   { to: "/equipments", icon: "🏋️", label: "Equipment Guide" },
-    // ],
+      {
+        to: "/diet",
+        icon: <UtensilsCrossed size={18} />,
+        label: "Diet Plans",
+      },
+
+      {
+        to: "/progress",
+        icon: <TrendingUp size={18} />,
+        label: "My Progress",
+      },
+
+      {
+        to: "/leaderboard",
+        icon: <Trophy size={18} />,
+        label: "Leaderboard",
+      },
+    ],
   },
 ];
-
 /* ─────────────────────────────────────────────
    NAV LINKS
 ───────────────────────────────────────────── */

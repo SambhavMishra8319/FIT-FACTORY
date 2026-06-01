@@ -5,23 +5,38 @@ import toast from "react-hot-toast";
 // import "MemberLayout.css";
 import "../../styles/MemberLayout.css";
 import BrandLogo from "../common/BrandLogo"
-const memberNav = [
-    {
-    to: "/member/notifications",
-    icon: "🔔",
-    label: "Notifications",
-  },
+import {
+  House,
+  Dumbbell,
+  Salad,
+  TrendingUp,
+  Activity,
+} from "lucide-react";
 
-  { to: "/member/dashboard", icon: "⚡", label: "Home" },
-  { to: "/member/workout",   icon: "🏋️", label: "Workout" },
-  { to: "/member/diet",      icon: "🥗", label: "Diet" },
-  { to: "/member/bca",       icon: "📊", label: "My BCA" },
-  { to: "/member/steam",     icon: "🌫️", label: "Steam" },
-  { to: "/member/progress",  icon: "📈", label: "Progress" },
-  // { to: "/equipment",        icon: "🔧", label: "Equipment" },
-  //  { to: "/member/equipment", icon: "🔧", label: "Equipment" },
-  { to: "/member/equipment", icon: "🔧", label: "Equipment Guide" },
+const bottomTabs = [
+  { to: "/member/dashboard", icon: House, label: "Home" },
+  { to: "/member/workout", icon: Dumbbell, label: "Workout" },
+  { to: "/member/diet", icon: Salad, label: "Diet" },
+  { to: "/member/progress", icon: TrendingUp, label: "Progress" },
+  { to: "/member/bca", icon: Activity, label: "BCA" },
 ];
+// const memberNav = [
+//     {
+//     to: "/member/notifications",
+//     icon: "🔔",
+//     label: "Notifications",
+//   },
+
+//   { to: "/member/dashboard", icon: "⚡", label: "Home" },
+//   { to: "/member/workout",   icon: "🏋️", label: "Workout" },
+//   { to: "/member/diet",      icon: "🥗", label: "Diet" },
+//   { to: "/member/bca",       icon: "📊", label: "My BCA" },
+//   { to: "/member/steam",     icon: "🌫️", label: "Steam" },
+//   { to: "/member/progress",  icon: "📈", label: "Progress" },
+//   // { to: "/equipment",        icon: "🔧", label: "Equipment" },
+//   //  { to: "/member/equipment", icon: "🔧", label: "Equipment" },
+//   { to: "/member/equipment", icon: "🔧", label: "Equipment Guide" },
+// ];
 
 function MemberNavLinks({ onClose }) {
   return (

@@ -2466,3 +2466,69 @@ select.form-input option {
 /* =========================================
    TRAINER CARD
 ========================================= */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: var(--sidebar-w);
+  overflow-x: hidden;
+  min-width: 0;
+}
+
+/* desktop hidden */
+.bottom-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .app-layout {
+    display: block;
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding-top: var(--mobile-header-h);
+    padding-bottom: calc(var(--bottom-nav-h) + 24px);
+    min-height: 100vh;
+  }
+
+  .bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--bottom-nav-h);
+    background: rgba(15, 15, 15, 0.97);
+    border-top: 1px solid var(--border);
+    z-index: 9999;
+    align-items: center;
+    justify-content: space-around;
+    backdrop-filter: blur(12px);
+  }
+}
+:root {
+  --bottom-nav-h: 80px;
+}
+@media (max-width: 768px) {
+  .main-content {
+    padding-bottom: 90px !important;
+  }
+
+  .page-body {
+    padding-bottom: 20px !important;
+  }
+
+  .table-wrap,
+  .table-wrapper {
+    margin-bottom: 20px !important;
+  }
+
+  .bottom-nav {
+    height: 86px !important;
+    z-index: 99999 !important;
+  }
+}
