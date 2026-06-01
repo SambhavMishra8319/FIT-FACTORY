@@ -62,3 +62,79 @@
   margin-top:24px;
   flex-wrap:wrap;
 }
+@media (max-width: 768px) {
+  .hero-banner {
+    border-radius: 22px;
+    padding: 26px 18px;
+  }
+
+  .hero-title {
+    font-size: 30px;
+    line-height: 1.05;
+    letter-spacing: 1px;
+  }
+
+  .hero-subtitle {
+    font-size: 13px;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+  }
+}
+@media (max-width: 768px) {
+  .topbar {
+    overflow: hidden;
+  }
+
+  .page-title {
+    font-size: 38px;
+    line-height: 1.05;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .hero-banner {
+    padding: 28px 22px;
+    border-radius: 26px;
+  }
+
+  .hero-title {
+    font-size: 42px;
+    line-height: 1.08;
+    letter-spacing: 1px;
+  }
+
+  .hero-subtitle {
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+    max-width: 280px;
+  }
+}
+
+@media (max-width: 420px) {
+  .page-title {
+    font-size: 34px;
+  }
+
+  .hero-title {
+    font-size: 36px;
+  }
+
+  .hero-banner {
+    padding: 26px 20px;
+  }
+}
