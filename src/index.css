@@ -2559,3 +2559,19 @@ select.form-input option {
 .splash-active .bottom-nav {
   display: none !important;
 }
+.splash-screen,
+.splash-container {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999999 !important;
+  background: #050505;
+}
+.splash-active .bottom-nav,
+.splash-active .mobile-header,
+.splash-active .sidebar,
+.splash-active .drawer,
+.splash-active .app-layout {
+  display: none !important;
+}
