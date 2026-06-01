@@ -257,11 +257,11 @@ export function MemberMobileHeader() {
 // Bottom nav for members (mobile)
 export function MemberBottomNav() {
   const bottomTabs = [
-    { to: "/member/dashboard", icon: "⚡", label: "Home" },
+    { to: "/member/diet", icon: "🥗", label: "Diet" },
     { to: "/member/workout", icon: "🏋️", label: "Workout" },
+    { to: "/member/dashboard", icon: "⚡", label: "Home" },
     { to: "/member/bca", icon: "📊", label: "BCA" },
     { to: "/member/steam", icon: "🌫️", label: "Steam" },
-    { to: "/member/diet", icon: "🥗", label: "Diet" },
   ];
 
   return (
