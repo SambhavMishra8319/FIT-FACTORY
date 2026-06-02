@@ -1,4 +1,3 @@
-
 // import { useState, useEffect, useRef } from "react";
 // import { useNavigate, useLocation } from "react-router-dom";
 // import { format, addMonths } from "date-fns";
@@ -1410,7 +1409,10 @@ export default function AddMember() {
   const selectedPlan = PLANS.find((p) => p.label === form.plan) || PLANS[0];
 
   const expiryDate = form.joinDate
-    ? format(addMonths(new Date(form.joinDate), selectedPlan.months), "yyyy-MM-dd")
+    ? format(
+        addMonths(new Date(form.joinDate), selectedPlan.months),
+        "yyyy-MM-dd",
+      )
     : "";
 
   const isPrefilled = !!(prefill.name || prefill.email);
@@ -1437,10 +1439,7 @@ export default function AddMember() {
       return;
     }
 
-    if (!form.email.trim()) {
-      toast.error("Email is required.");
-      return;
-    }
+    const email = form.email.trim().toLowerCase();
 
     if (!form.phone.trim()) {
       toast.error("Phone number is required.");
@@ -1462,14 +1461,16 @@ export default function AddMember() {
         return;
       }
 
-      const emailAlreadyExists = existing.some(
-        (m) => (m.email || "").trim().toLowerCase() === email,
-      );
+      if (email) {
+        const emailAlreadyExists = existing.some(
+          (m) => (m.email || "").trim().toLowerCase() === email,
+        );
 
-      if (emailAlreadyExists) {
-        toast.error("Member with this email already exists.");
-        setSaving(false);
-        return;
+        if (emailAlreadyExists) {
+          toast.error("Member with this email already exists.");
+          setSaving(false);
+          return;
+        }
       }
 
       const phoneAlreadyExists = existing.some(
@@ -1591,19 +1592,21 @@ export default function AddMember() {
 
       await addMember(memberData);
 
-      const userQuery = await getDocs(
-        query(collection(db, "users"), where("email", "==", email)),
-      );
+      if (email) {
+        const userQuery = await getDocs(
+          query(collection(db, "users"), where("email", "==", email)),
+        );
 
-      if (!userQuery.empty) {
-        await updateDoc(userQuery.docs[0].ref, {
-          memberId,
-          membershipAssigned: true,
-          membershipStatus: "active",
-          plan: form.plan,
-          amountPaid: Number(form.amountPaid || 0),
-          expiryDate,
-        });
+        if (!userQuery.empty) {
+          await updateDoc(userQuery.docs[0].ref, {
+            memberId,
+            membershipAssigned: true,
+            membershipStatus: "active",
+            plan: form.plan,
+            amountPaid: Number(form.amountPaid || 0),
+            expiryDate,
+          });
+        }
       }
 
       await addPayment({
@@ -1729,7 +1732,8 @@ export default function AddMember() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Email *</label>
+                <label className="form-label">Email (Optional)</label>
+
                 <input
                   className={`form-input ${emailExists ? "input-error" : ""}`}
                   type="email"
@@ -1737,12 +1741,13 @@ export default function AddMember() {
                   onChange={(e) => {
                     set("email", e.target.value);
 
+                    const value = e.target.value.trim().toLowerCase();
+
                     setEmailExists(
-                      allMembers.some(
-                        (m) =>
-                          (m.email || "").trim().toLowerCase() ===
-                          e.target.value.trim().toLowerCase(),
-                      ),
+                      value &&
+                        allMembers.some(
+                          (m) => (m.email || "").trim().toLowerCase() === value,
+                        ),
                     );
                   }}
                   required
@@ -2320,8 +2325,7 @@ export default function AddMember() {
                 </strong>
               </div>
               <div>
-                ⚠ Balance Due:{" "}
-                <strong>₹{balanceDue.toLocaleString()}</strong>
+                ⚠ Balance Due: <strong>₹{balanceDue.toLocaleString()}</strong>
               </div>
               <div>
                 📅 Valid Till: <strong>{expiryDate}</strong>

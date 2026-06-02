@@ -269,3 +269,30 @@ body.drawer-open .bottom-nav {
     box-shadow:0 0 30px rgba(245,200,66,.55);
   }
 }
+.nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 36px;
+
+  border-radius: 12px;
+
+  background: rgba(255,255,255,0.04);
+
+  transition: all .25s ease;
+}
+
+.nav-item.active .nav-icon {
+  background: linear-gradient(
+    135deg,
+    #facc15,
+    #f97316
+  );
+
+  color: #111827;
+
+  box-shadow:
+    0 10px 25px rgba(250,204,21,.25);
+}
