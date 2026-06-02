@@ -1504,7 +1504,7 @@ export default function MemberDashboard() {
       fetchData();
       setTimeout(() => setVisible(true), 80);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  
   }, [mLoading, membership, profile]);
 
   async function fetchData() {
