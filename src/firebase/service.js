@@ -1194,3 +1194,143 @@ export async function updateMember(id, data) {
     updatedAt: serverTimestamp(),
   });
 }
+{/* <Route path="/massage-chair" element={<MassageChair />} /> */}
+
+export async function bookMassageSession(member, bookingData = {}) {
+  if (!member?.id) {
+    throw new Error("Member not found");
+  }
+
+  const memberRef = doc(db, "members", member.id);
+
+  await runTransaction(db, async (transaction) => {
+    const memberSnap = await transaction.get(memberRef);
+
+    if (!memberSnap.exists()) {
+      throw new Error("Member not found");
+    }
+
+    const data = memberSnap.data();
+    const allowed = data.massageSessionsAllowed ?? 0;
+    const used = Number(data.massageSessionsUsed || 0);
+
+    if (allowed !== "unlimited" && used >= Number(allowed)) {
+      throw new Error("No massage sessions remaining");
+    }
+
+    const bookingRef = doc(collection(db, "massageBookings"));
+
+    transaction.set(bookingRef, {
+      memberId: member.id,
+      memberCode: data.memberId || "",
+      memberName: data.name || data.fullName || member.name || "",
+      phone: data.phone || "",
+      date: bookingData.date || format(new Date(), "yyyy-MM-dd"),
+      time: bookingData.time || "",
+      notes: bookingData.notes || "",
+      status: "booked",
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+
+    transaction.update(memberRef, {
+      massageSessionsUsed: increment(1),
+      massageSessionsRemaining:
+        allowed === "unlimited" ? "unlimited" : Number(allowed) - used - 1,
+      updatedAt: new Date(),
+    });
+  });
+}
+
+export async function getMassageBookings() {
+  const q = query(
+    collection(db, "massageBookings"),
+    orderBy("createdAt", "desc")
+  );
+
+  const snap = await getDocs(q);
+
+  return snap.docs.map((d) => ({
+    id: d.id,
+    ...d.data(),
+  }));
+}
+
+export async function addMassageSession(member, sessionData = {}) {
+  if (!member?.id) {
+    throw new Error("Member not found");
+  }
+
+  const memberRef = doc(db, "members", member.id);
+
+  await runTransaction(db, async (transaction) => {
+    const memberSnap = await transaction.get(memberRef);
+
+    if (!memberSnap.exists()) {
+      throw new Error("Member not found");
+    }
+
+    const data = memberSnap.data();
+
+    const allowed = data.massageSessionsAllowed ?? 0;
+    const used = Number(data.massageSessionsUsed || 0);
+
+    if (allowed !== "unlimited" && used >= Number(allowed)) {
+      throw new Error("No massage sessions remaining");
+    }
+
+    const sessionRef = doc(collection(db, "massage_sessions"));
+    const sessionNumber = used + 1;
+
+    transaction.set(sessionRef, {
+      memberId: member.id,
+      memberDocId: member.id,
+      memberCode: data.memberId || "",
+      memberName: data.name || data.fullName || member.name || "",
+      phone: data.phone || "",
+      plan: data.plan || "",
+      date: sessionData.date || new Date().toISOString().split("T")[0],
+      time: sessionData.time || "",
+      duration: Number(sessionData.duration || 20),
+      notes: sessionData.notes || "",
+      sessionNumber,
+      status: "completed",
+      createdAt: serverTimestamp(),
+    });
+
+    transaction.update(memberRef, {
+      massageSessionsUsed: increment(1),
+      massageSessionsRemaining:
+        allowed === "unlimited" ? "unlimited" : Number(allowed) - used - 1,
+      updatedAt: new Date(),
+    });
+  });
+}
+
+export async function getMassageSessions(memberId = null) {
+  const constraints = [];
+
+  if (memberId) {
+    constraints.push(where("memberId", "==", memberId));
+  }
+
+  constraints.push(orderBy("date", "desc"));
+
+  const q = query(collection(db, "massage_sessions"), ...constraints);
+  const snap = await getDocs(q);
+
+  return snap.docs.map((d) => ({
+    id: d.id,
+    ...d.data(),
+  }));
+}
+
+export async function getAllMassageSessions() {
+  const q = query(collection(db, "massage_sessions"), orderBy("date", "desc"));
+  const snap = await getDocs(q);
+
+  return snap.docs.map((d) => ({
+    id: d.id,
+    ...d.data(),
+  }));
+}

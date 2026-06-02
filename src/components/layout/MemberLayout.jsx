@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 // import "MemberLayout.css";
 import "../../styles/MemberLayout.css";
 import BrandLogo from "../common/BrandLogo";
-import { House, Dumbbell, Salad, TrendingUp, Activity } from "lucide-react";
+import { House, Dumbbell, Salad, TrendingUp, Activity,Armchair } from "lucide-react";
 import { useEffect } from "react";
 const bottomTabs = [
   { to: "/member/dashboard", icon: House, label: "Home" },
@@ -262,6 +262,12 @@ export function MemberBottomNav() {
     { to: "/member/dashboard", icon: "⚡", label: "Home" },
     { to: "/member/bca", icon: "📊", label: "BCA" },
     { to: "/member/steam", icon: "🌫️", label: "Steam" },
+    {
+  to: "/member/massage",
+  icon: <Armchair size={18} />,
+  label: "Massage Chair",
+}
+
   ];
 
   return (

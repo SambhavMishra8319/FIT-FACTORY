@@ -1,0 +1,511 @@
+.massage-page {
+  width: 100%;
+}
+
+.page-subtitle {
+  margin-top: 4px;
+  color: var(--muted2);
+  font-size: 12px;
+}
+
+.massage-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.massage-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(15, 15, 15, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.28);
+  color: #fff;
+}
+
+.massage-stat-card svg {
+  color: #e63329;
+}
+
+.massage-stat-card p {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted2);
+}
+
+.massage-stat-card h3 {
+  margin: 4px 0 0;
+  font-size: 22px;
+}
+
+.massage-grid {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 20px;
+}
+
+.massage-card {
+  background: rgba(15, 15, 15, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+}
+
+.massage-card h3 {
+  margin: 0 0 18px;
+  color: #fff;
+  font-size: 18px;
+}
+
+.massage-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.massage-card-head h3 {
+  margin: 0;
+}
+
+.massage-card-head span {
+  color: var(--muted2);
+  font-size: 11px;
+}
+
+.massage-card label {
+  display: block;
+  margin: 14px 0 7px;
+  font-size: 12px;
+  color: var(--muted2);
+}
+
+.massage-card input,
+.massage-card select,
+.massage-card textarea {
+  width: 100%;
+  background: #111;
+  color: #fff;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 12px 13px;
+  outline: none;
+  font-size: 14px;
+}
+
+.massage-card textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.massage-card input:focus,
+.massage-card select:focus,
+.massage-card textarea:focus {
+  border-color: #e63329;
+}
+
+.massage-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #111;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 0 12px;
+}
+
+.massage-search-box svg {
+  color: var(--muted2);
+  flex-shrink: 0;
+}
+
+.massage-search-box input {
+  border: 0;
+  padding-left: 0;
+}
+
+.massage-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.massage-card button {
+  width: 100%;
+  margin-top: 18px;
+  border: none;
+  border-radius: 14px;
+  padding: 13px;
+  background: linear-gradient(135deg, #e63329, #ff6b35);
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.massage-card button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.selected-member-box {
+  margin-top: 14px;
+  padding: 14px;
+  background: rgba(230, 51, 41, 0.08);
+  border: 1px solid rgba(230, 51, 41, 0.25);
+  border-radius: 16px;
+  display: grid;
+  grid-template-columns: 1fr 78px 70px 90px;
+  gap: 12px;
+  align-items: center;
+}
+
+.selected-member-main strong {
+  display: block;
+  color: #fff;
+  font-size: 14px;
+}
+
+.selected-member-main span {
+  color: var(--muted2);
+  font-size: 12px;
+}
+
+.selected-member-box p {
+  margin: 0;
+  font-size: 10px;
+  color: var(--muted2);
+}
+
+.selected-member-box b {
+  color: #fff;
+  font-size: 14px;
+}
+
+.massage-table-wrap {
+  overflow-x: auto;
+}
+
+.massage-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.massage-table th,
+.massage-table td {
+  padding: 13px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+  font-size: 13px;
+}
+
+.massage-table th {
+  color: var(--muted2);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.massage-table td {
+  color: #fff;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.time-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #fff;
+}
+
+.empty-box {
+  padding: 30px;
+  text-align: center;
+  color: var(--muted2);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+}
+
+@media (max-width: 1000px) {
+  .massage-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .massage-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .selected-member-box {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .massage-form-row {
+    grid-template-columns: 1fr;
+  }
+}
+.massage-page {
+  width: 100%;
+}
+
+.page-subtitle {
+  font-size: 12px;
+  color: var(--muted2);
+  margin-top: 4px;
+}
+
+.massage-admin-grid {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.massage-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.massage-card {
+  background: rgba(15, 15, 15, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+}
+
+.massage-card h3,
+.massage-section-title {
+  margin: 0 0 18px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.massage-card label {
+  display: block;
+  margin: 14px 0 7px;
+  font-size: 12px;
+  color: var(--muted2);
+}
+
+.massage-card input,
+.massage-card select,
+.massage-card textarea {
+  width: 100%;
+  background: #111;
+  color: #fff;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 12px 13px;
+  outline: none;
+  font-size: 14px;
+}
+
+.massage-card textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.massage-card input:focus,
+.massage-card select:focus,
+.massage-card textarea:focus {
+  border-color: #e63329;
+}
+
+.massage-card button {
+  width: 100%;
+  margin-top: 18px;
+  border: none;
+  border-radius: 14px;
+  padding: 13px;
+  background: linear-gradient(135deg, #e63329, #ff6b35);
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.massage-card button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.massage-member-box {
+  margin-top: 14px;
+  padding: 14px;
+  background: rgba(230, 51, 41, 0.08);
+  border: 1px solid rgba(230, 51, 41, 0.25);
+  border-radius: 16px;
+  display: grid;
+  grid-template-columns: 1fr 80px 80px 90px;
+  gap: 12px;
+  align-items: center;
+}
+
+.massage-member-main strong,
+.massage-member-box strong {
+  display: block;
+  color: #fff;
+  font-size: 14px;
+}
+
+.massage-member-main span,
+.massage-member-box span {
+  display: block;
+  color: var(--muted2);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.massage-member-box p {
+  margin: 0;
+  font-size: 10px;
+  color: var(--muted2);
+}
+
+.massage-member-box b {
+  color: #fff;
+  font-size: 14px;
+}
+
+.massage-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.massage-stat-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.massage-stat-card span {
+  display: block;
+  color: var(--muted2);
+  font-size: 11px;
+  margin-bottom: 8px;
+}
+
+.massage-stat-card strong {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.massage-table-wrap {
+  overflow-x: auto;
+}
+
+.massage-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.massage-table th,
+.massage-table td {
+  padding: 13px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+  font-size: 13px;
+}
+
+.massage-table th {
+  color: var(--muted2);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.massage-table td {
+  color: #fff;
+}
+
+.empty-box {
+  padding: 30px;
+  text-align: center;
+  color: var(--muted2);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+}
+
+.empty-box.tall {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.member-massage-latest {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.member-massage-latest div {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.member-massage-latest span,
+.member-massage-notes span {
+  display: block;
+  color: var(--muted2);
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+
+.member-massage-latest strong {
+  color: #fff;
+  font-size: 15px;
+}
+
+.member-massage-notes {
+  margin-top: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.member-massage-notes p {
+  margin: 0;
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+@media (max-width: 1100px) {
+  .massage-admin-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .massage-stats-grid,
+  .member-massage-latest {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .massage-member-box {
+    grid-template-columns: 1fr 1fr;
+  }
+}

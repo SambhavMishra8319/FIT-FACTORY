@@ -36,7 +36,7 @@ import {
 } from "firebase/firestore";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../../firebase/config";
-
+// import { resetAllFirestoreData } from "../../firebase/resetAllData";
 import {
   getAllMembers,
   getPayments,
@@ -449,6 +449,9 @@ const selectedDateRevenue = useMemo(() => {
           >
             + Add Member
           </button>
+          {/* <button onClick={resetAllFirestoreData}>
+  Delete All Firestore Data
+</button> */}
         </div>
       </div>
 
@@ -870,12 +873,7 @@ const selectedDateRevenue = useMemo(() => {
       </div>
 
       {/* FAB */}
-      <button
-        className="fab tap-scale btn-ripple"
-        onClick={() => navigate("/add-member")}
-      >
-        +
-      </button>
+  
     </div>
   );
 }
