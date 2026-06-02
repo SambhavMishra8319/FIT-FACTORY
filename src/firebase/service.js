@@ -323,7 +323,6 @@ export async function bookSteamSlot({
   });
 }
 
-
 export async function getSteamSlots() {
   const snap = await getDocs(
     // query(collection(db, "steam_slots"), orderBy("order", "asc"))
@@ -331,7 +330,6 @@ export async function getSteamSlots() {
   );
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
-
 
 export const createSteamSlot = async (slot) => {
   try {
@@ -700,17 +698,12 @@ export async function getNotifications() {
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
-
-
 export async function addNotification(data) {
-  return await addDoc(
-    collection(db, "notifications"),
-    {
-      ...data,
-      read: false,
-      createdAt: serverTimestamp(),
-    }
-  );
+  return await addDoc(collection(db, "notifications"), {
+    ...data,
+    read: false,
+    createdAt: serverTimestamp(),
+  });
 }
 
 export function subscribeUnreadCount(callback) {
@@ -756,8 +749,8 @@ export async function requestSteamSlot({
       collection(db, "steam_bookings"),
       where("date", "==", date),
       where("memberId", "==", memberId),
-      where("status", "in", ["pending", "confirmed"])
-    )
+      where("status", "in", ["pending", "confirmed"]),
+    ),
   );
 
   if (!snap.empty) {
@@ -805,14 +798,13 @@ export async function rejectSteamBooking(id) {
   });
 }
 
-
 export async function getMemberAttendance(memberId) {
   const snap = await getDocs(
     query(
       collection(db, "attendance"),
       where("memberId", "==", memberId),
-      orderBy("date", "desc")
-    )
+      orderBy("date", "desc"),
+    ),
   );
 
   return snap.docs.map((d) => ({
@@ -825,8 +817,8 @@ export async function getSteamBookingsByMember(memberId) {
     query(
       collection(db, "steam_bookings"),
       where("memberId", "==", memberId),
-      orderBy("createdAt", "desc")
-    )
+      orderBy("createdAt", "desc"),
+    ),
   );
 
   return snap.docs.map((d) => ({
@@ -841,7 +833,7 @@ export async function getMemberNotifications(memberId) {
     const q = query(
       collection(db, "notifications"),
       where("memberId", "==", memberId),
-      orderBy("date", "desc")
+      orderBy("date", "desc"),
     );
 
     const snap = await getDocs(q);
@@ -857,7 +849,7 @@ export async function getMemberNotifications(memberId) {
 }
 export const getAllTrainers = async () => {
   const snap = await getDocs(collection(db, "trainers"));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 };
 export async function getTrainerPayments() {
   const snap = await getDocs(
@@ -865,25 +857,25 @@ export async function getTrainerPayments() {
       collection(db, "payments"),
       where("type", "==", "trainer"),
       orderBy("createdAt", "desc"),
-    )
+    ),
   );
 
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 export async function getBalanceSheet() {
   const snap = await getDocs(collection(db, "payments"));
-  const payments = snap.docs.map(d => d.data());
+  const payments = snap.docs.map((d) => d.data());
 
   const income = payments
-    .filter(p => p.type === "member")
+    .filter((p) => p.type === "member")
     .reduce((s, p) => s + (Number(p.amount) || 0), 0);
 
   const trainerExpense = payments
-    .filter(p => p.type === "trainer")
+    .filter((p) => p.type === "trainer")
     .reduce((s, p) => s + (Number(p.amount) || 0), 0);
 
   const otherExpense = payments
-    .filter(p => p.type === "expense")
+    .filter((p) => p.type === "expense")
     .reduce((s, p) => s + (Number(p.amount) || 0), 0);
 
   return {
@@ -918,10 +910,10 @@ export async function assignTrainerToMember(memberId, trainer) {
 export async function getTrainerEarnings(trainerId) {
   const snap = await getDocs(collection(db, "payments"));
 
-  const payments = snap.docs.map(d => d.data());
+  const payments = snap.docs.map((d) => d.data());
 
   const trainerIncome = payments
-    .filter(p => p.type === "member" && p.trainerId === trainerId)
+    .filter((p) => p.type === "member" && p.trainerId === trainerId)
     .reduce((s, p) => s + (Number(p.amount) || 0), 0);
 
   return trainerIncome;
@@ -931,13 +923,9 @@ export async function getTrainerEarnings(trainerId) {
 export const getTrainerIncomeAnalytics = async () => {
   const trainers = await getAllTrainers();
 
-  const ptSnap = await getDocs(
-    collection(db, "personalTraining")
-  );
+  const ptSnap = await getDocs(collection(db, "personalTraining"));
 
-  const paymentSnap = await getDocs(
-    collection(db, "trainerPayments")
-  );
+  const paymentSnap = await getDocs(collection(db, "trainerPayments"));
 
   const ptData = ptSnap.docs.map((doc) => ({
     id: doc.id,
@@ -949,67 +937,41 @@ export const getTrainerIncomeAnalytics = async () => {
     ...doc.data(),
   }));
 
-  const currentMonth = format(
-    new Date(),
-    "yyyy-MM"
-  );
+  const currentMonth = format(new Date(), "yyyy-MM");
 
   return trainers.map((trainer) => {
-    const trainerPTs = ptData.filter(
-      (p) => p.trainerId === trainer.id
-    );
+    const trainerPTs = ptData.filter((p) => p.trainerId === trainer.id);
 
     const trainerPayments = paymentData.filter(
-      (p) => p.trainerId === trainer.id
+      (p) => p.trainerId === trainer.id,
     );
 
-    const activeClients =
-      new Set(
-        trainerPTs.map((p) => p.memberId)
-      ).size;
+    const activeClients = new Set(trainerPTs.map((p) => p.memberId)).size;
 
-    const ptSessions =
-      trainerPTs.length;
+    const ptSessions = trainerPTs.length;
 
-    const revenue =
-      trainerPTs.reduce(
-        (sum, p) =>
-          sum + Number(p.amount || 0),
-        0
-      );
+    const revenue = trainerPTs.reduce(
+      (sum, p) => sum + Number(p.amount || 0),
+      0,
+    );
 
-    const earnings =
-      trainerPTs.reduce(
-        (sum, p) =>
-          sum +
-          Number(p.trainerShare || 0),
-        0
-      );
+    const earnings = trainerPTs.reduce(
+      (sum, p) => sum + Number(p.trainerShare || 0),
+      0,
+    );
 
-    const paid =
-      trainerPayments.reduce(
-        (sum, p) =>
-          sum + Number(p.amount || 0),
-        0
-      );
+    const paid = trainerPayments.reduce(
+      (sum, p) => sum + Number(p.amount || 0),
+      0,
+    );
 
-    const monthlyRevenue =
-      trainerPTs
-        .filter((p) => {
-          const d =
-            p.createdAt?.toDate?.();
+    const monthlyRevenue = trainerPTs
+      .filter((p) => {
+        const d = p.createdAt?.toDate?.();
 
-          return (
-            d &&
-            format(d, "yyyy-MM") ===
-              currentMonth
-          );
-        })
-        .reduce(
-          (sum, p) =>
-            sum + Number(p.amount || 0),
-          0
-        );
+        return d && format(d, "yyyy-MM") === currentMonth;
+      })
+      .reduce((sum, p) => sum + Number(p.amount || 0), 0);
 
     return {
       id: trainer.id,
@@ -1085,9 +1047,7 @@ export const getTrainerIncomeAnalytics = async () => {
 // };
 export const getAllTrainerPayments = async () => {
   try {
-    const snapshot = await getDocs(
-      collection(db, "trainerPayments")
-    );
+    const snapshot = await getDocs(collection(db, "trainerPayments"));
 
     return snapshot.docs.map((doc) => ({
       id: doc.id,
@@ -1194,68 +1154,69 @@ export async function updateMember(id, data) {
     updatedAt: serverTimestamp(),
   });
 }
-{/* <Route path="/massage-chair" element={<MassageChair />} /> */}
-
-export async function bookMassageSession(member, bookingData = {}) {
-  if (!member?.id) {
-    throw new Error("Member not found");
-  }
-
-  const memberRef = doc(db, "members", member.id);
-
-  await runTransaction(db, async (transaction) => {
-    const memberSnap = await transaction.get(memberRef);
-
-    if (!memberSnap.exists()) {
-      throw new Error("Member not found");
-    }
-
-    const data = memberSnap.data();
-    const allowed = data.massageSessionsAllowed ?? 0;
-    const used = Number(data.massageSessionsUsed || 0);
-
-    if (allowed !== "unlimited" && used >= Number(allowed)) {
-      throw new Error("No massage sessions remaining");
-    }
-
-    const bookingRef = doc(collection(db, "massageBookings"));
-
-    transaction.set(bookingRef, {
-      memberId: member.id,
-      memberCode: data.memberId || "",
-      memberName: data.name || data.fullName || member.name || "",
-      phone: data.phone || "",
-      date: bookingData.date || format(new Date(), "yyyy-MM-dd"),
-      time: bookingData.time || "",
-      notes: bookingData.notes || "",
-      status: "booked",
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
-
-    transaction.update(memberRef, {
-      massageSessionsUsed: increment(1),
-      massageSessionsRemaining:
-        allowed === "unlimited" ? "unlimited" : Number(allowed) - used - 1,
-      updatedAt: new Date(),
-    });
-  });
+{
+  /* <Route path="/massage-chair" element={<MassageChair />} /> */
 }
 
-export async function getMassageBookings() {
-  const q = query(
-    collection(db, "massageBookings"),
-    orderBy("createdAt", "desc")
-  );
+// export async function bookMassageSession(member, bookingData = {}) {
+//   if (!member?.id) {
+//     throw new Error("Member not found");
+//   }
 
-  const snap = await getDocs(q);
+//   const memberRef = doc(db, "members", member.id);
 
-  return snap.docs.map((d) => ({
-    id: d.id,
-    ...d.data(),
-  }));
-}
+//   await runTransaction(db, async (transaction) => {
+//     const memberSnap = await transaction.get(memberRef);
 
+//     if (!memberSnap.exists()) {
+//       throw new Error("Member not found");
+//     }
+
+//     const data = memberSnap.data();
+//     const allowed = data.massageSessionsAllowed ?? 0;
+//     const used = Number(data.massageSessionsUsed || 0);
+
+//     if (allowed !== "unlimited" && used >= Number(allowed)) {
+//       throw new Error("No massage sessions remaining");
+//     }
+
+//     const bookingRef = doc(collection(db, "massageBookings"));
+
+//     transaction.set(bookingRef, {
+//       memberId: member.id,
+//       memberCode: data.memberId || "",
+//       memberName: data.name || data.fullName || member.name || "",
+//       phone: data.phone || "",
+//       date: bookingData.date || format(new Date(), "yyyy-MM-dd"),
+//       time: bookingData.time || "",
+//       notes: bookingData.notes || "",
+//       status: "booked",
+//       createdAt: serverTimestamp(),
+//       updatedAt: serverTimestamp(),
+//     });
+
+//     transaction.update(memberRef, {
+//       massageSessionsUsed: increment(1),
+//       massageSessionsRemaining:
+//         allowed === "unlimited" ? "unlimited" : Number(allowed) - used - 1,
+//       updatedAt: new Date(),
+//     });
+//   });
+// }
+
+// export async function getMassageBookings() {
+//   const q = query(
+//     collection(db, "massageBookings"),
+//     orderBy("createdAt", "desc"),
+//   );
+
+//   const snap = await getDocs(q);
+
+//   return snap.docs.map((d) => ({
+//     id: d.id,
+//     ...d.data(),
+//   }));
+// }
 export async function addMassageSession(member, sessionData = {}) {
   if (!member?.id) {
     throw new Error("Member not found");
@@ -1289,24 +1250,184 @@ export async function addMassageSession(member, sessionData = {}) {
       memberName: data.name || data.fullName || member.name || "",
       phone: data.phone || "",
       plan: data.plan || "",
-      date: sessionData.date || new Date().toISOString().split("T")[0],
+      date: sessionData.date || format(new Date(), "yyyy-MM-dd"),
       time: sessionData.time || "",
       duration: Number(sessionData.duration || 20),
       notes: sessionData.notes || "",
       sessionNumber,
-      status: "completed",
+      status: sessionData.status || "pending",
       createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
     });
 
     transaction.update(memberRef, {
       massageSessionsUsed: increment(1),
       massageSessionsRemaining:
         allowed === "unlimited" ? "unlimited" : Number(allowed) - used - 1,
-      updatedAt: new Date(),
+      updatedAt: serverTimestamp(),
     });
   });
 }
 
+// export async function getMassageSessions(memberId = null) {
+//   let q;
+
+//   if (memberId) {
+//     q = query(
+//       collection(db, "massage_sessions"),
+//       where("memberId", "==", memberId),
+//       orderBy("date", "desc"),
+//     );
+//   } else {
+//     q = query(collection(db, "massage_sessions"), orderBy("date", "desc"));
+//   }
+
+//   const snap = await getDocs(q);
+
+//   return snap.docs.map((d) => ({
+//     id: d.id,
+//     ...d.data(),
+//   }));
+// }
+
+// export async function updateMassageSessionStatus(id, status) {
+//   return await updateDoc(doc(db, "massage_sessions", id), {
+//     status,
+//     updatedAt: serverTimestamp(),
+//   });
+// }
+// export async function addMassageSession(member, sessionData = {}) {
+//   if (!member?.id) {
+//     throw new Error("Member not found");
+//   }
+
+//   const memberRef = doc(db, "members", member.id);
+
+//   await runTransaction(db, async (transaction) => {
+//     const memberSnap = await transaction.get(memberRef);
+
+//     if (!memberSnap.exists()) {
+//       throw new Error("Member not found");
+//     }
+
+//     const data = memberSnap.data();
+
+//     const allowed = data.massageSessionsAllowed ?? 0;
+//     const used = Number(data.massageSessionsUsed || 0);
+
+//     if (allowed !== "unlimited" && used >= Number(allowed)) {
+//       throw new Error("No massage sessions remaining");
+//     }
+
+//     const sessionRef = doc(collection(db, "massage_sessions"));
+//     const sessionNumber = used + 1;
+
+//     transaction.set(sessionRef, {
+//       memberId: member.id,
+//       memberDocId: member.id,
+//       memberCode: data.memberId || "",
+//       memberName: data.name || data.fullName || member.name || "",
+//       phone: data.phone || "",
+//       plan: data.plan || "",
+//       date: sessionData.date || new Date().toISOString().split("T")[0],
+//       time: sessionData.time || "",
+//       duration: Number(sessionData.duration || 20),
+//       notes: sessionData.notes || "",
+//       sessionNumber,
+//       status: "completed",
+//       createdAt: serverTimestamp(),
+//     });
+
+//     transaction.update(memberRef, {
+//       massageSessionsUsed: increment(1),
+//       massageSessionsRemaining:
+//         allowed === "unlimited" ? "unlimited" : Number(allowed) - used - 1,
+//       updatedAt: new Date(),
+//     });
+//   });
+// }
+// export async function addMassageSession(member, sessionData = {}) {
+//   if (!member?.id) {
+//     throw new Error("Member not found");
+//   }
+
+//   const memberRef = doc(db, "members", member.id);
+
+//   await runTransaction(db, async (transaction) => {
+//     const memberSnap = await transaction.get(memberRef);
+
+//     if (!memberSnap.exists()) {
+//       throw new Error("Member not found");
+//     }
+
+//     const data = memberSnap.data();
+
+//     const allowed = data.massageSessionsAllowed ?? 0;
+//     const used = Number(data.massageSessionsUsed || 0);
+
+//     if (allowed !== "unlimited" && used >= Number(allowed)) {
+//       throw new Error("No massage sessions remaining");
+//     }
+
+//     const sessionRef = doc(collection(db, "massage_sessions"));
+//     const sessionNumber = used + 1;
+
+//     transaction.set(sessionRef, {
+//       memberId: member.id,
+//       memberDocId: member.id,
+//       memberCode: data.memberId || "",
+//       memberName: data.name || data.fullName || member.name || "",
+//       phone: data.phone || "",
+//       plan: data.plan || "",
+//       date: sessionData.date || format(new Date(), "yyyy-MM-dd"),
+//       time: sessionData.time || "",
+//       duration: Number(sessionData.duration || 20),
+//       notes: sessionData.notes || "",
+//       sessionNumber,
+
+//       // approval flow
+//       status: sessionData.status || "pending",
+
+//       createdAt: serverTimestamp(),
+//       updatedAt: serverTimestamp(),
+//     });
+
+//     transaction.update(memberRef, {
+//       massageSessionsUsed: increment(1),
+//       massageSessionsRemaining:
+//         allowed === "unlimited" ? "unlimited" : Number(allowed) - used - 1,
+//       updatedAt: serverTimestamp(),
+//     });
+//   });
+// }
+
+// export async function getMassageSessions(memberId = null) {
+//   let q;
+
+//   if (memberId) {
+//     q = query(
+//       collection(db, "massage_sessions"),
+//       where("memberId", "==", memberId),
+//       orderBy("date", "desc"),
+//     );
+//   } else {
+//     q = query(collection(db, "massage_sessions"), orderBy("date", "desc"));
+//   }
+
+//   const snap = await getDocs(q);
+
+//   return snap.docs.map((d) => ({
+//     id: d.id,
+//     ...d.data(),
+//   }));
+// }
+
+export async function updateMassageSessionStatus(id, status) {
+  return await updateDoc(doc(db, "massage_sessions", id), {
+    status,
+    updatedAt: serverTimestamp(),
+  });
+}
 export async function getMassageSessions(memberId = null) {
   const constraints = [];
 

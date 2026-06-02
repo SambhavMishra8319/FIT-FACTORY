@@ -1023,7 +1023,8 @@ export default function MemberDashboard() {
             ),
             getDocs(
               query(
-                collection(db, "massage_bookings"),
+                // collection(db, "massage_bookings"),
+                collection(db, "massage_sessions"),
                 where("memberId", "==", membership.memberId),
                 where("date", ">=", today)
               )

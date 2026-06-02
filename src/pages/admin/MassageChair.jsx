@@ -815,6 +815,7 @@ import {
   getAllMembers,
   addMassageSession,
   getMassageSessions,
+  updateMassageSessionStatus,
 } from "../../firebase/service";
 
 import "../../styles/massageChair.css";
@@ -846,7 +847,28 @@ export default function MassageChair() {
       setLoadingMembers(false);
     }
   }
+  // async function handleStatusUpdate(sessionId, status) {
+  //   try {
+  //     await updateMassageSessionStatus(sessionId, status);
+  //     toast.success(`Session ${status}`);
+  //     await loadSessions(selectedMember.id);
+  //   } catch (error) {
+  //     console.error(error);
+  //     toast.error("Failed to update status");
+  //   }
+  // }
+async function handleStatusUpdate(sessionId, status) {
+  try {
+    await updateMassageSessionStatus(sessionId, status);
 
+    toast.success(`Session ${status}`);
+
+    await loadSessions(selectedMemberId);
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to update status");
+  }
+}
   async function loadSessions(memberId = selectedMemberId) {
     if (!memberId) {
       setSessions([]);
@@ -992,7 +1014,8 @@ export default function MassageChair() {
 
               {filteredMembers.map((m) => (
                 <option key={m.id} value={m.id}>
-                  {m.name || m.fullName || "Unnamed"} · {m.phone || "No phone"} · Remaining: {getRemaining(m)}
+                  {m.name || m.fullName || "Unnamed"} · {m.phone || "No phone"}{" "}
+                  · Remaining: {getRemaining(m)}
                 </option>
               ))}
             </select>
@@ -1000,7 +1023,9 @@ export default function MassageChair() {
             {selectedMember && (
               <div className="massage-member-box">
                 <div className="massage-member-main">
-                  <strong>{selectedMember.name || selectedMember.fullName}</strong>
+                  <strong>
+                    {selectedMember.name || selectedMember.fullName}
+                  </strong>
                   <span>{selectedMember.phone || "No phone"}</span>
                   <span>{selectedMember.plan || "No plan"}</span>
                 </div>
@@ -1098,7 +1123,9 @@ export default function MassageChair() {
                   {loadingSessions ? (
                     <div className="empty-box">Loading sessions...</div>
                   ) : sessions.length === 0 ? (
-                    <div className="empty-box">No massage sessions added yet.</div>
+                    <div className="empty-box">
+                      No massage sessions added yet.
+                    </div>
                   ) : (
                     <div className="massage-table-wrap">
                       <table className="massage-table">
@@ -1109,6 +1136,8 @@ export default function MassageChair() {
                             <th>Duration</th>
                             <th>Session No.</th>
                             <th>Notes</th>
+                            <th>Status</th>
+                            <th>Action</th>
                           </tr>
                         </thead>
 
@@ -1120,6 +1149,25 @@ export default function MassageChair() {
                               <td>{s.duration || 20} min</td>
                               <td>{s.sessionNumber || "-"}</td>
                               <td>{s.notes || "-"}</td>
+                              <td>
+  <span className={`status-pill ${s.status || "pending"}`}>
+    {s.status || "pending"}
+  </span>
+</td>
+
+<td>
+  <div className="massage-actions">
+    <button type="button" onClick={() => handleStatusUpdate(s.id, "approved")}>
+      Approve
+    </button>
+    <button type="button" onClick={() => handleStatusUpdate(s.id, "rejected")}>
+      Reject
+    </button>
+    <button type="button" onClick={() => handleStatusUpdate(s.id, "completed")}>
+      Complete
+    </button>
+  </div>
+</td>
                             </tr>
                           ))}
                         </tbody>
