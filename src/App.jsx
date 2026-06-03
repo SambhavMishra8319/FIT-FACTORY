@@ -725,7 +725,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { Sidebar, MobileHeader } from "./components/layout/Sidebar";
 
 import BottomNav from "./components/layout/BottomNav";
-
+import ImportOldMembers from "./pages/admin/ImportOldMembers";
 import {
   MemberSidebar,
   MemberMobileHeader,
@@ -1049,6 +1049,7 @@ function AppRoutes() {
     </AdminLayout>
   }
 />
+<Route path="/admin/import-old-members" element={<ImportOldMembers />} />
 
       <Route
         path="/members"

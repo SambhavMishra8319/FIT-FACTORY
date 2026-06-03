@@ -246,7 +246,7 @@ export function subscribePaymentsSnapshot(callback) {
   const q = query(
     collection(db, "payments"),
     orderBy("createdAt", "desc"),
-    limit(50),
+    
   );
   return onSnapshot(q, (snap) =>
     callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),

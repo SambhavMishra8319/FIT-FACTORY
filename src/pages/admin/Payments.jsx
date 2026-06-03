@@ -66,7 +66,7 @@ export default function Payments() {
   const [filterMethod, setFilterMethod] = useState("all");
   const [filterPlan, setFilterPlan] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [dateRange, setDateRange] = useState("7days");
+  const [dateRange, setDateRange] = useState("all");
 
   const today = format(new Date(), "yyyy-MM-dd");
   const thisMonth = format(new Date(), "yyyy-MM");
