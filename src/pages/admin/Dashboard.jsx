@@ -397,8 +397,8 @@ const selectedDateRevenue = useMemo(() => {
       label: "Monthly Revenue",
       value: revenueDisplay,
       sub: "This month",
-      cls: "s-red",
-      val: "c-red",
+      cls: "s-green",
+      val: "c-green",
     },
     {
   label: "Selected Date Revenue",
