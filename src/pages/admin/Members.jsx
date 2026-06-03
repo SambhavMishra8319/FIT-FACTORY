@@ -581,7 +581,11 @@ export default function Members() {
     expiring: members.filter((m) => m.status === "expiring").length,
     expired: members.filter((m) => m.status === "expired").length,
     pending: members.filter((m) => m.status === "pending").length,
-    revenue: members.reduce((s, m) => s + normalizeAmount(m.amountPaid), 0),
+    // revenue: members.reduce((s, m) => s + normalizeAmount(m.amountPaid), 0),
+    revenue: members.reduce(
+  (s, m) => s + normalizeAmount(m.amountPaid),
+  0
+),
     balanceDue: members.reduce((s, m) => s + getBalanceDue(m), 0),
   };
 

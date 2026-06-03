@@ -47,6 +47,8 @@ import {
   subscribePaymentsSnapshot,
   addPayment,
   getAllMembers,
+  deletePayment,
+  updatePayment,
 } from "../../firebase/service";
 // import { addTrainerPayment } from "../../firebase/trainerService";
 export default function Payments() {
@@ -56,7 +58,7 @@ export default function Payments() {
   const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
-
+  const [editingPayment, setEditingPayment] = useState(null);
   const [visible, setVisible] = useState(false);
   const [trainers, setTrainers] = useState([]);
   const [paymentType, setPaymentType] = useState("member");
@@ -139,7 +141,36 @@ export default function Payments() {
         return addMonths(d, 1);
     }
   };
+  const handleDeletePayment = async (payment) => {
+    const name =
+      payment.type === "trainer" ? payment.trainerName : payment.memberName;
 
+    if (!window.confirm(`Delete payment record for ${name}?`)) return;
+
+    try {
+      await deletePayment(payment.id);
+      toast.success("Payment deleted.");
+    } catch (err) {
+      console.error(err);
+      toast.error("Delete failed.");
+    }
+  };
+  const handleEditPayment = (p) => {
+    setEditingPayment(p);
+    setShowForm(true);
+
+    setForm({
+      memberId: p.memberId || p.entityId || "",
+      amount: p.amount || "",
+      method: p.method || "Cash",
+      plan: p.plan || "Monthly",
+      date: p.date || today,
+      notes: p.notes || "",
+      status: p.status || "paid",
+    });
+
+    setPaymentType(p.type || "member");
+  };
   const getStatusColor = (daysLeft) => {
     if (daysLeft < 0) return "badge-red";
 
@@ -438,10 +469,24 @@ export default function Payments() {
             }
           : basePayload;
 
-      if (paymentType === "member") {
-        await addPayment(payload);
-      }
+      if (editingPayment) {
+        await updatePayment(editingPayment.id, {
+          ...payload,
+          memberName: entity?.name || editingPayment.memberName || "Unknown",
+          phone: entity?.phone || editingPayment.phone || "",
+        });
 
+        toast.success("Payment updated!");
+        setEditingPayment(null);
+      } else if (paymentType === "member") {
+        await addPayment({
+          ...payload,
+          memberName: entity?.name || "Unknown",
+          phone: entity?.phone || "",
+        });
+
+        toast.success("Member payment recorded!");
+      }
       // OPTIONAL: separate trainer ledger (only if you want accounting separation)
       // if (isTrainer) {
       //   await payTrainer(
@@ -731,7 +776,12 @@ export default function Payments() {
               </div>
 
               <button className="btn btn-primary" disabled={saving}>
-                {saving ? "Saving..." : "💾 Save Payment"}
+                {/* {saving ? "Saving..." : "💾 Save Payment"} */}
+                {saving
+                  ? "Saving..."
+                  : editingPayment
+                    ? "✏️ Update Payment"
+                    : "💾 Save Payment"}
               </button>
             </form>
           </div>
@@ -1140,6 +1190,7 @@ export default function Payments() {
                 <th>Expiry</th>
                 <th>Status</th>
                 <th>Notes</th>
+                <th>Action</th>
               </tr>
             </thead>
 
@@ -1299,6 +1350,20 @@ export default function Payments() {
                       </td>
 
                       <td>{p.notes || "—"}</td>
+                      <td>
+  <button
+  className="btn btn-primary btn-sm"
+  onClick={() => handleEditPayment(p)}
+>
+  Edit
+</button>
+  <button
+    className="btn btn-danger btn-sm"
+    onClick={() => handleDeletePayment(p)}
+  >
+    Delete
+  </button>
+</td>
                     </tr>
                   );
                 })

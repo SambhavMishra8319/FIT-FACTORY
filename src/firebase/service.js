@@ -1455,3 +1455,13 @@ export async function getAllMassageSessions() {
     ...d.data(),
   }));
 }
+export async function deletePayment(id) {
+  return await deleteDoc(doc(db, "payments", id));
+}
+export async function updatePayment(id, data) {
+  return await updateDoc(doc(db, "payments", id), {
+    ...data,
+    amount: Number(data.amount || 0),
+    updatedAt: serverTimestamp(),
+  });
+}
