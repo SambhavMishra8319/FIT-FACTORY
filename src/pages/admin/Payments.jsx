@@ -1350,7 +1350,7 @@ export default function Payments() {
                       </td>
 
                       <td>{p.notes || "—"}</td>
-                      <td>
+                      {/* <td>
   <button
   className="btn btn-primary btn-sm"
   onClick={() => handleEditPayment(p)}
@@ -1363,7 +1363,7 @@ export default function Payments() {
   >
     Delete
   </button>
-</td>
+</td> */}
                     </tr>
                   );
                 })
