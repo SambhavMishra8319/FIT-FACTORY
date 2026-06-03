@@ -1750,7 +1750,7 @@ export default function AddMember() {
                         ),
                     );
                   }}
-                  required
+                  
                 />
 
                 {emailExists && (
