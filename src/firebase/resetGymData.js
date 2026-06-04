@@ -2,38 +2,55 @@ import {
   collection,
   getDocs,
   writeBatch,
+  doc,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "./config";
 
-export async function resetGymData() {
-  const collectionsToDelete = [
-  "members",
-  "payments"
-];
+export async function resetPaymentsFromMembers() {
+  const batch = writeBatch(db);
 
-  try {
-    for (const collectionName of collectionsToDelete) {
-      const snap = await getDocs(collection(db, collectionName));
+  // 1. Delete old payments
+  const paymentsSnap = await getDocs(collection(db, "payments"));
+  paymentsSnap.forEach((paymentDoc) => {
+    batch.delete(doc(db, "payments", paymentDoc.id));
+  });
 
-      if (snap.empty) {
-        console.log(`${collectionName}: already empty`);
-        continue;
-      }
+  // 2. Create payments from members
+  const membersSnap = await getDocs(collection(db, "members"));
 
-      const batch = writeBatch(db);
+  membersSnap.forEach((memberDoc) => {
+    const m = memberDoc.data();
 
-      snap.docs.forEach((docSnap) => {
-        batch.delete(docSnap.ref);
-      });
+    const amountPaid = Number(m.paid || m.amountPaid || 0);
+    if (amountPaid <= 0) return;
 
-      await batch.commit();
+    const paymentRef = doc(collection(db, "payments"));
 
-      console.log(`Deleted ${snap.size} docs from ${collectionName}`);
-    }
+    batch.set(paymentRef, {
+      memberId: memberDoc.id,
+      memberName: m.name || "",
+      name: m.name || "",
+      phone: m.phone || "",
+      plan: m.plan || "",
+      amount: amountPaid,
+      totalAmount: Number(m.totalAmount || m.fee || amountPaid),
+      balance: Number(m.due || m.balance || 0),
+      method: m.paymentMethod || "Cash",
+      status: m.status || "active",
+      expiryDate: m.expiryDate || m.expiry || "",
+      paymentDate: m.joiningDate || m.createdAt || new Date().toISOString().slice(0, 10),
+      notes: "Auto-created from member data",
+      type: "membership",
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+  });
 
-    alert("Gym data reset completed.");
-  } catch (error) {
-    console.error(error);
-    alert("Reset failed.");
-  }
+  await batch.commit();
+
+  return {
+    success: true,
+    message: "Old payments deleted and fresh payments created from members.",
+  };
 }

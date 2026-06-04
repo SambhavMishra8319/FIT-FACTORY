@@ -111,7 +111,7 @@ export function subscribeMembersSnapshot(callback) {
   const q = query(
     collection(db, "members"),
     orderBy("createdAt", "desc"),
-    limit(100),
+    // limit(100),
   );
   return onSnapshot(q, (snap) =>
     callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
@@ -122,7 +122,7 @@ export function subscribeMembersSnapshot(callback) {
 
 export async function getPayments(filters = {}) {
   const snap = await getDocs(
-    query(collection(db, "payments"), orderBy("createdAt", "desc"), limit(200)),
+    query(collection(db, "payments"), orderBy("createdAt", "desc")),
   );
   let payments = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
   if (filters.search)
@@ -243,11 +243,7 @@ export async function recordPaymentAndActivate(
   return { paymentId: payRef.id, expiry };
 }
 export function subscribePaymentsSnapshot(callback) {
-  const q = query(
-    collection(db, "payments"),
-    orderBy("createdAt", "desc"),
-    
-  );
+  const q = query(collection(db, "payments"), orderBy("createdAt", "desc"));
   return onSnapshot(q, (snap) =>
     callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
   );
@@ -422,7 +418,7 @@ export async function deleteSteamSlot(id) {
 
 export async function getAttendance() {
   const snap = await getDocs(
-    query(collection(db, "attendance"), orderBy("date", "desc"), limit(500)),
+    query(collection(db, "attendance"), orderBy("date", "desc")),
   );
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
@@ -513,7 +509,7 @@ export async function getWorkoutLogs(memberId) {
       collection(db, "workout_logs"),
       where("memberId", "==", memberId),
       orderBy("createdAt", "desc"),
-      limit(30),
+    
     ),
   );
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -552,14 +548,14 @@ async function _updateLeaderboardPoints(memberId, memberName, points) {
 // ✅ FIX #1: Real leaderboard from Firebase
 export async function getLeaderboard() {
   const snap = await getDocs(
-    query(collection(db, "leaderboard"), orderBy("points", "desc"), limit(10)),
+    query(collection(db, "leaderboard"), orderBy("points", "desc")),
   );
   return snap.docs.map((d, i) => ({ id: d.id, rank: i + 1, ...d.data() }));
 }
 
 export function subscribeLeaderboard(callback) {
   return onSnapshot(
-    query(collection(db, "leaderboard"), orderBy("points", "desc"), limit(10)),
+    query(collection(db, "leaderboard"), orderBy("points", "desc")),
     (snap) =>
       callback(
         snap.docs.map((d, i) => ({ id: d.id, rank: i + 1, ...d.data() })),
@@ -692,7 +688,7 @@ export async function getNotifications() {
     query(
       collection(db, "notifications"),
       orderBy("createdAt", "desc"),
-      limit(20),
+    
     ),
   );
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -1464,4 +1460,61 @@ export async function updatePayment(id, data) {
     amount: Number(data.amount || 0),
     updatedAt: serverTimestamp(),
   });
+}
+// import {
+//   collection,
+//   getDocs,
+//   writeBatch,
+//   doc,
+//   serverTimestamp,
+// } from "firebase/firestore";
+// import { db } from "./config";
+
+export async function resetPaymentsFromMembers() {
+  const batch = writeBatch(db);
+
+  const paymentsSnap = await getDocs(collection(db, "payments"));
+  paymentsSnap.forEach((paymentDoc) => {
+    batch.delete(doc(db, "payments", paymentDoc.id));
+  });
+
+  const membersSnap = await getDocs(collection(db, "members"));
+
+  membersSnap.forEach((memberDoc) => {
+    const m = memberDoc.data();
+
+    const amountPaid = Number(m.paid || m.amountPaid || m.amount || 0);
+    if (amountPaid <= 0) return;
+
+    const paymentRef = doc(collection(db, "payments"));
+
+    batch.set(paymentRef, {
+      memberId: memberDoc.id,
+      memberName: m.name || "",
+      name: m.name || "",
+      phone: m.phone || "",
+      plan: m.plan || "",
+      amount: amountPaid,
+      totalAmount: Number(m.totalAmount || m.fee || amountPaid),
+      balance: Number(m.due || m.balance || 0),
+      method: m.paymentMethod || "Cash",
+      status: m.status || "active",
+
+      // IMPORTANT: always valid strings
+      expiryDate: m.expiryDate || m.expiry || "",
+      paymentDate: "2026-06-04",
+
+      notes: "Auto-created from member data",
+      type: "membership",
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+  });
+
+  await batch.commit();
+
+  return {
+    success: true,
+    message: "Payments recreated safely.",
+  };
 }

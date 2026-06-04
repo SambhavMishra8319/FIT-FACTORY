@@ -10,8 +10,8 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-import { resetGymData } from "../../firebase/resetGymData";
-
+// import { resetGymData } from "../../firebase/resetGymData";
+import { resetPaymentsFromMembers } from "../../firebase/service";
 
 import {
   format,
@@ -875,20 +875,15 @@ const selectedDateRevenue = useMemo(() => {
       </div>
 
       {/* FAB */}
-  <button
-  className="btn btn-danger"
-  onClick={() => {
-    if (
-      window.confirm(
-        "Delete ALL members, payments, attendance and accounting data?"
-      )
-    ) {
-      resetGymData();
-    }
+  {/* <button
+  onClick={async () => {
+    if (!window.confirm("Delete all payments and recreate from members?")) return;
+    await resetPaymentsFromMembers();
+    alert("Payments reset successfully");
   }}
 >
-  🔥 Reset All Gym Data
-</button>
+  Reset Payments From Members
+</button> */}
     </div>
   );
 }

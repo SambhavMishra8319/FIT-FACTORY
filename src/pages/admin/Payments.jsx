@@ -178,7 +178,19 @@ export default function Payments() {
 
     return "badge-green";
   };
+const safeDate = (value) => {
+  if (!value) return null;
 
+  if (value?.toDate) return value.toDate(); // Firestore Timestamp
+
+  const d = new Date(value);
+  return isNaN(d.getTime()) ? null : d;
+};
+
+const safeFormat = (value, pattern = "dd MMM") => {
+  const d = safeDate(value);
+  return d ? format(d, pattern) : "-";
+};
   const anim = (delay) => ({
     opacity: visible ? 1 : 0,
 
@@ -208,7 +220,8 @@ export default function Payments() {
     const now = new Date();
 
     return data.filter((p) => {
-      const date = new Date(p.date);
+      const date = safeDate(p.date);
+if (!date) return false;
 
       switch (dateRange) {
         case "7days":
@@ -226,15 +239,21 @@ export default function Payments() {
         default:
           return true;
       }
+      console.log(
+  payments.filter(
+    (p) => !p.date || isNaN(new Date(p.date).getTime())
+  )
+);
     });
   };
   // 1. FIRST: normalize all payments
   const allPayments = useMemo(() => {
-    const member = payments.map((p) => ({
-      ...p,
-      type: "member",
-      method: normalizeMethod(p.method),
-    }));
+  const member = payments.map((p) => ({
+  ...p,
+  type: "member",
+  method: normalizeMethod(p.method),
+  date: p.date || p.paymentDate || "2026-06-04",
+}));
 
     const trainer = trainerPayments.map((p) => ({
       id: p.id,
@@ -377,7 +396,8 @@ export default function Payments() {
       .reduce((s, p) => s + Number(p.amount || 0), 0);
 
     const monthlyRevenue = revenuePayments
-      .filter((p) => p.date?.startsWith(thisMonth))
+      // .filter((p) => p.date?.startsWith(thisMonth))
+      .filter((p) => String(p.date || p.paymentDate || "").startsWith(thisMonth))
       .reduce((s, p) => s + Number(p.amount || 0), 0);
 
     return {
@@ -390,25 +410,46 @@ export default function Payments() {
     };
   }, [allPayments, thisMonth]);
   // ================= REVENUE DATA =================
-  const revenueData = useMemo(() => {
-    const map = {};
+  // const revenueData = useMemo(() => {
+  //   const map = {};
 
-    filtered
-      .filter((p) => p.type === "member")
-      .forEach((p) => {
-        const d = format(new Date(p.date), "dd MMM");
+  //   filtered
+  //     .filter((p) => p.type === "member")
+  //     .forEach((p) => {
+  //       const d = format(new Date(p.date), "dd MMM");
 
-        if (!map[d]) map[d] = 0;
+  //       if (!map[d]) map[d] = 0;
 
-        map[d] += Number(p.amount || 0);
-      });
+  //       map[d] += Number(p.amount || 0);
+  //     });
 
-    return Object.keys(map).map((k) => ({
-      date: k,
-      amount: map[k],
-    }));
-  }, [filtered]);
+  //   return Object.keys(map).map((k) => ({
+  //     date: k,
+  //     amount: map[k],
+  //   }));
+  // }, [filtered]);
+const revenueData = useMemo(() => {
+  const map = {};
 
+  filtered
+    .filter((p) => p.type === "member")
+    .forEach((p) => {
+      const dateObj = safeDate(p.date);
+
+      if (!dateObj) return;
+
+      const d = format(dateObj, "dd MMM");
+
+      if (!map[d]) map[d] = 0;
+
+      map[d] += Number(p.amount || 0);
+    });
+
+  return Object.keys(map).map((k) => ({
+    date: k,
+    amount: map[k],
+  }));
+}, [filtered]);
   // ================= PAYMENT METHOD DATA =================
   const paymentMethodData = useMemo(() => {
     const methods = {};
@@ -448,6 +489,8 @@ export default function Payments() {
       const basePayload = {
         type: paymentType, // "member" | "trainer"
         entityId: form.memberId,
+memberId: paymentType === "member" ? form.memberId : null,
+trainerId: paymentType === "trainer" ? form.memberId : null,
         name: entity?.name || "Unknown",
         phone: entity?.phone || "",
         amount: Number(form.amount),
@@ -594,7 +637,8 @@ export default function Payments() {
       Plan: p.plan || (p.type === "trainer" ? "Trainer Payment" : "-"),
       Method: p.method,
       Amount: p.amount,
-      Date: format(new Date(p.date), "dd MMM yyyy"),
+      // Date: format(new Date(p.date), "dd MMM yyyy"),
+      Date: safeFormat(p.date, "dd MMM yyyy"),
       Expiry: p.expiryDate || "-",
       Notes: p.notes || "",
     }));
@@ -1232,11 +1276,20 @@ export default function Payments() {
                               transition: "0.2s",
                             }}
                             // onClick={() => navigate(`/members/${p.memberId}`)}
-                            onClick={() =>
-                              p.type === "member"
-                                ? navigate(`/members/${p.memberId}`)
-                                : null
-                            }
+                            // onClick={() =>
+                            //   p.type === "member"
+                            //     ? navigate(`/members/${p.memberId}`)
+                            //     : null
+                            // }
+                            onClick={() => {
+  const id = p.memberId || p.entityId;
+
+  if (p.type === "member" && id) {
+    navigate(`/members/${id}`);
+  } else {
+    toast.error("Member profile link missing");
+  }
+}}
                             onMouseEnter={(e) =>
                               (e.target.style.opacity = "0.8")
                             }
@@ -1284,11 +1337,20 @@ export default function Payments() {
                                 color: "var(--gold)",
                               }}
                               // onClick={() => navigate(`/members/${p.memberId}`)}
-                              onClick={() =>
-                                p.type === "member"
-                                  ? navigate(`/members/${p.memberId}`)
-                                  : null
-                              }
+                              // onClick={() =>
+                              //   p.type === "member"
+                              //     ? navigate(`/members/${p.memberId}`)
+                              //     : null
+                              // }
+                              onClick={() => {
+  const id = p.memberId || p.entityId;
+
+  if (p.type === "member" && id) {
+    navigate(`/members/${id}`);
+  } else {
+    toast.error("Member profile link missing");
+  }
+}}
                             >
                               {p.type === "trainer"
                                 ? p.trainerName
@@ -1350,7 +1412,7 @@ export default function Payments() {
                       </td>
 
                       <td>{p.notes || "—"}</td>
-                      {/* <td>
+                      <td>
   <button
   className="btn btn-primary btn-sm"
   onClick={() => handleEditPayment(p)}
@@ -1363,7 +1425,7 @@ export default function Payments() {
   >
     Delete
   </button>
-</td> */}
+</td>
                     </tr>
                   );
                 })
