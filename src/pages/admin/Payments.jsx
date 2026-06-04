@@ -239,11 +239,11 @@ if (!date) return false;
         default:
           return true;
       }
-      console.log(
-  payments.filter(
-    (p) => !p.date || isNaN(new Date(p.date).getTime())
-  )
-);
+//       console.log(
+//   payments.filter(
+//     (p) => !p.date || isNaN(new Date(p.date).getTime())
+//   )
+// );
     });
   };
   // 1. FIRST: normalize all payments
@@ -1426,6 +1426,7 @@ trainerId: paymentType === "trainer" ? form.memberId : null,
     Delete
   </button>
 </td>
+
                     </tr>
                   );
                 })
@@ -1433,6 +1434,13 @@ trainerId: paymentType === "trainer" ? form.memberId : null,
             </tbody>
           </table>
         </div>
+        {/* <div style={{ color: "red", fontSize: 20 }}>
+  Payments: {payments.length}
+</div>
+
+<div style={{ color: "green", fontSize: 20 }}>
+  Filtered: {filtered.length}
+</div> */}
       </div>
     </div>
   );

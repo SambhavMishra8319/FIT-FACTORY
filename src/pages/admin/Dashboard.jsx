@@ -337,14 +337,18 @@ const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"
 
 const todaysNewMemberships = useMemo(() => {
   return members.filter((m) => {
-    const createdDate =
-      m.createdAt?.toDate?.()
-        ? format(m.createdAt.toDate(), "yyyy-MM-dd")
-        : m.createdAt?.seconds
-        ? format(new Date(m.createdAt.seconds * 1000), "yyyy-MM-dd")
-        : m.joinDate || m.date || "";
+    let joinDate =
+      m.joinDate ||
+      m.joiningDate ||
+      m.admissionDate ||
+      m.startDate ||
+      m.date;
 
-    return createdDate === selectedDate;
+    if (!joinDate && m.createdAt?.toDate) {
+      joinDate = format(m.createdAt.toDate(), "yyyy-MM-dd");
+    }
+
+    return joinDate === selectedDate;
   });
 }, [members, selectedDate]);
 
@@ -495,7 +499,7 @@ const selectedDateRevenue = useMemo(() => {
               <strong>{m.name || "Unnamed"}</strong> joined
             </div>
             <div className="activity-time">
-              {m.plan || "No plan"} · ₹{Number(m.amountPaid || 0).toLocaleString()}
+              {m.plan || "No plan"} · ₹{Number(m.paid || m.amountPaid || 0).toLocaleString()}
             </div>
           </div>
         </div>

@@ -1470,14 +1470,66 @@ export async function updatePayment(id, data) {
 // } from "firebase/firestore";
 // import { db } from "./config";
 
+// export async function resetPaymentsFromMembers() {
+//   const batch = writeBatch(db);
+
+//   const paymentsSnap = await getDocs(collection(db, "payments"));
+//   paymentsSnap.forEach((paymentDoc) => {
+//     batch.delete(doc(db, "payments", paymentDoc.id));
+//   });
+
+//   const membersSnap = await getDocs(collection(db, "members"));
+
+//   membersSnap.forEach((memberDoc) => {
+//     const m = memberDoc.data();
+
+//     const amountPaid = Number(m.paid || m.amountPaid || m.amount || 0);
+//     if (amountPaid <= 0) return;
+
+//     const paymentRef = doc(collection(db, "payments"));
+
+//     batch.set(paymentRef, {
+//       memberId: memberDoc.id,
+//       memberName: m.name || "",
+//       name: m.name || "",
+//       phone: m.phone || "",
+//       plan: m.plan || "",
+//       amount: amountPaid,
+//       totalAmount: Number(m.totalAmount || m.fee || amountPaid),
+//       balance: Number(m.due || m.balance || 0),
+//       method: m.paymentMethod || "Cash",
+//       status: m.status || "active",
+
+//       // IMPORTANT: always valid strings
+//       expiryDate: m.expiryDate || m.expiry || "",
+//       // paymentDate: "2026-06-04",
+//       date: "2026-06-04",
+// paymentDate: "2026-06-04",
+
+//       notes: "Auto-created from member data",
+//       type: "membership",
+//       createdAt: serverTimestamp(),
+//       updatedAt: serverTimestamp(),
+//     });
+//   });
+
+//   await batch.commit();
+
+//   return {
+//     success: true,
+//     message: "Payments recreated safely.",
+//   };
+// }
 export async function resetPaymentsFromMembers() {
-  const batch = writeBatch(db);
-
+  // 1. Delete old payments first
   const paymentsSnap = await getDocs(collection(db, "payments"));
-  paymentsSnap.forEach((paymentDoc) => {
-    batch.delete(doc(db, "payments", paymentDoc.id));
-  });
 
+  for (const paymentDoc of paymentsSnap.docs) {
+    await deleteDoc(doc(db, "payments", paymentDoc.id));
+  }
+
+  // 2. Create fresh payments from members
+  const batch = writeBatch(db);
   const membersSnap = await getDocs(collection(db, "members"));
 
   membersSnap.forEach((memberDoc) => {
@@ -1490,22 +1542,28 @@ export async function resetPaymentsFromMembers() {
 
     batch.set(paymentRef, {
       memberId: memberDoc.id,
+      entityId: memberDoc.id,
+
       memberName: m.name || "",
       name: m.name || "",
       phone: m.phone || "",
+
       plan: m.plan || "",
       amount: amountPaid,
       totalAmount: Number(m.totalAmount || m.fee || amountPaid),
       balance: Number(m.due || m.balance || 0),
-      method: m.paymentMethod || "Cash",
-      status: m.status || "active",
 
-      // IMPORTANT: always valid strings
+      method: m.paymentMethod || "Cash",
+      status: "paid",
+
       expiryDate: m.expiryDate || m.expiry || "",
+
+      date: "2026-06-04",
       paymentDate: "2026-06-04",
 
       notes: "Auto-created from member data",
       type: "membership",
+
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
@@ -1515,6 +1573,6 @@ export async function resetPaymentsFromMembers() {
 
   return {
     success: true,
-    message: "Payments recreated safely.",
+    message: "Old payments deleted and fresh payments created from members.",
   };
 }
