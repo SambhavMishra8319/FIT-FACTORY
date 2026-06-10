@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { recordPaymentAndActivate } from "../../firebase/service";
+import { fixMembershipStartDates } from "../../firebase/fixMembershipDates";
 import {
+  
   BarChart,
   Bar,
   XAxis,
@@ -877,17 +879,36 @@ const selectedDateRevenue = useMemo(() => {
           </table>
         </div>
       </div>
-
-      {/* FAB */}
-  {/* <button
+<button
+  className="btn btn-danger"
   onClick={async () => {
-    if (!window.confirm("Delete all payments and recreate from members?")) return;
-    await resetPaymentsFromMembers();
-    alert("Payments reset successfully");
+    if (!window.confirm("Fix membership start dates?")) return;
+
+    const count = await fixMembershipStartDates();
+    alert(`Fixed ${count} members`);
   }}
 >
-  Reset Payments From Members
-</button> */}
+  Fix Membership Dates
+</button>
+      {/* FAB */}
+  <button
+  className="btn btn-danger btn-sm"
+  onClick={async () => {
+    console.clear();
+    console.log("🔥 Button clicked");
+
+    try {
+      const count = await fixMembershipStartDates();
+      console.log("✅ Final updated count:", count);
+      alert(`Fixed ${count} members`);
+    } catch (err) {
+      console.error("❌ Fix failed:", err);
+      alert(err.message);
+    }
+  }}
+>
+  Fix Membership Dates
+</button>
     </div>
   );
 }
