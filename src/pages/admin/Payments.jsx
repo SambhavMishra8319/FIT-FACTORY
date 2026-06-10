@@ -156,27 +156,27 @@ export default function Payments() {
     }
   };
   const handleEditPayment = (p) => {
-  const normalizedType = p.type === "trainer" ? "trainer" : "member";
+    const normalizedType = p.type === "trainer" ? "trainer" : "member";
 
-  setEditingPayment(p);
-  setPaymentType(normalizedType);
+    setEditingPayment(p);
+    setPaymentType(normalizedType);
 
-  setForm({
-    memberId: p.memberId || p.entityId || "",
-    amount: p.amount || "",
-    method: p.method || "Cash",
-    plan: p.plan || "Monthly",
-    date: p.date || p.paymentDate || today,
-    notes: p.notes || "",
-    status: p.status || "paid",
-  });
+    setForm({
+      memberId: p.memberId || p.entityId || "",
+      amount: p.amount || "",
+      method: p.method || "Cash",
+      plan: p.plan || "Monthly",
+      date: p.date || p.paymentDate || today,
+      notes: p.notes || "",
+      status: p.status || "paid",
+    });
 
-  setShowForm(true);
+    setShowForm(true);
 
-  setTimeout(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, 50);
-};
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 50);
+  };
   // const handleEditPayment = (p) => {
   //   setEditingPayment(p);
   //   setShowForm(true);
@@ -304,53 +304,104 @@ export default function Payments() {
     }
   };
   const allPayments = useMemo(() => {
-    // const member = payments.map((p) => ({
-    //   ...p,
-    //   type: "member",
-    //   method: normalizeMethod(p.method),
-    //   date: p.date || p.paymentDate || "2026-06-04",
-    // }));
-const member = payments.map((p) => {
-  const matchedMember =
-    members.find((m) => m.id === p.memberId) ||
-    members.find((m) => m.id === p.entityId) ||
-    members.find(
-      (m) => normalizePhone(m.phone) && normalizePhone(m.phone) === normalizePhone(p.phone)
-    ) ||
-    members.find(
-      (m) =>
-        m.name?.trim().toLowerCase() ===
-        (p.memberName || p.name)?.trim().toLowerCase()
-    );
+  const member = payments.map((p) => {
+    const matchedMember =
+      members.find((m) => m.id === p.memberId) ||
+      members.find((m) => m.id === p.entityId) ||
+      members.find(
+        (m) => normalizePhone(m.phone) && normalizePhone(m.phone) === normalizePhone(p.phone)
+      ) ||
+      members.find(
+        (m) =>
+          String(m.name || "").trim().toLowerCase() ===
+          String(p.memberName || p.name || "").trim().toLowerCase()
+      );
 
-  return {
-    ...p,
-    type: "member",
-    memberId: p.memberId || p.entityId || matchedMember?.id || "",
-    entityId: p.entityId || p.memberId || matchedMember?.id || "",
-    memberName: p.memberName || p.name || matchedMember?.name || "Unknown",
-    phone: p.phone || matchedMember?.phone || "",
-    method: normalizeMethod(p.method),
-    date: p.date || p.paymentDate || "2026-06-04",
-  };
-});
-    const trainer = trainerPayments.map((p) => ({
-      id: p.id,
-      type: "trainer",
-      trainerName: p.trainerName,
-      memberName: null,
-      phone: null,
-      plan: "Trainer Salary",
-      amount: p.amount,
+    return {
+      ...p,
+      type: "member",
+      memberId: p.memberId || p.entityId || matchedMember?.id || "",
+      entityId: p.entityId || p.memberId || matchedMember?.id || "",
+      memberName: p.memberName || p.name || matchedMember?.name || "Unknown",
+      phone: p.phone || matchedMember?.phone || "",
+      plan: p.plan || matchedMember?.plan || "",
+      amount: Number(p.amount || 0),
       method: normalizeMethod(p.method),
-      date:
-        p.date || format(p.createdAt?.toDate?.() || new Date(), "yyyy-MM-dd"),
-      expiryDate: null,
+      date: p.date || p.paymentDate || matchedMember?.joinDate || null,
+      expiryDate: p.expiryDate || matchedMember?.expiryDate || "",
+      status: p.status || "paid",
       notes: p.notes || "",
-    }));
+    };
+  });
 
-    return [...member, ...trainer];
-  }, [payments, trainerPayments]);
+  const trainer = trainerPayments.map((p) => ({
+    id: p.id,
+    type: "trainer",
+    trainerName: p.trainerName,
+    memberName: null,
+    phone: null,
+    plan: "Trainer Salary",
+    amount: p.amount,
+    method: normalizeMethod(p.method),
+    date: p.date || format(p.createdAt?.toDate?.() || new Date(), "yyyy-MM-dd"),
+    expiryDate: null,
+    notes: p.notes || "",
+  }));
+
+  return [...member, ...trainer];
+}, [payments, trainerPayments, members]);
+//   const allPayments = useMemo(() => {
+//     // const member = payments.map((p) => ({
+//     //   ...p,
+//     //   type: "member",
+//     //   method: normalizeMethod(p.method),
+//     //   date: p.date || p.paymentDate || "2026-06-04",
+//     // }));
+//    const member = payments.map((p) => {
+//   const matchedMember =
+//     members.find((m) => m.id === p.memberId) ||
+//     members.find((m) => m.id === p.entityId) ||
+//     members.find((m) => normalizePhone(m.phone) === normalizePhone(p.phone));
+
+//   return {
+//     ...p,
+//     type: "member",
+//     memberId: p.memberId || p.entityId || matchedMember?.id || "",
+//     entityId: p.entityId || p.memberId || matchedMember?.id || "",
+
+//     memberName: p.memberName || p.name || matchedMember?.name || "Unknown",
+//     phone: p.phone || matchedMember?.phone || "",
+
+//     plan: p.plan || matchedMember?.plan || "",
+//     amount: Number(p.amount || 0),
+//     method: normalizeMethod(p.method),
+
+//     date: p.date || p.paymentDate || matchedMember?.joinDate || null,
+
+//     // ✅ important
+//     expiryDate: p.expiryDate || matchedMember?.expiryDate || "",
+
+//     status: p.status || "paid",
+//     notes: p.notes || "",
+//   };
+// });
+//     const trainer = trainerPayments.map((p) => ({
+//       id: p.id,
+//       type: "trainer",
+//       trainerName: p.trainerName,
+//       memberName: null,
+//       phone: null,
+//       plan: "Trainer Salary",
+//       amount: p.amount,
+//       method: normalizeMethod(p.method),
+//       date:
+//         p.date || format(p.createdAt?.toDate?.() || new Date(), "yyyy-MM-dd"),
+//       expiryDate: null,
+//       notes: p.notes || "",
+//     }));
+
+//     return [...member, ...trainer];
+//   }, [payments, trainerPayments]);
 
   // 2. DATE FILTER FUNCTION (unchanged)
   // };
@@ -783,14 +834,14 @@ const member = payments.map((p) => {
           </button>
 
           <button
-  className="btn btn-primary btn-sm"
-  onClick={() => {
-    setShowForm((p) => !p);
-    setEditingPayment(null);
-  }}
->
-  {showForm ? "✕ Cancel" : "+ Record"}
-</button>
+            className="btn btn-primary btn-sm"
+            onClick={() => {
+              setShowForm((p) => !p);
+              setEditingPayment(null);
+            }}
+          >
+            {showForm ? "✕ Cancel" : "+ Record"}
+          </button>
         </div>
       </div>
 
@@ -800,8 +851,8 @@ const member = payments.map((p) => {
           <div className="card">
             {/* <div className="card-title">Record Payment</div> */}
             <div className="card-title">
-  {editingPayment ? "Edit Payment" : "Record Payment"}
-</div>
+              {editingPayment ? "Edit Payment" : "Record Payment"}
+            </div>
 
             <form onSubmit={handleAdd}>
               <div className="form-row">
@@ -1479,8 +1530,9 @@ const member = payments.map((p) => {
                           {p.type === "trainer"
                             ? "Salary Payment"
                             : daysLeft === null
-                              ? "Expired"
+                              ? "No expiry"
                               : `${daysLeft} days left`}
+                          
                         </small>
                       </td>
 
@@ -1490,13 +1542,24 @@ const member = payments.map((p) => {
                             Salary Paid
                           </span>
                         ) : (
-                          <span className={`badge ${getStatusColor(daysLeft)}`}>
-                            {daysLeft < 0
-                              ? "Expired"
-                              : daysLeft <= 3
-                                ? "Expiring"
-                                : "Active"}
+                          // <span className={`badge ${getStatusColor(daysLeft)}`}>
+                          <span
+                            className={`badge ${daysLeft === null ? "badge-gray" : getStatusColor(daysLeft)}`}
+                          >
+                            {daysLeft === null
+                              ? "No Expiry"
+                              : daysLeft < 0
+                                ? "Expired"
+                                : daysLeft <= 3
+                                  ? "Expiring"
+                                  : "Active"}
                           </span>
+                          //   {daysLeft < 0
+                          //     ? "Expired"
+                          //     : daysLeft <= 3
+                          //       ? "Expiring"
+                          //       : "Active"}
+                          // </span>
                         )}
                       </td>
 

@@ -142,26 +142,60 @@ export async function getPayments(filters = {}) {
 //     createdAt: serverTimestamp(),
 //   });
 // }
+// export async function addPayment(data) {
+//   return await addDoc(collection(db, "payments"), {
+//     type: data.type || "member", // 👈 NEW
+
+//     memberId: data.memberId || null,
+//     trainerId: data.trainerId || null,
+
+//     memberName: data.memberName || "",
+//     trainerName: data.trainerName || "",
+
+//     amount: Number(data.amount || 0),
+//     method: data.method || "Cash",
+
+//     plan: data.plan || null,
+//     date: data.date,
+//     status: data.status || "paid",
+
+//     notes: data.notes || "",
+
+//     createdAt: serverTimestamp(),
+//   });
+// }
 export async function addPayment(data) {
   return await addDoc(collection(db, "payments"), {
-    type: data.type || "member", // 👈 NEW
+    type: data.type === "trainer" ? "trainer" : "member",
 
-    memberId: data.memberId || null,
+    entityId: data.entityId || data.memberId || data.trainerId || null,
+    memberId: data.memberId || data.entityId || null,
     trainerId: data.trainerId || null,
 
-    memberName: data.memberName || "",
+    name: data.name || data.memberName || data.trainerName || "",
+    memberName: data.memberName || data.name || "",
     trainerName: data.trainerName || "",
+
+    phone: data.phone || "",
 
     amount: Number(data.amount || 0),
     method: data.method || "Cash",
 
-    plan: data.plan || null,
-    date: data.date,
+    plan: data.plan || "",
+    date: data.date || format(new Date(), "yyyy-MM-dd"),
+    paymentDate: data.paymentDate || data.date || format(new Date(), "yyyy-MM-dd"),
+
+    expiryDate: data.expiryDate || "",
     status: data.status || "paid",
 
     notes: data.notes || "",
 
+    totalAmount: Number(data.totalAmount || data.amount || 0),
+    balance: Number(data.balance || data.balanceDue || 0),
+    balanceDue: Number(data.balanceDue || data.balance || 0),
+
     createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
   });
 }
 // ✅ FIX #3: Payment + membership activation in one atomic batch
