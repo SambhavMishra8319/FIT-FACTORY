@@ -122,25 +122,43 @@ export default function Payments() {
     };
   }, []);
   const getExpiryDate = (date, plan) => {
-    const d = new Date(date);
+  const d = new Date(date);
 
-    switch (plan) {
-      case "Monthly":
-        return addMonths(d, 1);
+  switch (plan) {
+    case "1 Month":
+      return addMonths(d, 1);
+    case "3 Months":
+      return addMonths(d, 3);
+    case "6 Months":
+      return addMonths(d, 6);
+    case "Annual":
+    case "12 Months":
+    case "Elite VIP":
+      return addMonths(d, 12);
+    default:
+      return addMonths(d, 1);
+  }
+};
+  // const getExpiryDate = (date, plan) => {
+  //   const d = new Date(date);
 
-      case "Quarterly":
-        return addMonths(d, 3);
+  //   switch (plan) {
+  //     case "Monthly":
+  //       return addMonths(d, 1);
 
-      case "6 Month":
-        return addMonths(d, 6);
+  //     case "Quarterly":
+  //       return addMonths(d, 3);
 
-      case "Annual":
-        return addMonths(d, 12);
+  //     case "6 Month":
+  //       return addMonths(d, 6);
 
-      default:
-        return addMonths(d, 1);
-    }
-  };
+  //     case "Annual":
+  //       return addMonths(d, 12);
+
+  //     default:
+  //       return addMonths(d, 1);
+  //   }
+  // };
   const handleDeletePayment = async (payment) => {
     const name =
       payment.type === "trainer" ? payment.trainerName : payment.memberName;
@@ -918,15 +936,16 @@ export default function Payments() {
                     <label className="form-label">Plan</label>
 
                     <select
-                      className="form-input"
-                      value={form.plan}
-                      onChange={(e) => set("plan", e.target.value)}
-                    >
-                      <option>Monthly</option>
-                      <option>Quarterly</option>
-                      <option>6 Month</option>
-                      <option>Annual</option>
-                    </select>
+  className="form-input"
+  value={form.plan}
+  onChange={(e) => set("plan", e.target.value)}
+>
+  <option>1 Month</option>
+  <option>3 Months</option>
+  <option>6 Months</option>
+  <option>Annual</option>
+  <option>Elite VIP</option>
+</select>
                   </div>
                 )}
                 <div className="form-group">
@@ -1305,11 +1324,11 @@ export default function Payments() {
               onChange={(e) => setFilterPlan(e.target.value)}
             >
               <option value="all">All Plans</option>
-
-              <option>Monthly</option>
-              <option>Quarterly</option>
-              <option>6 Month</option>
-              <option>Annual</option>
+<option>1 Month</option>
+<option>3 Months</option>
+<option>6 Months</option>
+<option>Annual</option>
+<option>Elite VIP</option>
             </select>
 
             <select
