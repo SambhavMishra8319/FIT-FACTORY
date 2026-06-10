@@ -156,21 +156,43 @@ export default function Payments() {
     }
   };
   const handleEditPayment = (p) => {
-    setEditingPayment(p);
-    setShowForm(true);
+  const normalizedType = p.type === "trainer" ? "trainer" : "member";
 
-    setForm({
-      memberId: p.memberId || p.entityId || "",
-      amount: p.amount || "",
-      method: p.method || "Cash",
-      plan: p.plan || "Monthly",
-      date: p.date || today,
-      notes: p.notes || "",
-      status: p.status || "paid",
-    });
+  setEditingPayment(p);
+  setPaymentType(normalizedType);
 
-    setPaymentType(p.type || "member");
-  };
+  setForm({
+    memberId: p.memberId || p.entityId || "",
+    amount: p.amount || "",
+    method: p.method || "Cash",
+    plan: p.plan || "Monthly",
+    date: p.date || p.paymentDate || today,
+    notes: p.notes || "",
+    status: p.status || "paid",
+  });
+
+  setShowForm(true);
+
+  setTimeout(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, 50);
+};
+  // const handleEditPayment = (p) => {
+  //   setEditingPayment(p);
+  //   setShowForm(true);
+
+  //   setForm({
+  //     memberId: p.memberId || p.entityId || "",
+  //     amount: p.amount || "",
+  //     method: p.method || "Cash",
+  //     plan: p.plan || "Monthly",
+  //     date: p.date || today,
+  //     notes: p.notes || "",
+  //     status: p.status || "paid",
+  //   });
+
+  //   setPaymentType(p.type || "member");
+  // };
   const getStatusColor = (daysLeft) => {
     if (daysLeft < 0) return "badge-red";
 
@@ -178,19 +200,19 @@ export default function Payments() {
 
     return "badge-green";
   };
-const safeDate = (value) => {
-  if (!value) return null;
+  const safeDate = (value) => {
+    if (!value) return null;
 
-  if (value?.toDate) return value.toDate(); // Firestore Timestamp
+    if (value?.toDate) return value.toDate(); // Firestore Timestamp
 
-  const d = new Date(value);
-  return isNaN(d.getTime()) ? null : d;
-};
+    const d = new Date(value);
+    return isNaN(d.getTime()) ? null : d;
+  };
 
-const safeFormat = (value, pattern = "dd MMM") => {
-  const d = safeDate(value);
-  return d ? format(d, pattern) : "-";
-};
+  const safeFormat = (value, pattern = "dd MMM") => {
+    const d = safeDate(value);
+    return d ? format(d, pattern) : "-";
+  };
   const anim = (delay) => ({
     opacity: visible ? 1 : 0,
 
@@ -221,7 +243,7 @@ const safeFormat = (value, pattern = "dd MMM") => {
 
     return data.filter((p) => {
       const date = safeDate(p.date);
-if (!date) return false;
+      if (!date) return false;
 
       switch (dateRange) {
         case "7days":
@@ -239,22 +261,79 @@ if (!date) return false;
         default:
           return true;
       }
-//       console.log(
-//   payments.filter(
-//     (p) => !p.date || isNaN(new Date(p.date).getTime())
-//   )
-// );
+      //       console.log(
+      //   payments.filter(
+      //     (p) => !p.date || isNaN(new Date(p.date).getTime())
+      //   )
+      // );
     });
   };
   // 1. FIRST: normalize all payments
-  const allPayments = useMemo(() => {
-  const member = payments.map((p) => ({
-  ...p,
-  type: "member",
-  method: normalizeMethod(p.method),
-  date: p.date || p.paymentDate || "2026-06-04",
-}));
+  const normalizePhone = (phone) =>
+    String(phone || "")
+      .replace(/\D/g, "")
+      .slice(-10);
 
+  const findMemberForPayment = (p) => {
+    if (!p || p.type === "trainer") return null;
+
+    return (
+      members.find((m) => m.id === p.memberId) ||
+      members.find((m) => m.id === p.entityId) ||
+      members.find(
+        (m) =>
+          normalizePhone(m.phone) &&
+          normalizePhone(m.phone) === normalizePhone(p.phone),
+      ) ||
+      members.find(
+        (m) =>
+          m.name?.trim().toLowerCase() ===
+          (p.memberName || p.name)?.trim().toLowerCase(),
+      ) ||
+      null
+    );
+  };
+
+  const goToMemberProfile = (payment) => {
+    const member = findMemberForPayment(payment);
+
+    if (member?.id) {
+      navigate(`/members/${member.id}`);
+    } else {
+      toast.error("Member not found for this payment");
+    }
+  };
+  const allPayments = useMemo(() => {
+    // const member = payments.map((p) => ({
+    //   ...p,
+    //   type: "member",
+    //   method: normalizeMethod(p.method),
+    //   date: p.date || p.paymentDate || "2026-06-04",
+    // }));
+const member = payments.map((p) => {
+  const matchedMember =
+    members.find((m) => m.id === p.memberId) ||
+    members.find((m) => m.id === p.entityId) ||
+    members.find(
+      (m) => normalizePhone(m.phone) && normalizePhone(m.phone) === normalizePhone(p.phone)
+    ) ||
+    members.find(
+      (m) =>
+        m.name?.trim().toLowerCase() ===
+        (p.memberName || p.name)?.trim().toLowerCase()
+    );
+
+  return {
+    ...p,
+    type: "member",
+    memberId: p.memberId || p.entityId || matchedMember?.id || "",
+    entityId: p.entityId || p.memberId || matchedMember?.id || "",
+    memberName: p.memberName || p.name || matchedMember?.name || "Unknown",
+    phone: p.phone || matchedMember?.phone || "",
+    method: normalizeMethod(p.method),
+    date: p.date || p.paymentDate || "2026-06-04",
+  };
+});
     const trainer = trainerPayments.map((p) => ({
       id: p.id,
       type: "trainer",
@@ -397,7 +476,9 @@ if (!date) return false;
 
     const monthlyRevenue = revenuePayments
       // .filter((p) => p.date?.startsWith(thisMonth))
-      .filter((p) => String(p.date || p.paymentDate || "").startsWith(thisMonth))
+      .filter((p) =>
+        String(p.date || p.paymentDate || "").startsWith(thisMonth),
+      )
       .reduce((s, p) => s + Number(p.amount || 0), 0);
 
     return {
@@ -428,28 +509,28 @@ if (!date) return false;
   //     amount: map[k],
   //   }));
   // }, [filtered]);
-const revenueData = useMemo(() => {
-  const map = {};
+  const revenueData = useMemo(() => {
+    const map = {};
 
-  filtered
-    .filter((p) => p.type === "member")
-    .forEach((p) => {
-      const dateObj = safeDate(p.date);
+    filtered
+      .filter((p) => p.type === "member")
+      .forEach((p) => {
+        const dateObj = safeDate(p.date);
 
-      if (!dateObj) return;
+        if (!dateObj) return;
 
-      const d = format(dateObj, "dd MMM");
+        const d = format(dateObj, "dd MMM");
 
-      if (!map[d]) map[d] = 0;
+        if (!map[d]) map[d] = 0;
 
-      map[d] += Number(p.amount || 0);
-    });
+        map[d] += Number(p.amount || 0);
+      });
 
-  return Object.keys(map).map((k) => ({
-    date: k,
-    amount: map[k],
-  }));
-}, [filtered]);
+    return Object.keys(map).map((k) => ({
+      date: k,
+      amount: map[k],
+    }));
+  }, [filtered]);
   // ================= PAYMENT METHOD DATA =================
   const paymentMethodData = useMemo(() => {
     const methods = {};
@@ -489,8 +570,8 @@ const revenueData = useMemo(() => {
       const basePayload = {
         type: paymentType, // "member" | "trainer"
         entityId: form.memberId,
-memberId: paymentType === "member" ? form.memberId : null,
-trainerId: paymentType === "trainer" ? form.memberId : null,
+        memberId: paymentType === "member" ? form.memberId : null,
+        trainerId: paymentType === "trainer" ? form.memberId : null,
         name: entity?.name || "Unknown",
         phone: entity?.phone || "",
         amount: Number(form.amount),
@@ -702,11 +783,14 @@ trainerId: paymentType === "trainer" ? form.memberId : null,
           </button>
 
           <button
-            className="btn btn-primary btn-sm"
-            onClick={() => setShowForm((p) => !p)}
-          >
-            {showForm ? "✕ Cancel" : "+ Record"}
-          </button>
+  className="btn btn-primary btn-sm"
+  onClick={() => {
+    setShowForm((p) => !p);
+    setEditingPayment(null);
+  }}
+>
+  {showForm ? "✕ Cancel" : "+ Record"}
+</button>
         </div>
       </div>
 
@@ -714,7 +798,10 @@ trainerId: paymentType === "trainer" ? form.memberId : null,
         {/* ================= FORM ================= */}
         {showForm && (
           <div className="card">
-            <div className="card-title">Record Payment</div>
+            {/* <div className="card-title">Record Payment</div> */}
+            <div className="card-title">
+  {editingPayment ? "Edit Payment" : "Record Payment"}
+</div>
 
             <form onSubmit={handleAdd}>
               <div className="form-row">
@@ -1281,15 +1368,16 @@ trainerId: paymentType === "trainer" ? form.memberId : null,
                             //     ? navigate(`/members/${p.memberId}`)
                             //     : null
                             // }
-                            onClick={() => {
-  const id = p.memberId || p.entityId;
+                            onClick={() => goToMemberProfile(p)}
+                            // onClick={() => {
+                            //   const id = p.memberId || p.entityId;
 
-  if (p.type === "member" && id) {
-    navigate(`/members/${id}`);
-  } else {
-    toast.error("Member profile link missing");
-  }
-}}
+                            //   if (p.type === "member" && id) {
+                            //     navigate(`/members/${id}`);
+                            //   } else {
+                            //     toast.error("Member profile link missing");
+                            //   }
+                            // }}
                             onMouseEnter={(e) =>
                               (e.target.style.opacity = "0.8")
                             }
@@ -1342,15 +1430,16 @@ trainerId: paymentType === "trainer" ? form.memberId : null,
                               //     ? navigate(`/members/${p.memberId}`)
                               //     : null
                               // }
-                              onClick={() => {
-  const id = p.memberId || p.entityId;
+                              onClick={() => goToMemberProfile(p)}
+                              // onClick={() => {
+                              //   const id = p.memberId || p.entityId;
 
-  if (p.type === "member" && id) {
-    navigate(`/members/${id}`);
-  } else {
-    toast.error("Member profile link missing");
-  }
-}}
+                              //   if (p.type === "member" && id) {
+                              //     navigate(`/members/${id}`);
+                              //   } else {
+                              //     toast.error("Member profile link missing");
+                              //   }
+                              // }}
                             >
                               {p.type === "trainer"
                                 ? p.trainerName
@@ -1413,20 +1502,19 @@ trainerId: paymentType === "trainer" ? form.memberId : null,
 
                       <td>{p.notes || "—"}</td>
                       <td>
-  <button
-  className="btn btn-primary btn-sm"
-  onClick={() => handleEditPayment(p)}
->
-  Edit
-</button>
-  <button
-    className="btn btn-danger btn-sm"
-    onClick={() => handleDeletePayment(p)}
-  >
-    Delete
-  </button>
-</td>
-
+                        <button
+                          className="btn btn-primary btn-sm"
+                          onClick={() => handleEditPayment(p)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => handleDeletePayment(p)}
+                        >
+                          Delete
+                        </button>
+                      </td>
                     </tr>
                   );
                 })
