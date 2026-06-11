@@ -59,16 +59,25 @@ export default function Payments() {
   const [filterPlan, setFilterPlan] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [dateRange, setDateRange] = useState("all");
-
+  const [filterPayment, setFilterPayment] = useState("all");
   const today = format(new Date(), "yyyy-MM-dd");
   const thisMonth = format(new Date(), "yyyy-MM");
-
+  const PLAN_OPTIONS = [
+    "1 Month",
+    "3 Months",
+    "6 Months",
+    "12 Months",
+    "Annual",
+    "Elite VIP",
+    "Student Basic",
+    "Group Basic",
+  ];
   // ================= FORM =================
   const [form, setForm] = useState({
     memberId: "",
     amount: "",
     method: "Cash",
-    plan: "Monthly",
+    plan: "1 Month",
     date: today,
     type: "renewal",
     notes: "",
@@ -116,15 +125,21 @@ export default function Payments() {
 
     switch (plan) {
       case "1 Month":
+      case "Student Basic":
+      case "Group Basic":
         return addMonths(d, 1);
+
       case "3 Months":
         return addMonths(d, 3);
+
       case "6 Months":
         return addMonths(d, 6);
+
       case "Annual":
       case "12 Months":
       case "Elite VIP":
         return addMonths(d, 12);
+
       default:
         return addMonths(d, 1);
     }
@@ -154,7 +169,7 @@ export default function Payments() {
       memberId: p.memberId || p.entityId || "",
       amount: p.amount || "",
       method: p.method || "Cash",
-      plan: p.plan || "Monthly",
+      plan: p.plan || "1 Month",
       date: p.date || p.paymentDate || today,
       notes: p.notes || "",
       status: p.status || "paid",
@@ -169,9 +184,7 @@ export default function Payments() {
 
   const getStatusColor = (daysLeft) => {
     if (daysLeft < 0) return "badge-red";
-
-    if (daysLeft <= 3) return "badge-orange";
-
+    if (daysLeft <= 7) return "badge-orange";
     return "badge-green";
   };
   const safeDate = (value) => {
@@ -329,13 +342,60 @@ export default function Payments() {
 
       const matchPlan = filterPlan === "all" || p.plan === filterPlan;
 
-      const matchStatus =
-        filterStatus === "all" ||
-        p.type === "trainer" ||
-        p.status === filterStatus;
-      return matchSearch && matchMethod && matchPlan && matchStatus;
+      let membershipStatus = "active";
+
+if (p.type === "member") {
+  const expiry = p.expiryDate ? new Date(p.expiryDate) : null;
+
+  const daysLeft =
+    expiry instanceof Date && !isNaN(expiry.getTime())
+      ? differenceInDays(expiry, new Date())
+      : null;
+
+  if (daysLeft !== null) {
+    if (daysLeft < 0) membershipStatus = "expired";
+    else if (daysLeft <= 7) membershipStatus = "expiring";
+    else membershipStatus = "active";
+  }
+}
+
+const matchStatus =
+  filterStatus === "all" ||
+  p.type === "trainer" ||
+  membershipStatus === filterStatus;
+      const member = findMemberForPayment(p);
+
+      const due =
+        p.type === "trainer"
+          ? 0
+          : member
+            ? Math.max(
+                Number(member.membershipFee || 0) +
+                  Number(member.registrationFee || 0) -
+                  Number(member.discount || 0) -
+                  Number(member.amountPaid || 0),
+                0,
+              )
+            : Number(p.balanceDue || 0);
+      const matchPayment =
+        filterPayment === "all" ||
+        (filterPayment === "paid" && due <= 0) ||
+        (filterPayment === "due" && due > 0);
+
+      return (
+        matchSearch && matchMethod && matchPlan && matchStatus && matchPayment
+      );
     });
-  }, [allPayments, search, filterMethod, filterPlan, filterStatus, dateRange]);
+    // }, [allPayments, search, filterMethod, filterPlan, filterStatus, dateRange]);
+  }, [
+    allPayments,
+    search,
+    filterMethod,
+    filterPlan,
+    filterStatus,
+    filterPayment,
+    dateRange,
+  ]);
   // ================= STATS =================
 
   const stats = useMemo(() => {
@@ -500,7 +560,7 @@ export default function Payments() {
         memberId: "",
         amount: "",
         method: "Cash",
-        plan: "Monthly",
+        plan: "1 Month",
         date: today,
         notes: "",
         status: "paid",
@@ -551,13 +611,10 @@ export default function Payments() {
   // ================= CLEAR FILTERS =================
   const clearFilters = () => {
     setSearch("");
-
     setFilterMethod("all");
-
     setFilterPlan("all");
-
     setFilterStatus("all");
-
+    setFilterPayment("all");
     setDateRange("7days");
   };
 
@@ -655,11 +712,11 @@ export default function Payments() {
                       value={form.plan}
                       onChange={(e) => set("plan", e.target.value)}
                     >
-                      <option>1 Month</option>
-                      <option>3 Months</option>
-                      <option>6 Months</option>
-                      <option>Annual</option>
-                      <option>Elite VIP</option>
+                      {PLAN_OPTIONS.map((plan) => (
+                        <option key={plan} value={plan}>
+                          {plan}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 )}
@@ -903,26 +960,23 @@ export default function Payments() {
               onChange={(e) => setFilterPlan(e.target.value)}
             >
               <option value="all">All Plans</option>
-              <option>1 Month</option>
-              <option>3 Months</option>
-              <option>6 Months</option>
-              <option>Annual</option>
-              <option>Elite VIP</option>
+              {PLAN_OPTIONS.map((plan) => (
+                <option key={plan} value={plan}>
+                  {plan}
+                </option>
+              ))}
             </select>
 
             <select
-              className="premium-select"
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-            >
-              <option value="all">All Status</option>
-
-              <option value="paid">Paid</option>
-
-              <option value="pending">Pending</option>
-
-              <option value="partial">Partial</option>
-            </select>
+  className="premium-select"
+  value={filterStatus}
+  onChange={(e) => setFilterStatus(e.target.value)}
+>
+  <option value="all">Membership Status</option>
+  <option value="active">Active</option>
+  <option value="expiring">Expiring</option>
+  <option value="expired">Expired</option>
+</select>
 
             <select
               className="premium-select"
@@ -936,6 +990,15 @@ export default function Payments() {
               <option value="month">This Month</option>
 
               <option value="year">This Year</option>
+            </select>
+            <select
+              className="premium-select"
+              value={filterPayment}
+              onChange={(e) => setFilterPayment(e.target.value)}
+            >
+              <option value="all">All Payments</option>
+              <option value="paid">Paid</option>
+              <option value="due">Due</option>
             </select>
           </div>
 
@@ -988,7 +1051,6 @@ export default function Payments() {
                       ? differenceInDays(expiry, new Date())
                       : null;
                   // const member = findMemberForPayment(p);
-
                   const member = findMemberForPayment(p);
 
                   const due =
@@ -1130,7 +1192,7 @@ export default function Payments() {
                               ? "No Expiry"
                               : daysLeft < 0
                                 ? "Expired"
-                                : daysLeft <= 3
+                                : daysLeft <= 7
                                   ? "Expiring"
                                   : "Active"}
                           </span>
