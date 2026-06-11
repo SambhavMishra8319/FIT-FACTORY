@@ -962,7 +962,7 @@ export default function Payments() {
                 <th>Method</th>
                 <th>Expiry</th>
                 <th>Status</th>
-                <th>Notes</th>
+                <th>Balance Due</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -970,11 +970,11 @@ export default function Payments() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={7}>Loading...</td>
+                  <td colSpan={9}>Loading...</td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7}>No payments found.</td>
+                  <td colSpan={9}>No payments found.</td>
                 </tr>
               ) : (
                 filtered.map((p) => {
@@ -987,7 +987,22 @@ export default function Payments() {
                     expiry instanceof Date && !isNaN(expiry.getTime())
                       ? differenceInDays(expiry, new Date())
                       : null;
+                  // const member = findMemberForPayment(p);
 
+                  const member = findMemberForPayment(p);
+
+                  const due =
+                    p.type === "trainer"
+                      ? 0
+                      : member
+                        ? Math.max(
+                            Number(member.membershipFee || 0) +
+                              Number(member.registrationFee || 0) -
+                              Number(member.discount || 0) -
+                              Number(member.amountPaid || 0),
+                            0,
+                          )
+                        : Number(p.balanceDue || 0);
                   return (
                     <tr key={p.id}>
                       <td>
@@ -1036,7 +1051,11 @@ export default function Payments() {
                       >
                         {formatMoney(p.amount)}
                       </td>
-                      <td>{p.type === "trainer" ? "Trainer Payment" : p.phone || "No phone"}</td>
+                      <td>
+                        {p.type === "trainer"
+                          ? "Trainer Payment"
+                          : p.phone || "No phone"}
+                      </td>
                       {/* <td>
                         {p.type === "trainer" ? (
                           <div>
@@ -1118,7 +1137,14 @@ export default function Payments() {
                         )}
                       </td>
 
-                      <td>{p.notes || "—"}</td>
+                      <td
+                        style={{
+                          color: due > 0 ? "var(--red)" : "var(--green)",
+                          fontWeight: 700,
+                        }}
+                      >
+                        ₹{due.toLocaleString()}
+                      </td>
                       <td>
                         <button
                           className="btn btn-primary btn-sm"
