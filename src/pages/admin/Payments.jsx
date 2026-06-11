@@ -344,25 +344,25 @@ export default function Payments() {
 
       let membershipStatus = "active";
 
-if (p.type === "member") {
-  const expiry = p.expiryDate ? new Date(p.expiryDate) : null;
+      if (p.type === "member") {
+        const expiry = p.expiryDate ? new Date(p.expiryDate) : null;
 
-  const daysLeft =
-    expiry instanceof Date && !isNaN(expiry.getTime())
-      ? differenceInDays(expiry, new Date())
-      : null;
+        const daysLeft =
+          expiry instanceof Date && !isNaN(expiry.getTime())
+            ? differenceInDays(expiry, new Date())
+            : null;
 
-  if (daysLeft !== null) {
-    if (daysLeft < 0) membershipStatus = "expired";
-    else if (daysLeft <= 7) membershipStatus = "expiring";
-    else membershipStatus = "active";
-  }
-}
+        if (daysLeft !== null) {
+          if (daysLeft < 0) membershipStatus = "expired";
+          else if (daysLeft <= 7) membershipStatus = "expiring";
+          else membershipStatus = "active";
+        }
+      }
 
-const matchStatus =
-  filterStatus === "all" ||
-  p.type === "trainer" ||
-  membershipStatus === filterStatus;
+      const matchStatus =
+        filterStatus === "all" ||
+        p.type === "trainer" ||
+        membershipStatus === filterStatus;
       const member = findMemberForPayment(p);
 
       const due =
@@ -437,30 +437,74 @@ const matchStatus =
       monthlyRevenue,
     };
   }, [allPayments, thisMonth]);
+  const getChartLimit = () => {
+    if (dateRange === "7days") return 7;
+    if (dateRange === "30days") return 10;
+    if (dateRange === "month") return 15;
+    if (dateRange === "year") return 12;
+    return 12;
+  };
   // ================= REVENUE DATA =================
-
   const revenueData = useMemo(() => {
-    const map = {};
+  const map = {};
 
-    filtered
-      .filter((p) => p.type === "member")
-      .forEach((p) => {
-        const dateObj = safeDate(p.date);
+  filtered
+    .filter((p) => p.type === "member")
+    .forEach((p) => {
+      const dateObj = safeDate(p.date || p.paymentDate);
+      if (!dateObj) return;
 
-        if (!dateObj) return;
+      let key;
+      let label;
 
-        const d = format(dateObj, "dd MMM");
+      if (dateRange === "year") {
+        key = format(dateObj, "yyyy-MM");
+        label = format(dateObj, "MMM");
+      } else if (dateRange === "month") {
+        key = format(dateObj, "yyyy-MM-dd");
+        label = format(dateObj, "dd");
+      } else {
+        key = format(dateObj, "yyyy-MM-dd");
+        label = format(dateObj, "dd MMM");
+      }
 
-        if (!map[d]) map[d] = 0;
+      if (!map[key]) {
+        map[key] = {
+          date: label,
+          amount: 0,
+          sortDate: key,
+        };
+      }
 
-        map[d] += Number(p.amount || 0);
-      });
+      map[key].amount += Number(p.amount || 0);
+    });
 
-    return Object.keys(map).map((k) => ({
-      date: k,
-      amount: map[k],
-    }));
-  }, [filtered]);
+  return Object.values(map)
+    .sort((a, b) => a.sortDate.localeCompare(b.sortDate))
+    .map(({ sortDate, ...item }) => item);
+}, [filtered, dateRange]);
+  // const revenueData = useMemo(() => {
+  //   const map = {};
+
+  //   filtered
+  //     .filter((p) => p.type === "member")
+  //     .forEach((p) => {
+  //       const dateObj = safeDate(p.date);
+
+  //       if (!dateObj) return;
+
+  //       const d = format(dateObj, "dd MMM");
+
+  //       if (!map[d]) map[d] = 0;
+
+  //       map[d] += Number(p.amount || 0);
+  //     });
+
+  //   return Object.keys(map).map((k) => ({
+  //     date: k,
+  //     amount: map[k],
+  //   }));
+  // }, [filtered]);
   // ================= PAYMENT METHOD DATA =================
   const paymentMethodData = useMemo(() => {
     const methods = {};
@@ -477,7 +521,7 @@ const matchStatus =
       name: key,
       value: methods[key],
     }));
-  }, [filtered]);
+  }, [filtered, dateRange]);
 
   // ================= ADD PAYMENT =================
   const handleAdd = async (e) => {
@@ -968,15 +1012,15 @@ const matchStatus =
             </select>
 
             <select
-  className="premium-select"
-  value={filterStatus}
-  onChange={(e) => setFilterStatus(e.target.value)}
->
-  <option value="all">Membership Status</option>
-  <option value="active">Active</option>
-  <option value="expiring">Expiring</option>
-  <option value="expired">Expired</option>
-</select>
+              className="premium-select"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <option value="all">Membership Status</option>
+              <option value="active">Active</option>
+              <option value="expiring">Expiring</option>
+              <option value="expired">Expired</option>
+            </select>
 
             <select
               className="premium-select"

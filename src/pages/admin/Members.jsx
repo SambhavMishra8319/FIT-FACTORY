@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -75,7 +74,10 @@ export default function Members() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [visible, setVisible] = useState(false);
-
+  // const [paymentFilter, setPaymentFilter] = useState("all");
+  const [filterMethod, setFilterMethod] = useState("all");
+const [filterPlan, setFilterPlan] = useState("all");
+const [paymentFilter, setPaymentFilter] = useState("all");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -104,25 +106,62 @@ export default function Members() {
     return () => unsub();
   }, []);
 
-  const filtered = members.filter((m) => {
-    const q = search.toLowerCase();
+  // const filtered = members.filter((m) => {
+  //   const q = search.toLowerCase();
 
-    const matchSearch =
-      m.name?.toLowerCase().includes(q) ||
-      m.phone?.includes(search) ||
-      m.alternatePhone?.includes(search) ||
-      m.memberId?.toLowerCase().includes(q) ||
-      m.email?.toLowerCase().includes(q) ||
-      m.biometricId?.toString().includes(search) ||
-      m.preferredTime?.toLowerCase().includes(q);
+  //   const matchSearch =
+  //     m.name?.toLowerCase().includes(q) ||
+  //     m.phone?.includes(search) ||
+  //     m.alternatePhone?.includes(search) ||
+  //     m.memberId?.toLowerCase().includes(q) ||
+  //     m.email?.toLowerCase().includes(q) ||
+  //     m.biometricId?.toString().includes(search) ||
+  //     m.preferredTime?.toLowerCase().includes(q);
 
-    const matchFilter = filter === "all" || m.status === filter;
+  //   const matchFilter = filter === "all" || m.status === filter;
 
-    return matchSearch && matchFilter;
-  });
+  //   const due = getBalanceDue(m);
 
+  //   const matchPayment =
+  //     paymentFilter === "all" ||
+  //     (paymentFilter === "paid" && due <= 0) ||
+  //     (paymentFilter === "due" && due > 0);
+
+  //   return matchSearch && matchFilter && matchPayment;
+  // });
+const filtered = members.filter((m) => {
+  const q = search.toLowerCase();
+
+  const matchSearch =
+    !search ||
+    m.name?.toLowerCase().includes(q) ||
+    m.phone?.includes(search) ||
+    m.alternatePhone?.includes(search) ||
+    m.memberId?.toLowerCase().includes(q) ||
+    m.email?.toLowerCase().includes(q) ||
+    m.biometricId?.toString().includes(search) ||
+    m.preferredTime?.toLowerCase().includes(q);
+
+  const matchStatus = filter === "all" || m.status === filter;
+  const matchPlan = filterPlan === "all" || m.plan === filterPlan;
+  const matchMethod =
+    filterMethod === "all" || m.paymentMethod === filterMethod;
+
+  const due = getBalanceDue(m);
+
+  const matchPayment =
+    paymentFilter === "all" ||
+    (paymentFilter === "paid" && due <= 0) ||
+    (paymentFilter === "due" && due > 0);
+
+  return matchSearch && matchStatus && matchPlan && matchMethod && matchPayment;
+});
   const handleDelete = async (id, name) => {
-    if (!window.confirm(`Remove ${name} from members list? This cannot be undone.`)) {
+    if (
+      !window.confirm(
+        `Remove ${name} from members list? This cannot be undone.`,
+      )
+    ) {
       return;
     }
 
@@ -150,17 +189,12 @@ export default function Members() {
 
   const stats = {
     total: members.length,
-    active: members.filter(
-      (m) => m.status === "active" || m.status === "expiring",
-    ).length,
+    active: members.filter((m) => m.status === "active").length,
     expiring: members.filter((m) => m.status === "expiring").length,
     expired: members.filter((m) => m.status === "expired").length,
     pending: members.filter((m) => m.status === "pending").length,
     // revenue: members.reduce((s, m) => s + normalizeAmount(m.amountPaid), 0),
-    revenue: members.reduce(
-  (s, m) => s + normalizeAmount(m.amountPaid),
-  0
-),
+    revenue: members.reduce((s, m) => s + normalizeAmount(m.amountPaid), 0),
     balanceDue: members.reduce((s, m) => s + getBalanceDue(m), 0),
   };
 
@@ -216,10 +250,30 @@ export default function Members() {
       <div className="page-body">
         <div className="stats-grid mb-20">
           {[
-            { label: "Active", value: stats.active, cls: "s-green", val: "c-green" },
-            { label: "Expiring", value: stats.expiring, cls: "s-gold", val: "c-gold" },
-            { label: "Expired", value: stats.expired, cls: "s-red", val: "c-red" },
-            { label: "Pending", value: stats.pending, cls: "s-gold", val: "c-gold" },
+            {
+              label: "Active",
+              value: stats.active,
+              cls: "s-green",
+              val: "c-green",
+            },
+            {
+              label: "Expiring",
+              value: stats.expiring,
+              cls: "s-gold",
+              val: "c-gold",
+            },
+            {
+              label: "Expired",
+              value: stats.expired,
+              cls: "s-red",
+              val: "c-red",
+            },
+            {
+              label: "Pending",
+              value: stats.pending,
+              cls: "s-gold",
+              val: "c-gold",
+            },
             {
               label: "Revenue",
               value: `₹${(stats.revenue / 1000).toFixed(1)}k`,
@@ -233,7 +287,11 @@ export default function Members() {
               val: "c-red",
             },
           ].map((s, i) => (
-            <div key={i} className={`stat-card ${s.cls}`} style={anim(i * 0.07)}>
+            <div
+              key={i}
+              className={`stat-card ${s.cls}`}
+              style={anim(i * 0.07)}
+            >
               <div className="stat-label">{s.label}</div>
               <div className={`stat-value ${s.val}`}>
                 {loading ? "—" : s.value}
@@ -241,8 +299,44 @@ export default function Members() {
             </div>
           ))}
         </div>
+<div className="premium-filter-bar mb-16">
+  <div className="filter-left">
+    <select className="premium-select" value={filterMethod} onChange={(e) => setFilterMethod(e.target.value)}>
+      <option value="all">All Methods</option>
+      <option>Cash</option>
+      <option>UPI</option>
+      <option>Card</option>
+      <option>Bank Transfer</option>
+    </select>
 
-        <div className="member-filters mb-16">
+    <select className="premium-select" value={filterPlan} onChange={(e) => setFilterPlan(e.target.value)}>
+      <option value="all">All Plans</option>
+      <option>1 Month</option>
+      <option>3 Months</option>
+      <option>6 Months</option>
+      <option>12 Months</option>
+      <option>Annual</option>
+      <option>Elite VIP</option>
+      <option>Student Basic</option>
+      <option>Group Basic</option>
+    </select>
+
+    <select className="premium-select" value={filter} onChange={(e) => setFilter(e.target.value)}>
+      <option value="all">Membership Status</option>
+      <option value="active">Active</option>
+      <option value="expiring">Expiring</option>
+      <option value="expired">Expired</option>
+      <option value="pending">Pending</option>
+    </select>
+
+    <select className="premium-select" value={paymentFilter} onChange={(e) => setPaymentFilter(e.target.value)}>
+      <option value="all">All Payments</option>
+      <option value="paid">Paid</option>
+      <option value="due">Due</option>
+    </select>
+  </div>
+</div>
+        {/* <div className="member-filters mb-16">
           {filterButtons.map((item) => (
             <button
               key={item.key}
@@ -254,7 +348,21 @@ export default function Members() {
             </button>
           ))}
         </div>
-
+        <div className="member-filters mb-16">
+          {[
+            { key: "all", label: "All Payments" },
+            { key: "paid", label: "Paid" },
+            { key: "due", label: "Due" },
+          ].map((item) => (
+            <button
+              key={item.key}
+              className={`filter-btn ${paymentFilter === item.key ? "active" : ""}`}
+              onClick={() => setPaymentFilter(item.key)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div> */}
         <div className="table-wrap" style={anim(0.28)}>
           <table>
             <thead>
@@ -314,7 +422,13 @@ export default function Members() {
                     }}
                   >
                     <td>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                        }}
+                      >
                         <div
                           style={{
                             width: 32,
@@ -352,7 +466,9 @@ export default function Members() {
                           </div>
 
                           {m.biometricId && (
-                            <div style={{ fontSize: 10, color: "var(--muted2)" }}>
+                            <div
+                              style={{ fontSize: 10, color: "var(--muted2)" }}
+                            >
                               🖐️ Bio ID: {m.biometricId}
                             </div>
                           )}
@@ -381,7 +497,10 @@ export default function Members() {
                     <td
                       style={{
                         fontSize: 12,
-                        color: m.status === "expired" ? "var(--red)" : "var(--muted2)",
+                        color:
+                          m.status === "expired"
+                            ? "var(--red)"
+                            : "var(--muted2)",
                         fontWeight: m.status === "expired" ? 700 : 400,
                       }}
                     >
@@ -393,7 +512,8 @@ export default function Members() {
 
                     <td
                       style={{
-                        color: getBalanceDue(m) > 0 ? "var(--red)" : "var(--green)",
+                        color:
+                          getBalanceDue(m) > 0 ? "var(--red)" : "var(--green)",
                         fontWeight: 700,
                       }}
                     >
@@ -403,7 +523,9 @@ export default function Members() {
                     <td>{statusBadge(m.status)}</td>
 
                     <td>
-                      <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                      <div
+                        style={{ display: "flex", gap: 4, flexWrap: "wrap" }}
+                      >
                         {m.status === "expired" ? (
                           <button
                             className="btn btn-primary btn-sm tap-scale"
