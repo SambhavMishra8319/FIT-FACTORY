@@ -7,6 +7,7 @@ import {
   collection,
   query,
   where,
+  orderBy,
   getDocs,
 } from "firebase/firestore";
 import {
@@ -36,7 +37,7 @@ export default function MemberProfile() {
   const [steamHistory, setSteamHistory] = useState([]);
   const [trainer, setTrainer] = useState(null);
   const [loading, setLoading] = useState(true);
-
+const [payments, setPayments] = useState([]);
   const thisMonth = format(new Date(), "yyyy-MM");
 
   useEffect(() => {
@@ -74,7 +75,59 @@ export default function MemberProfile() {
         } else {
           setTrainer(null);
         }
+let paymentResults = [];
 
+// 1. First try exact memberId match
+const paymentQueryById = query(
+  collection(db, "payments"),
+  where("memberId", "==", id),
+);
+
+const paymentSnapById = await getDocs(paymentQueryById);
+
+paymentResults = paymentSnapById.docs.map((d) => ({
+  id: d.id,
+  ...d.data(),
+}));
+
+// 2. Fallback for old payments: match by phone
+if (paymentResults.length === 0 && memberData.phone) {
+  const paymentQueryByPhone = query(
+    collection(db, "payments"),
+    where("phone", "==", memberData.phone),
+  );
+
+  const paymentSnapByPhone = await getDocs(paymentQueryByPhone);
+
+  paymentResults = paymentSnapByPhone.docs.map((d) => ({
+    id: d.id,
+    ...d.data(),
+  }));
+}
+
+// 3. Fallback by name
+if (paymentResults.length === 0 && memberData.name) {
+  const paymentQueryByName = query(
+    collection(db, "payments"),
+    where("memberName", "==", memberData.name),
+  );
+
+  const paymentSnapByName = await getDocs(paymentQueryByName);
+
+  paymentResults = paymentSnapByName.docs.map((d) => ({
+    id: d.id,
+    ...d.data(),
+  }));
+}
+
+// 4. Sort safely in React instead of Firestore orderBy
+paymentResults.sort((a, b) => {
+  const da = new Date(a.date || a.paymentDate || a.createdAt?.toDate?.() || 0);
+  const db = new Date(b.date || b.paymentDate || b.createdAt?.toDate?.() || 0);
+  return db - da;
+});
+
+setPayments(paymentResults);
         const [att, bca, steam] = await Promise.all([
           getMemberAttendance(id),
           getBCAReadings(id),
@@ -91,6 +144,7 @@ export default function MemberProfile() {
         setLoading(false);
       }
     });
+    
 
     return () => unsub();
   }, [id]);
@@ -272,7 +326,7 @@ export default function MemberProfile() {
 
             <div className="form-group">
               <div className="form-label">Phone Number</div>
-         /     <div>{member.phone || "—"}</div>
+           <div>{member.phone || "—"}</div>
             </div>
 
             <div className="form-group">
@@ -509,7 +563,95 @@ export default function MemberProfile() {
             </div>
           </div>
         </div>
+<div className="card mb-20">
+  <div className="card-title">Payment History</div>
 
+  {payments.length === 0 ? (
+    <div className="form-label">No payments found.</div>
+  ) : (
+    <div className="table-wrap">
+      <table>
+        <thead>
+          <tr>
+  <th>Date</th>
+  <th>Plan</th>
+  <th>Amount</th>
+  <th>Due</th>
+  <th>Method</th>
+  <th>Expiry</th>
+  <th>Status</th>
+  <th>Notes</th>
+</tr>
+        </thead>
+
+        <tbody>
+          {payments.map((p) => (
+            <tr key={p.id}>
+  <td>{p.date || p.paymentDate || "—"}</td>
+
+  <td>{p.plan || "—"}</td>
+
+  <td>
+    ₹{Number(p.amount || 0).toLocaleString()}
+  </td>
+
+  <td
+    style={{
+      color:
+        Number(p.balanceDue || 0) > 0
+          ? "var(--red)"
+          : "var(--green)",
+      fontWeight: 700,
+    }}
+  >
+    ₹{Number(p.balanceDue || 0).toLocaleString()}
+  </td>
+
+  <td>{p.method || "—"}</td>
+
+  <td>
+    {p.expiryDate || member?.expiryDate || "—"}
+  </td>
+
+  <td>
+    <span
+      className={`badge ${
+        Number(p.balanceDue || 0) > 0
+          ? "badge-red"
+          : "badge-green"
+      }`}
+    >
+      {Number(p.balanceDue || 0) > 0
+        ? "Partial"
+        : "Paid"}
+    </span>
+  </td>
+
+  <td>{p.notes || "—"}</td>
+</tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+  <div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  }}
+>
+  <div className="card-title">Membership & Payment</div>
+
+  <button
+    className="btn btn-primary btn-sm"
+    onClick={() => navigate(`/members/${member.id}/edit`)}
+  >
+    Renew Membership
+  </button>
+</div>
+</div>
         {/* STEAM HISTORY */}
         <div className="card mt-20">
           <div className="card-title">Steam Bath History</div>

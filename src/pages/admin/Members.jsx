@@ -42,7 +42,20 @@ const getBalanceDue = (m) => {
 
   return Math.max(total - normalizeAmount(m.amountPaid), 0);
 };
+const getDaysLeftText = (expiryDate) => {
+  if (!expiryDate) return "-";
 
+  const today = new Date();
+  const expiry = new Date(expiryDate);
+
+  if (isNaN(expiry.getTime())) return "-";
+
+  const diff = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+
+  if (diff < 0) return `${Math.abs(diff)} days expired`;
+  if (diff === 0) return "Expires today";
+  return `${diff} days left`;
+};
 const getDaysExpired = (expiryDate) => {
   if (!expiryDate) return "-";
 
@@ -251,7 +264,8 @@ export default function Members() {
                 <th>Goal</th>
                 <th>Time</th>
                 <th>Expiry</th>
-                <th>Days Expired</th>
+                {/* <th>Days Expired</th> */}
+                <th>Days Left</th>
                 <th>Paid</th>
                 <th>Due</th>
                 <th>Status</th>
@@ -371,7 +385,8 @@ export default function Members() {
                         fontWeight: m.status === "expired" ? 700 : 400,
                       }}
                     >
-                      {m.status === "expired" ? getDaysExpired(m.expiryDate) : "-"}
+                      {/* {m.status === "expired" ? getDaysExpired(m.expiryDate) : "-"} */}
+                      {getDaysLeftText(m.expiryDate)}
                     </td>
 
                     <td>₹{normalizeAmount(m.amountPaid).toLocaleString()}</td>

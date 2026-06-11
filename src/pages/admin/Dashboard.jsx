@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { recordPaymentAndActivate } from "../../firebase/service";
 import { fixMembershipStartDates } from "../../firebase/fixMembershipDates";
 import {
-  
   BarChart,
   Bar,
   XAxis,
@@ -62,12 +61,14 @@ export default function Dashboard() {
   // FILTER
   // const [expiryFilter, setExpiryFilter] = useState("week");
   const [expiryFilter, setExpiryFilter] = useState("3months");
-const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [selectedDate, setSelectedDate] = useState(
+    format(new Date(), "yyyy-MM-dd"),
+  );
   const now = new Date();
 
   const today = format(now, "yyyy-MM-dd");
   const thisMonth = format(now, "yyyy-MM");
-   // =========================
+  // =========================
   // FETCH DATA
   // =========================
   useEffect(() => {
@@ -92,7 +93,6 @@ const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"
             collection(db, "users"),
             where("role", "==", "member"),
             orderBy("createdAt", "desc"),
-            
           ),
         );
 
@@ -315,65 +315,61 @@ const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"
   }, [signups, memberEmails]);
 
   const handleAssignPlan = (user) => {
-  const plan = selectedPlans[user.id];
+    const plan = selectedPlans[user.id];
 
-  if (!plan) return toast.error("Select a plan first");
+    if (!plan) return toast.error("Select a plan first");
 
-  navigate("/add-member", {
-    state: {
-      prefill: {
-        name: user.name,
-        email: user.email,
-        phone: user.phone || "",
-        plan,
+    navigate("/add-member", {
+      state: {
+        prefill: {
+          name: user.name,
+          email: user.email,
+          phone: user.phone || "",
+          plan,
+        },
       },
-    },
-  });
-};
-// =====================
+    });
+  };
+  // =====================
   // STATS
   // =========================
   const dateFilteredPayments = useMemo(() => {
-  return payments.filter((p) => p.date === selectedDate);
-}, [payments, selectedDate]);
+    return payments.filter((p) => p.date === selectedDate);
+  }, [payments, selectedDate]);
 
-const todaysNewMemberships = useMemo(() => {
-  return members.filter((m) => {
-    let joinDate =
-      m.joinDate ||
-      m.joiningDate ||
-      m.admissionDate ||
-      m.startDate ||
-      m.date;
+  const todaysNewMemberships = useMemo(() => {
+    return members.filter((m) => {
+      let joinDate =
+        m.joinDate || m.joiningDate || m.admissionDate || m.startDate || m.date;
 
-    if (!joinDate && m.createdAt?.toDate) {
-      joinDate = format(m.createdAt.toDate(), "yyyy-MM-dd");
-    }
+      if (!joinDate && m.createdAt?.toDate) {
+        joinDate = format(m.createdAt.toDate(), "yyyy-MM-dd");
+      }
 
-    return joinDate === selectedDate;
-  });
-}, [members, selectedDate]);
+      return joinDate === selectedDate;
+    });
+  }, [members, selectedDate]);
 
-const todaysRenewals = useMemo(() => {
-  return payments.filter((p) => {
-    const isSameDate = p.date === selectedDate;
+  const todaysRenewals = useMemo(() => {
+    return payments.filter((p) => {
+      const isSameDate = p.date === selectedDate;
 
-    const isRenewal =
-      p.type === "renewal" ||
-      p.paymentType === "renewal" ||
-      p.category === "Renewal" ||
-      p.description?.toLowerCase().includes("renew");
+      const isRenewal =
+        p.type === "renewal" ||
+        p.paymentType === "renewal" ||
+        p.category === "Renewal" ||
+        p.description?.toLowerCase().includes("renew");
 
-    return isSameDate && isRenewal;
-  });
-}, [payments, selectedDate]);
+      return isSameDate && isRenewal;
+    });
+  }, [payments, selectedDate]);
 
-const selectedDateRevenue = useMemo(() => {
-  return dateFilteredPayments.reduce(
-    (sum, p) => sum + (Number(p.amount) || 0),
-    0,
-  );
-}, [dateFilteredPayments]);
+  const selectedDateRevenue = useMemo(() => {
+    return dateFilteredPayments.reduce(
+      (sum, p) => sum + (Number(p.amount) || 0),
+      0,
+    );
+  }, [dateFilteredPayments]);
   const stats = [
     {
       label: "Total Members",
@@ -407,12 +403,12 @@ const selectedDateRevenue = useMemo(() => {
       val: "c-green",
     },
     {
-  label: "Selected Date Revenue",
-  value: `₹${selectedDateRevenue.toLocaleString()}`,
-  sub: selectedDate,
-  cls: "s-green",
-  val: "c-green",
-},
+      label: "Selected Date Revenue",
+      value: `₹${selectedDateRevenue.toLocaleString()}`,
+      sub: selectedDate,
+      cls: "s-green",
+      val: "c-green",
+    },
   ];
 
   // =========================
@@ -435,6 +431,18 @@ const selectedDateRevenue = useMemo(() => {
     fontSize: 12,
     fontFamily: "'Exo 2',sans-serif",
   };
+  const getDaysLeftText = (expiryDate) => {
+    if (!expiryDate) return "-";
+
+    const today = startOfDay(new Date());
+    const expiry = startOfDay(parseISO(expiryDate));
+
+    const diff = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+
+    if (diff < 0) return `${Math.abs(diff)} days expired`;
+    if (diff === 0) return "Today";
+    return `${diff} days left`;
+  };
 
   return (
     <div className="page-enter">
@@ -444,12 +452,12 @@ const selectedDateRevenue = useMemo(() => {
 
         <div className="topbar-right">
           <input
-  type="date"
-  className="form-input"
-  style={{ width: 150, fontSize: 12, padding: "8px 10px" }}
-  value={selectedDate}
-  onChange={(e) => setSelectedDate(e.target.value)}
-/>
+            type="date"
+            className="form-input"
+            style={{ width: 150, fontSize: 12, padding: "8px 10px" }}
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+          />
 
           <button
             className="btn btn-primary btn-sm tap-scale btn-ripple"
@@ -483,58 +491,60 @@ const selectedDateRevenue = useMemo(() => {
           ))}
         </div>
         <div className="grid-2 mb-20">
-  <div className="card" style={anim(0.18)}>
-    <div className="card-title">
-      🆕 New Memberships ({todaysNewMemberships.length})
-    </div>
+          <div className="card" style={anim(0.18)}>
+            <div className="card-title">
+              🆕 New Memberships ({todaysNewMemberships.length})
+            </div>
 
-    {todaysNewMemberships.length === 0 ? (
-      <div style={{ color: "var(--muted2)", fontSize: 13 }}>
-        No new memberships on this date
-      </div>
-    ) : (
-      todaysNewMemberships.map((m) => (
-        <div key={m.id} className="activity-item">
-          <div className="activity-dot green" />
-          <div>
-            <div className="activity-text">
-              <strong>{m.name || "Unnamed"}</strong> joined
+            {todaysNewMemberships.length === 0 ? (
+              <div style={{ color: "var(--muted2)", fontSize: 13 }}>
+                No new memberships on this date
+              </div>
+            ) : (
+              todaysNewMemberships.map((m) => (
+                <div key={m.id} className="activity-item">
+                  <div className="activity-dot green" />
+                  <div>
+                    <div className="activity-text">
+                      <strong>{m.name || "Unnamed"}</strong> joined
+                    </div>
+                    <div className="activity-time">
+                      {m.plan || "No plan"} · ₹
+                      {Number(m.paid || m.amountPaid || 0).toLocaleString()}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="card" style={anim(0.22)}>
+            <div className="card-title">
+              🔁 Renewed Memberships ({todaysRenewals.length})
             </div>
-            <div className="activity-time">
-              {m.plan || "No plan"} · ₹{Number(m.paid || m.amountPaid || 0).toLocaleString()}
-            </div>
+
+            {todaysRenewals.length === 0 ? (
+              <div style={{ color: "var(--muted2)", fontSize: 13 }}>
+                No renewals on this date
+              </div>
+            ) : (
+              todaysRenewals.map((p) => (
+                <div key={p.id} className="activity-item">
+                  <div className="activity-dot gold" />
+                  <div>
+                    <div className="activity-text">
+                      <strong>{p.memberName || "Member"}</strong> renewed
+                    </div>
+                    <div className="activity-time">
+                      ₹{Number(p.amount || 0).toLocaleString()} ·{" "}
+                      {p.method || "Cash"}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
-      ))
-    )}
-  </div>
-
-  <div className="card" style={anim(0.22)}>
-    <div className="card-title">
-      🔁 Renewed Memberships ({todaysRenewals.length})
-    </div>
-
-    {todaysRenewals.length === 0 ? (
-      <div style={{ color: "var(--muted2)", fontSize: 13 }}>
-        No renewals on this date
-      </div>
-    ) : (
-      todaysRenewals.map((p) => (
-        <div key={p.id} className="activity-item">
-          <div className="activity-dot gold" />
-          <div>
-            <div className="activity-text">
-              <strong>{p.memberName || "Member"}</strong> renewed
-            </div>
-            <div className="activity-time">
-              ₹{Number(p.amount || 0).toLocaleString()} · {p.method || "Cash"}
-            </div>
-          </div>
-        </div>
-      ))
-    )}
-  </div>
-</div>
 
         {/* CHARTS */}
         <div className="grid-2 mb-20">
@@ -797,10 +807,12 @@ const selectedDateRevenue = useMemo(() => {
             <thead>
               <tr>
                 <th>Member</th>
+                <th>Phone</th>
                 <th>Plan</th>
                 <th>Expiry</th>
+                <th>Days Left</th>
                 <th>Status</th>
-                <th>Email</th>
+                {/* <th>Email</th> */}
                 <th></th>
               </tr>
             </thead>
@@ -839,7 +851,7 @@ const selectedDateRevenue = useMemo(() => {
                     <td>
                       <strong>{m.name}</strong>
                     </td>
-
+<td>{m.phone || "—"}</td>
                     <td>{m.plan}</td>
 
                     <td
@@ -850,7 +862,7 @@ const selectedDateRevenue = useMemo(() => {
                     >
                       {m.expiryDate}
                     </td>
-
+<td>{getDaysLeftText(m.expiryDate)}</td>
                     <td>
                       <span className="badge badge-green">{m.status}</span>
                     </td>
@@ -879,36 +891,36 @@ const selectedDateRevenue = useMemo(() => {
           </table>
         </div>
       </div>
-<button
-  className="btn btn-danger"
-  onClick={async () => {
-    if (!window.confirm("Fix membership start dates?")) return;
+      <button
+        className="btn btn-danger"
+        onClick={async () => {
+          if (!window.confirm("Fix membership start dates?")) return;
 
-    const count = await fixMembershipStartDates();
-    alert(`Fixed ${count} members`);
-  }}
->
-  Fix Membership Dates
-</button>
+          const count = await fixMembershipStartDates();
+          alert(`Fixed ${count} members`);
+        }}
+      >
+        Fix Membership Dates
+      </button>
       {/* FAB */}
-  <button
-  className="btn btn-danger btn-sm"
-  onClick={async () => {
-    console.clear();
-    console.log("🔥 Button clicked");
+      <button
+        className="btn btn-danger btn-sm"
+        onClick={async () => {
+          console.clear();
+          console.log("🔥 Button clicked");
 
-    try {
-      const count = await fixMembershipStartDates();
-      console.log("✅ Final updated count:", count);
-      alert(`Fixed ${count} members`);
-    } catch (err) {
-      console.error("❌ Fix failed:", err);
-      alert(err.message);
-    }
-  }}
->
-  Fix Membership Dates
-</button>
+          try {
+            const count = await fixMembershipStartDates();
+            console.log("✅ Final updated count:", count);
+            alert(`Fixed ${count} members`);
+          } catch (err) {
+            console.error("❌ Fix failed:", err);
+            alert(err.message);
+          }
+        }}
+      >
+        Fix Membership Dates
+      </button>
     </div>
   );
 }
