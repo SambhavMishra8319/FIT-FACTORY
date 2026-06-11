@@ -1,16 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
-// import {
-//   format,
-//   addMonths,
-//   differenceInDays,
-//   isAfter,
-//   subDays,
-//   subMonths,
-//   startOfMonth,
-//   startOfYear,
-// } from "date-fns";
+
 import {
-  // isAfter,
   format,
   addMonths,
   differenceInDays,
@@ -50,7 +40,7 @@ import {
   deletePayment,
   updatePayment,
 } from "../../firebase/service";
-// import { addTrainerPayment } from "../../firebase/trainerService";
+
 export default function Payments() {
   const [payments, setPayments] = useState([]);
   const [members, setMembers] = useState([]);
@@ -122,43 +112,24 @@ export default function Payments() {
     };
   }, []);
   const getExpiryDate = (date, plan) => {
-  const d = new Date(date);
+    const d = new Date(date);
 
-  switch (plan) {
-    case "1 Month":
-      return addMonths(d, 1);
-    case "3 Months":
-      return addMonths(d, 3);
-    case "6 Months":
-      return addMonths(d, 6);
-    case "Annual":
-    case "12 Months":
-    case "Elite VIP":
-      return addMonths(d, 12);
-    default:
-      return addMonths(d, 1);
-  }
-};
-  // const getExpiryDate = (date, plan) => {
-  //   const d = new Date(date);
+    switch (plan) {
+      case "1 Month":
+        return addMonths(d, 1);
+      case "3 Months":
+        return addMonths(d, 3);
+      case "6 Months":
+        return addMonths(d, 6);
+      case "Annual":
+      case "12 Months":
+      case "Elite VIP":
+        return addMonths(d, 12);
+      default:
+        return addMonths(d, 1);
+    }
+  };
 
-  //   switch (plan) {
-  //     case "Monthly":
-  //       return addMonths(d, 1);
-
-  //     case "Quarterly":
-  //       return addMonths(d, 3);
-
-  //     case "6 Month":
-  //       return addMonths(d, 6);
-
-  //     case "Annual":
-  //       return addMonths(d, 12);
-
-  //     default:
-  //       return addMonths(d, 1);
-  //   }
-  // };
   const handleDeletePayment = async (payment) => {
     const name =
       payment.type === "trainer" ? payment.trainerName : payment.memberName;
@@ -195,22 +166,7 @@ export default function Payments() {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }, 50);
   };
-  // const handleEditPayment = (p) => {
-  //   setEditingPayment(p);
-  //   setShowForm(true);
 
-  //   setForm({
-  //     memberId: p.memberId || p.entityId || "",
-  //     amount: p.amount || "",
-  //     method: p.method || "Cash",
-  //     plan: p.plan || "Monthly",
-  //     date: p.date || today,
-  //     notes: p.notes || "",
-  //     status: p.status || "paid",
-  //   });
-
-  //   setPaymentType(p.type || "member");
-  // };
   const getStatusColor = (daysLeft) => {
     if (daysLeft < 0) return "badge-red";
 
@@ -239,22 +195,6 @@ export default function Payments() {
     transition: `all 0.45s cubic-bezier(0.22,1,0.36,1) ${delay}s`,
   });
 
-  // ================= LOAD DATA =================
-  // useEffect(() => {
-  //   // const unsub = subscribePaymentsSnapshot((data) => {
-  //   //   setPayments(data);
-
-  //   //   setLoading(false);
-
-  //   //   setTimeout(() => setVisible(true), 60);
-  //   // });
-
-  //   getAllTrainers().then(setTrainers).catch(console.error);
-  //   getAllMembers().then(setMembers).catch(console.error);
-
-  //   return () => unsub();
-  // }, []);
-
   // ================= DATE FILTER =================
   const getDateFilteredPayments = (data) => {
     const now = new Date();
@@ -279,11 +219,6 @@ export default function Payments() {
         default:
           return true;
       }
-      //       console.log(
-      //   payments.filter(
-      //     (p) => !p.date || isNaN(new Date(p.date).getTime())
-      //   )
-      // );
     });
   };
   // 1. FIRST: normalize all payments
@@ -322,107 +257,59 @@ export default function Payments() {
     }
   };
   const allPayments = useMemo(() => {
-  const member = payments.map((p) => {
-    const matchedMember =
-      members.find((m) => m.id === p.memberId) ||
-      members.find((m) => m.id === p.entityId) ||
-      members.find(
-        (m) => normalizePhone(m.phone) && normalizePhone(m.phone) === normalizePhone(p.phone)
-      ) ||
-      members.find(
-        (m) =>
-          String(m.name || "").trim().toLowerCase() ===
-          String(p.memberName || p.name || "").trim().toLowerCase()
-      );
+    const member = payments.map((p) => {
+      const matchedMember =
+        members.find((m) => m.id === p.memberId) ||
+        members.find((m) => m.id === p.entityId) ||
+        members.find(
+          (m) =>
+            normalizePhone(m.phone) &&
+            normalizePhone(m.phone) === normalizePhone(p.phone),
+        ) ||
+        members.find(
+          (m) =>
+            String(m.name || "")
+              .trim()
+              .toLowerCase() ===
+            String(p.memberName || p.name || "")
+              .trim()
+              .toLowerCase(),
+        );
 
-    return {
-      ...p,
-      type: "member",
-      memberId: p.memberId || p.entityId || matchedMember?.id || "",
-      entityId: p.entityId || p.memberId || matchedMember?.id || "",
-      memberName: p.memberName || p.name || matchedMember?.name || "Unknown",
-      phone: p.phone || matchedMember?.phone || "",
-      plan: p.plan || matchedMember?.plan || "",
-      amount: Number(p.amount || 0),
+      return {
+        ...p,
+        type: "member",
+        memberId: p.memberId || p.entityId || matchedMember?.id || "",
+        entityId: p.entityId || p.memberId || matchedMember?.id || "",
+        memberName: p.memberName || p.name || matchedMember?.name || "Unknown",
+        phone: p.phone || matchedMember?.phone || "",
+        plan: p.plan || matchedMember?.plan || "",
+        amount: Number(p.amount || 0),
+        method: normalizeMethod(p.method),
+        date: p.date || p.paymentDate || matchedMember?.joinDate || null,
+        expiryDate: p.expiryDate || matchedMember?.expiryDate || "",
+        status: p.status || "paid",
+        notes: p.notes || "",
+      };
+    });
+
+    const trainer = trainerPayments.map((p) => ({
+      id: p.id,
+      type: "trainer",
+      trainerName: p.trainerName,
+      memberName: null,
+      phone: null,
+      plan: "Trainer Salary",
+      amount: p.amount,
       method: normalizeMethod(p.method),
-      date: p.date || p.paymentDate || matchedMember?.joinDate || null,
-      expiryDate: p.expiryDate || matchedMember?.expiryDate || "",
-      status: p.status || "paid",
+      date:
+        p.date || format(p.createdAt?.toDate?.() || new Date(), "yyyy-MM-dd"),
+      expiryDate: null,
       notes: p.notes || "",
-    };
-  });
+    }));
 
-  const trainer = trainerPayments.map((p) => ({
-    id: p.id,
-    type: "trainer",
-    trainerName: p.trainerName,
-    memberName: null,
-    phone: null,
-    plan: "Trainer Salary",
-    amount: p.amount,
-    method: normalizeMethod(p.method),
-    date: p.date || format(p.createdAt?.toDate?.() || new Date(), "yyyy-MM-dd"),
-    expiryDate: null,
-    notes: p.notes || "",
-  }));
-
-  return [...member, ...trainer];
-}, [payments, trainerPayments, members]);
-//   const allPayments = useMemo(() => {
-//     // const member = payments.map((p) => ({
-//     //   ...p,
-//     //   type: "member",
-//     //   method: normalizeMethod(p.method),
-//     //   date: p.date || p.paymentDate || "2026-06-04",
-//     // }));
-//    const member = payments.map((p) => {
-//   const matchedMember =
-//     members.find((m) => m.id === p.memberId) ||
-//     members.find((m) => m.id === p.entityId) ||
-//     members.find((m) => normalizePhone(m.phone) === normalizePhone(p.phone));
-
-//   return {
-//     ...p,
-//     type: "member",
-//     memberId: p.memberId || p.entityId || matchedMember?.id || "",
-//     entityId: p.entityId || p.memberId || matchedMember?.id || "",
-
-//     memberName: p.memberName || p.name || matchedMember?.name || "Unknown",
-//     phone: p.phone || matchedMember?.phone || "",
-
-//     plan: p.plan || matchedMember?.plan || "",
-//     amount: Number(p.amount || 0),
-//     method: normalizeMethod(p.method),
-
-//     date: p.date || p.paymentDate || matchedMember?.joinDate || null,
-
-//     // ✅ important
-//     expiryDate: p.expiryDate || matchedMember?.expiryDate || "",
-
-//     status: p.status || "paid",
-//     notes: p.notes || "",
-//   };
-// });
-//     const trainer = trainerPayments.map((p) => ({
-//       id: p.id,
-//       type: "trainer",
-//       trainerName: p.trainerName,
-//       memberName: null,
-//       phone: null,
-//       plan: "Trainer Salary",
-//       amount: p.amount,
-//       method: normalizeMethod(p.method),
-//       date:
-//         p.date || format(p.createdAt?.toDate?.() || new Date(), "yyyy-MM-dd"),
-//       expiryDate: null,
-//       notes: p.notes || "",
-//     }));
-
-//     return [...member, ...trainer];
-//   }, [payments, trainerPayments]);
-
-  // 2. DATE FILTER FUNCTION (unchanged)
-  // };
+    return [...member, ...trainer];
+  }, [payments, trainerPayments, members]);
 
   // 3. FILTERED DATA
   const filtered = useMemo(() => {
@@ -450,76 +337,7 @@ export default function Payments() {
     });
   }, [allPayments, search, filterMethod, filterPlan, filterStatus, dateRange]);
   // ================= STATS =================
-  //  const stats = useMemo(() => {
-  //   const revenue = payments;
-  //   const expenses = trainerPayments;
 
-  //   const totalRevenue = revenue.reduce(
-  //     (s, p) => s + Number(p.amount || 0),
-  //     0
-  //   );
-
-  //   const totalExpense = expenses.reduce(
-  //     (s, p) => s + Number(p.amount || 0),
-  //     0
-  //   );
-
-  //   const cash = revenue
-  //     .filter((p) => p.method === "Cash")
-  //     .reduce((s, p) => s + Number(p.amount || 0), 0);
-
-  //   const upi = revenue
-  //     .filter((p) => p.method === "UPI")
-  //     .reduce((s, p) => s + Number(p.amount || 0), 0);
-
-  //   const monthlyRevenue = revenue
-  //     .filter((p) => p.date?.startsWith(thisMonth))
-  //     .reduce((s, p) => s + Number(p.amount || 0), 0);
-
-  //   return {
-  //     totalRevenue,
-  //     totalExpense,
-  //     netProfit: totalRevenue - totalExpense,
-  //     cash,
-  //     upi,
-  //     monthlyRevenue,
-  //   };
-  // }, [payments, trainerPayments, thisMonth]);
-  // const stats = useMemo(() => {
-  //   const all = allPayments;
-
-  //   const totalRevenue = all.reduce(
-  //     (s, p) => s + Number(p.amount || 0),
-  //     0
-  //   );
-
-  //   const totalExpense = trainerPayments.reduce(
-  //     (s, p) => s + Number(p.amount || 0),
-  //     0
-  //   );
-
-  //   const cash = all
-  //     .filter((p) => p.method === "Cash")
-  //     .reduce((s, p) => s + Number(p.amount || 0), 0);
-
-  //   const upi = all
-  //     .filter((p) => p.method === "UPI")
-  //     .reduce((s, p) => s + Number(p.amount || 0), 0);
-
-  //   const monthlyRevenue = all
-  //     .filter((p) => p.date?.startsWith(thisMonth))
-  //     .reduce((s, p) => s + Number(p.amount || 0), 0);
-
-  //   return {
-  //     totalRevenue,
-  //     totalExpense,
-  //     netProfit: totalRevenue - totalExpense,
-  //     cash,
-  //     upi,
-  //     monthlyRevenue,
-  //   };
-  // }, [allPayments, trainer
-  // Payments, thisMonth]);
   const stats = useMemo(() => {
     const revenuePayments = allPayments.filter((p) => p.type === "member");
 
@@ -544,7 +362,7 @@ export default function Payments() {
       .reduce((s, p) => s + Number(p.amount || 0), 0);
 
     const monthlyRevenue = revenuePayments
-      // .filter((p) => p.date?.startsWith(thisMonth))
+
       .filter((p) =>
         String(p.date || p.paymentDate || "").startsWith(thisMonth),
       )
@@ -560,24 +378,7 @@ export default function Payments() {
     };
   }, [allPayments, thisMonth]);
   // ================= REVENUE DATA =================
-  // const revenueData = useMemo(() => {
-  //   const map = {};
 
-  //   filtered
-  //     .filter((p) => p.type === "member")
-  //     .forEach((p) => {
-  //       const d = format(new Date(p.date), "dd MMM");
-
-  //       if (!map[d]) map[d] = 0;
-
-  //       map[d] += Number(p.amount || 0);
-  //     });
-
-  //   return Object.keys(map).map((k) => ({
-  //     date: k,
-  //     amount: map[k],
-  //   }));
-  // }, [filtered]);
   const revenueData = useMemo(() => {
     const map = {};
 
@@ -680,14 +481,6 @@ export default function Payments() {
 
         toast.success("Member payment recorded!");
       }
-      // OPTIONAL: separate trainer ledger (only if you want accounting separation)
-      // if (isTrainer) {
-      //   await payTrainer(
-      //     form.memberId,
-      //     form.amount,
-      //     format(new Date(), "yyyy-MM")
-      //   );
-      // }
       if (isTrainer) {
         await addTrainerPayment({
           trainerId: form.memberId,
@@ -719,61 +512,6 @@ export default function Payments() {
       setSaving(false);
     }
   };
-  // ================= EXPORT =================
-  // const handleExport = () => {
-  //   if (!filtered.length) {
-  //     toast.error("No data to export.");
-
-  //     return;
-  //   }
-
-  //   const data = filtered.map((p) => ({
-  //     "Member Name": p.memberName,
-  //     Phone: p.phone || "",
-  //     Plan: p.plan,
-  //     "Payment Type": p.type,
-  //     Method: p.method,
-  //     Amount: p.amount,
-  //     Date: format(new Date(p.date), "dd MMM yyyy"),
-  //     Expiry: p.expiryDate,
-  //     Status: p.status,
-  //     Notes: p.notes || "",
-  //   }));
-  //   const data = filtered.map((p) => ({
-  //     Name: p.type === "trainer" ? p.trainerName : p.memberName,
-  //     Type: p.type,
-  //     Phone: p.phone || "",
-  //     Plan: p.plan || "Trainer Payment",
-  //     Method: p.method,
-  //     Amount: p.amount,
-  //     Date: format(new Date(p.date), "dd MMM yyyy"),
-  //     Expiry: p.expiryDate || "-",
-  //     Notes: p.notes || "",
-  //   }));
-  //   data.push({
-  //     "Member Name": "TOTAL",
-  //     Amount: stats.total,
-  //   });
-
-  //   const ws = XLSX.utils.json_to_sheet(data);
-
-  //   const wb = XLSX.utils.book_new();
-
-  //   XLSX.utils.book_append_sheet(wb, ws, "Payments");
-
-  //   const excelBuffer = XLSX.write(wb, {
-  //     bookType: "xlsx",
-  //     type: "array",
-  //   });
-
-  //   const file = new Blob([excelBuffer], {
-  //     type: "application/octet-stream",
-  //   });
-
-  //   saveAs(file, `F2_Payments_${format(new Date(), "dd-MM-yyyy")}.xlsx`);
-
-  //   toast.success("Excel exported!");
-  // };
   const handleExport = () => {
     if (!filtered.length) {
       toast.error("No data to export.");
@@ -810,10 +548,6 @@ export default function Payments() {
 
     toast.success("Excel exported!");
   };
-  // const normalizeMethod = (m) => {
-  //   if (!m || m === "Admin") return "Cash";
-  //   return m;
-  // };
   // ================= CLEAR FILTERS =================
   const clearFilters = () => {
     setSearch("");
@@ -867,7 +601,6 @@ export default function Payments() {
         {/* ================= FORM ================= */}
         {showForm && (
           <div className="card">
-            {/* <div className="card-title">Record Payment</div> */}
             <div className="card-title">
               {editingPayment ? "Edit Payment" : "Record Payment"}
             </div>
@@ -875,7 +608,6 @@ export default function Payments() {
             <form onSubmit={handleAdd}>
               <div className="form-row">
                 <div className="form-group">
-                  {/* <label className="form-label">Member</label> */}
                   <label className="form-label">
                     {paymentType === "trainer" ? "Trainer" : "Member"}
                   </label>
@@ -914,38 +646,21 @@ export default function Payments() {
               </div>
 
               <div className="form-row">
-                {/* <div className="form-group">
-                  <label className="form-label">Plan</label>
-
-                  <select
-                    className="form-input"
-                    value={form.plan}
-                    onChange={(e) => set("plan", e.target.value)}
-                  >
-                    <option>Monthly</option>
-
-                    <option>Quarterly</option>
-
-                    <option>6 Month</option>
-
-                    <option>Annual</option>
-                  </select>
-                </div> */}
                 {paymentType === "member" && (
                   <div className="form-group">
                     <label className="form-label">Plan</label>
 
                     <select
-  className="form-input"
-  value={form.plan}
-  onChange={(e) => set("plan", e.target.value)}
->
-  <option>1 Month</option>
-  <option>3 Months</option>
-  <option>6 Months</option>
-  <option>Annual</option>
-  <option>Elite VIP</option>
-</select>
+                      className="form-input"
+                      value={form.plan}
+                      onChange={(e) => set("plan", e.target.value)}
+                    >
+                      <option>1 Month</option>
+                      <option>3 Months</option>
+                      <option>6 Months</option>
+                      <option>Annual</option>
+                      <option>Elite VIP</option>
+                    </select>
                   </div>
                 )}
                 <div className="form-group">
@@ -977,7 +692,6 @@ export default function Payments() {
               </div>
 
               <button className="btn btn-primary" disabled={saving}>
-                {/* {saving ? "Saving..." : "💾 Save Payment"} */}
                 {saving
                   ? "Saving..."
                   : editingPayment
@@ -1018,13 +732,7 @@ export default function Payments() {
             <div className="stat-value">{formatMoney(stats.upi)}</div>
           </div>
         </div>
-        {/* <div className="stat-card" style={anim(0.25)}>
-          <div className="stat-label">Net Profit</div>
 
-          <div className="stat-value c-green">
-            {formatMoney(stats.netProfit)}
-          </div>
-        </div> */}
         <div className="stat-card" style={anim(0.25)}>
           <div className="stat-label">Trainer Expense</div>
 
@@ -1163,135 +871,6 @@ export default function Payments() {
             </ResponsiveContainer>
           </div>
         </div>
-
-        {/* ================= FILTER BAR ================= */}
-        {/* <div className="premium-filter-bar">
-          <div className="filter-left">
-            <input
-              className="premium-search"
-              placeholder="🔍 Search member..."
-              value={search}
-              onChange={(e) =>
-                setSearch(e.target.value)
-              }
-            />
-
-            <select
-              className="premium-select"
-              value={filterMethod}
-              onChange={(e) =>
-                setFilterMethod(
-                  e.target.value,
-                )
-              }
-            >
-              <option value="all">
-                All Methods
-              </option>
-
-              <option>Cash</option>
-              <option>UPI</option>
-              <option>Card</option>
-              <option>
-                Bank Transfer
-              </option>
-            </select>
-
-            <select
-              className="premium-select"
-              value={filterPlan}
-              onChange={(e) =>
-                setFilterPlan(
-                  e.target.value,
-                )
-              }
-            >
-              <option value="all">
-                All Plans
-              </option>
-
-              <option>Monthly</option>
-              <option>
-                Quarterly
-              </option>
-              <option>
-                6 Month
-              </option>
-              <option>Annual</option>
-            </select>
-
-            <select
-              className="premium-select"
-              value={filterStatus}
-              onChange={(e) =>
-                setFilterStatus(
-                  e.target.value,
-                )
-              }
-            >
-              <option value="all">
-                All Status
-              </option>
-
-              <option value="paid">
-                Paid
-              </option>
-
-              <option value="pending">
-                Pending
-              </option>
-
-              <option value="partial">
-                Partial
-              </option>
-            </select>
-
-            <select
-              className="premium-select"
-              value={dateRange}
-              onChange={(e) =>
-                setDateRange(
-                  e.target.value,
-                )
-              }
-            >
-              <option value="7days">
-                Last 7 Days
-              </option>
-
-              <option value="30days">
-                Last 30 Days
-              </option>
-
-              <option value="month">
-                This Month
-              </option>
-
-              <option value="year">
-                This Year
-              </option>
-            </select>
-          </div>
-
-          <div className="filter-right">
-            <button
-              className="btn btn-outline btn-sm"
-              onClick={clearFilters}
-            >
-              Clear
-            </button>
-
-            <div
-              style={{
-                color: "#777",
-                fontSize: 13,
-                whiteSpace: "nowrap",
-              }}
-            >
-              {filtered.length} results
-            </div>
-          </div>
-        </div> */}
         <div className="premium-filter-bar">
           <div className="filter-left">
             <div className="search-wrap">
@@ -1324,11 +903,11 @@ export default function Payments() {
               onChange={(e) => setFilterPlan(e.target.value)}
             >
               <option value="all">All Plans</option>
-<option>1 Month</option>
-<option>3 Months</option>
-<option>6 Months</option>
-<option>Annual</option>
-<option>Elite VIP</option>
+              <option>1 Month</option>
+              <option>3 Months</option>
+              <option>6 Months</option>
+              <option>Annual</option>
+              <option>Elite VIP</option>
             </select>
 
             <select
@@ -1376,17 +955,10 @@ export default function Payments() {
           <table>
             <thead>
               <tr>
-                {/* <th>Member</th>
-                <th>Plan</th>
-                <th>Amount</th>
-                <th>Method</th>
-                <th>Expiry</th>
-                <th>Status</th>
-                <th>Notes</th> */}
                 <th>Name</th>
                 <th>Plan</th>
                 <th>Amount</th>
-                <th>Details</th>
+                <th>Phone</th>
                 <th>Method</th>
                 <th>Expiry</th>
                 <th>Status</th>
@@ -1432,22 +1004,7 @@ export default function Payments() {
                               color: "var(--gold)",
                               transition: "0.2s",
                             }}
-                            // onClick={() => navigate(`/members/${p.memberId}`)}
-                            // onClick={() =>
-                            //   p.type === "member"
-                            //     ? navigate(`/members/${p.memberId}`)
-                            //     : null
-                            // }
                             onClick={() => goToMemberProfile(p)}
-                            // onClick={() => {
-                            //   const id = p.memberId || p.entityId;
-
-                            //   if (p.type === "member" && id) {
-                            //     navigate(`/members/${id}`);
-                            //   } else {
-                            //     toast.error("Member profile link missing");
-                            //   }
-                            // }}
                             onMouseEnter={(e) =>
                               (e.target.style.opacity = "0.8")
                             }
@@ -1479,7 +1036,8 @@ export default function Payments() {
                       >
                         {formatMoney(p.amount)}
                       </td>
-                      <td>
+                      <td>{p.type === "trainer" ? "Trainer Payment" : p.phone || "No phone"}</td>
+                      {/* <td>
                         {p.type === "trainer" ? (
                           <div>
                             <strong style={{ color: "#a855f7" }}>
@@ -1494,22 +1052,7 @@ export default function Payments() {
                                 cursor: "pointer",
                                 color: "var(--gold)",
                               }}
-                              // onClick={() => navigate(`/members/${p.memberId}`)}
-                              // onClick={() =>
-                              //   p.type === "member"
-                              //     ? navigate(`/members/${p.memberId}`)
-                              //     : null
-                              // }
                               onClick={() => goToMemberProfile(p)}
-                              // onClick={() => {
-                              //   const id = p.memberId || p.entityId;
-
-                              //   if (p.type === "member" && id) {
-                              //     navigate(`/members/${id}`);
-                              //   } else {
-                              //     toast.error("Member profile link missing");
-                              //   }
-                              // }}
                             >
                               {p.type === "trainer"
                                 ? p.trainerName
@@ -1518,7 +1061,7 @@ export default function Payments() {
                             <small>{p.phone || "No phone"}</small>
                           </div>
                         )}
-                      </td>
+                      </td> */}
                       <td>
                         <span
                           className={`method-badge ${
@@ -1551,7 +1094,6 @@ export default function Payments() {
                             : daysLeft === null
                               ? "No expiry"
                               : `${daysLeft} days left`}
-                          
                         </small>
                       </td>
 
@@ -1573,12 +1115,6 @@ export default function Payments() {
                                   ? "Expiring"
                                   : "Active"}
                           </span>
-                          //   {daysLeft < 0
-                          //     ? "Expired"
-                          //     : daysLeft <= 3
-                          //       ? "Expiring"
-                          //       : "Active"}
-                          // </span>
                         )}
                       </td>
 
@@ -1604,13 +1140,6 @@ export default function Payments() {
             </tbody>
           </table>
         </div>
-        {/* <div style={{ color: "red", fontSize: 20 }}>
-  Payments: {payments.length}
-</div>
-
-<div style={{ color: "green", fontSize: 20 }}>
-  Filtered: {filtered.length}
-</div> */}
       </div>
     </div>
   );
