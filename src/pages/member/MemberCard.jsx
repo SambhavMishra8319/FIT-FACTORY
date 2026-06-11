@@ -42,7 +42,7 @@ export default function MemberCard() {
     : "Active";
 
   const handleShare = async () => {
-    const text = `🏋️ F2 fit-factory — Mandla's Best Gym\n👤 ${profile?.name}\n📱 +91 ${profile?.phone}\n🎫 ${member?.plan || "Member"}\n📅 Valid till: ${member?.expiryDate || "—"}\n\n💪 Crushing goals at F2 Fit Factory!`;
+    const text = `🏋️ F2 fit-factory By Nimesh Mishra\n👤 ${profile?.name}\n📱 +91 ${profile?.phone}\n🎫 ${member?.plan || "Member"}\n📅 Valid till: ${member?.expiryDate || "—"}\n\n💪 Crushing goals at F2 Fit Factory!`;
     if (navigator.share) {
       try {
         await navigator.share({ title: "F2 fit-factory Membership", text });
@@ -73,7 +73,7 @@ export default function MemberCard() {
                   F2 FIT FACTORY
                 </div>
                 <div style={{ fontSize: 9, color: "var(--muted2)", letterSpacing: 3, textTransform: "uppercase", marginTop: 3, fontFamily: "'Exo 2', sans-serif" }}>
-                  📍 Mandla, Madhya Pradesh
+                  BY NIMESH MISHRA
                 </div>
               </div>
               <div style={{ width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg, var(--gold2), var(--gold))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 900, color: "var(--black)", fontFamily: "'Orbitron', sans-serif", border: "2px solid rgba(240,180,41,0.3)", boxShadow: "0 0 20px rgba(240,180,41,0.2)" }}>
@@ -137,7 +137,7 @@ export default function MemberCard() {
             <div className="card-title">Membership Details</div>
             {[
               { icon: "📅", label: "Days Remaining", value: daysLeft !== null ? (daysLeft > 0 ? `${daysLeft} days` : "Expired") : "—", color: statusColor },
-              { icon: "🏋️", label: "Home Gym", value: "F2 Fit Factory, Mandla", color: "var(--gold)" },
+              { icon: "🏋️", label: "Home Gym", value: "F2 Fit Factory By Nimesh Mishra", color: "var(--gold)" },
               { icon: "⏰", label: "Gym Hours", value: "6:00 AM – 9:00 PM", color: "var(--text)" },
               { icon: "📞", label: "Contact", value: "Visit gym for info", color: "var(--text)" },
             ].map(({ icon, label, value, color }) => (

@@ -2,7 +2,7 @@
 
 ### Complete Gym Management & Member Experience Platform
 
-📍 **F2 FIT-FACTORY, Mandla, Madhya Pradesh, India**
+📍 **F2 FIT-FACTORY BY NIMESH MISHRA**
 
 A modern Gym Management CRM built with **React.js** and **Firebase** to manage memberships, finances, trainers, fitness tracking, and member engagement in one unified platform.
 

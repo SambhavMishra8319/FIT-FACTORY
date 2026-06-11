@@ -148,7 +148,7 @@ In Android Studio:
 2. Create developer account (one-time $25 fee)
 3. Create new app → fill details:
    - **App name:** F2 Fit Factory
-   - **Short description:** Mandla's Best Gym — Track Workouts, BCA & Book Steam Bath
+   - **Short description:** Track Workouts, BCA & Book Steam Bath
    - **Full description:** (see below)
    - **Category:** Health & Fitness
    - **Content rating:** Everyone
@@ -159,7 +159,7 @@ In Android Studio:
 ```
 F2 Fit Factory — Mandla's Premier Gym App
 
-Track your fitness journey with Mandla's best gym app:
+Track your fitness journey with our gym app:
 
 🏋️ WORKOUT PLANS
 Personalized plans for Weight Loss, Muscle Gain, Body Toning and General Fitness.
@@ -179,7 +179,7 @@ Attendance streaks, achievement badges, body transformation charts.
 💳 MEMBERSHIP MANAGEMENT
 Buy and renew memberships. View expiry date and payment history.
 
-F2 Fit Factory — Best gym in Mandla, Madhya Pradesh.
+F2 Fit Factory.
 ```
 
 ### Step 9: After Play Store Approval (2-3 days)

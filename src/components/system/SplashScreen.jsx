@@ -213,7 +213,7 @@ export default function SplashScreen({ onDone }) {
             transition: "all 0.6s cubic-bezier(0.22,1,0.36,1)",
           }}
         >
-          {/* Mandla's Largest Gym */}
+          
         </div>
 
         {/* Location */}
@@ -241,23 +241,9 @@ export default function SplashScreen({ onDone }) {
         "all 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s",
     }}
   >
-    📍 Mandla, Madhya Pradesh
+    
   </div>
 </a>
-        {/* <div
-          style={{
-            fontFamily: "'Exo 2', sans-serif",
-            fontSize: "clamp(10px, 2.5vw, 11px)",
-            letterSpacing: "2px",
-            color: "#c9a227",
-            marginTop: 6,
-            opacity: phase >= 3 ? 1 : 0,
-            transform: phase >= 3 ? "translateY(0)" : "translateY(8px)",
-            transition: "all 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s",
-          }}
-        >
-          📍 Mandla, Madhya Pradesh
-        </div> */}
       </div>
 
       {/* Bottom loading bar */}
