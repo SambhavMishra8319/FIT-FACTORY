@@ -443,7 +443,23 @@ export default function Dashboard() {
     if (diff === 0) return "Today";
     return `${diff} days left`;
   };
+const monthRenewed = useMemo(() => {
+  return payments.filter((p) => {
+    const d = new Date(p.date);
 
+    const isRenewal =
+      p.type === "renewal" ||
+      p.paymentType === "renewal" ||
+      p.category === "Renewal" ||
+      p.description?.toLowerCase().includes("renew");
+
+    return (
+      isRenewal &&
+      d.getMonth() === now.getMonth() &&
+      d.getFullYear() === now.getFullYear()
+    );
+  });
+}, [payments]);
   return (
     <div className="page-enter">
       {/* TOPBAR */}
@@ -520,9 +536,25 @@ export default function Dashboard() {
 
           <div className="card" style={anim(0.22)}>
             <div className="card-title">
-              🔁 Renewed Memberships ({todaysRenewals.length})
+              🔁 Today's Renewed Memberships ({todaysRenewals.length})
             </div>
+{/* <div className="card-title">
+  <div>
+    <div>🔁 Renewed Memberships</div>
 
+    <div
+      style={{
+        fontSize: 12,
+        color: "var(--muted2)",
+        marginTop: 4,
+      }}
+    >
+      Today <strong>{todaysRenewals.length}</strong>
+      {" • "}
+      This Month <strong>{monthRenewed.length}</strong>
+    </div>
+  </div>
+</div> */}
             {todaysRenewals.length === 0 ? (
               <div style={{ color: "var(--muted2)", fontSize: 13 }}>
                 No renewals on this date
@@ -696,6 +728,34 @@ export default function Dashboard() {
             ))
           )}
         </div>
+        <div className="card mb-20" style={anim(0.36)}>
+  <div className="card-title">
+    📅 This Month Renewed Members ({monthRenewed.length})
+  </div>
+
+  {monthRenewed.length === 0 ? (
+    <div style={{ color: "var(--muted2)", fontSize: 13 }}>
+      No renewals this month
+    </div>
+  ) : (
+    monthRenewed.map((p) => (
+      <div key={p.id} className="activity-item">
+        <div className="activity-dot gold" />
+
+        <div>
+          <div className="activity-text">
+            <strong>{p.memberName || "Member"}</strong> renewed
+          </div>
+
+          <div className="activity-time">
+            {p.date} · ₹{Number(p.amount || 0).toLocaleString()} ·{" "}
+            {p.method || "Cash"}
+          </div>
+        </div>
+      </div>
+    ))
+  )}
+</div>
         {/* EXPIRING MEMBERS */}
         <div className="section-header mb-12" style={anim(0.4)}>
           <div
@@ -891,36 +951,7 @@ export default function Dashboard() {
           </table>
         </div>
       </div>
-      <button
-        className="btn btn-danger"
-        onClick={async () => {
-          if (!window.confirm("Fix membership start dates?")) return;
-
-          const count = await fixMembershipStartDates();
-          alert(`Fixed ${count} members`);
-        }}
-      >
-        Fix Membership Dates
-      </button>
-      {/* FAB */}
-      <button
-        className="btn btn-danger btn-sm"
-        onClick={async () => {
-          console.clear();
-          console.log("🔥 Button clicked");
-
-          try {
-            const count = await fixMembershipStartDates();
-            console.log("✅ Final updated count:", count);
-            alert(`Fixed ${count} members`);
-          } catch (err) {
-            console.error("❌ Fix failed:", err);
-            alert(err.message);
-          }
-        }}
-      >
-        Fix Membership Dates
-      </button>
+     
     </div>
   );
 }

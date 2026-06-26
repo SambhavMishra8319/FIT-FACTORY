@@ -62,6 +62,7 @@ export default function Payments() {
   const [filterPayment, setFilterPayment] = useState("all");
   const today = format(new Date(), "yyyy-MM-dd");
   const thisMonth = format(new Date(), "yyyy-MM");
+  const [filterType, setFilterType] = useState("all");
   const PLAN_OPTIONS = [
     "1 Month",
     "3 Months",
@@ -103,7 +104,11 @@ export default function Payments() {
 
   useEffect(() => {
     const unsub = subscribePaymentsSnapshot((data) => {
+      console.log("FIRST PAYMENT:", data[0]);
+console.log("FIRST PAYMENT JSON:", JSON.stringify(data[0], null, 2));
       setPayments(data);
+
+
       setLoading(false);
       setTimeout(() => setVisible(true), 60);
     });
@@ -377,13 +382,44 @@ export default function Payments() {
                 0,
               )
             : Number(p.balanceDue || 0);
+
+      const tx = String(
+  p.transactionType ||
+    p.paymentType ||
+    p.category ||
+    p.notes ||
+    p.description ||
+    ""
+).toLowerCase();
+
+const paymentKind = tx.includes("new membership")
+  ? "new"
+  : tx.includes("renew")
+    ? "renewal"
+    : "unknown";
+const matchType =
+  filterType === "all" ||
+  (filterType === "new" && paymentKind === "new") ||
+  (filterType === "renewal" && paymentKind === "renewal");
+// const matchType = filterType === "all" || paymentKind === filterType;
+      // const paymentType =
+      //   p.type === "new" || p.paymentType === "new" || p.category === "New"
+      //     ? "new"
+      //     : "renewal";
+
+      // const matchType = filterType === "all" || paymentType === filterType;
       const matchPayment =
         filterPayment === "all" ||
         (filterPayment === "paid" && due <= 0) ||
         (filterPayment === "due" && due > 0);
 
       return (
-        matchSearch && matchMethod && matchPlan && matchStatus && matchPayment
+        matchSearch &&
+        matchMethod &&
+        matchPlan &&
+        matchStatus &&
+        matchPayment &&
+        matchType
       );
     });
     // }, [allPayments, search, filterMethod, filterPlan, filterStatus, dateRange]);
@@ -394,6 +430,7 @@ export default function Payments() {
     filterPlan,
     filterStatus,
     filterPayment,
+    filterType,
     dateRange,
   ]);
   // ================= STATS =================
@@ -446,43 +483,43 @@ export default function Payments() {
   };
   // ================= REVENUE DATA =================
   const revenueData = useMemo(() => {
-  const map = {};
+    const map = {};
 
-  filtered
-    .filter((p) => p.type === "member")
-    .forEach((p) => {
-      const dateObj = safeDate(p.date || p.paymentDate);
-      if (!dateObj) return;
+    filtered
+      .filter((p) => p.type === "member")
+      .forEach((p) => {
+        const dateObj = safeDate(p.date || p.paymentDate);
+        if (!dateObj) return;
 
-      let key;
-      let label;
+        let key;
+        let label;
 
-      if (dateRange === "year") {
-        key = format(dateObj, "yyyy-MM");
-        label = format(dateObj, "MMM");
-      } else if (dateRange === "month") {
-        key = format(dateObj, "yyyy-MM-dd");
-        label = format(dateObj, "dd");
-      } else {
-        key = format(dateObj, "yyyy-MM-dd");
-        label = format(dateObj, "dd MMM");
-      }
+        if (dateRange === "year") {
+          key = format(dateObj, "yyyy-MM");
+          label = format(dateObj, "MMM");
+        } else if (dateRange === "month") {
+          key = format(dateObj, "yyyy-MM-dd");
+          label = format(dateObj, "dd");
+        } else {
+          key = format(dateObj, "yyyy-MM-dd");
+          label = format(dateObj, "dd MMM");
+        }
 
-      if (!map[key]) {
-        map[key] = {
-          date: label,
-          amount: 0,
-          sortDate: key,
-        };
-      }
+        if (!map[key]) {
+          map[key] = {
+            date: label,
+            amount: 0,
+            sortDate: key,
+          };
+        }
 
-      map[key].amount += Number(p.amount || 0);
-    });
+        map[key].amount += Number(p.amount || 0);
+      });
 
-  return Object.values(map)
-    .sort((a, b) => a.sortDate.localeCompare(b.sortDate))
-    .map(({ sortDate, ...item }) => item);
-}, [filtered, dateRange]);
+    return Object.values(map)
+      .sort((a, b) => a.sortDate.localeCompare(b.sortDate))
+      .map(({ sortDate, ...item }) => item);
+  }, [filtered, dateRange]);
   // const revenueData = useMemo(() => {
   //   const map = {};
 
@@ -659,6 +696,7 @@ export default function Payments() {
     setFilterPlan("all");
     setFilterStatus("all");
     setFilterPayment("all");
+    setFilterType("all"); 
     setDateRange("7days");
   };
 
@@ -1017,11 +1055,20 @@ export default function Payments() {
               onChange={(e) => setFilterStatus(e.target.value)}
             >
               <option value="all">Membership Status</option>
+              
               <option value="active">Active</option>
               <option value="expiring">Expiring</option>
               <option value="expired">Expired</option>
             </select>
-
+<select
+  className="premium-select"
+  value={filterType}
+  onChange={(e) => setFilterType(e.target.value)}
+>
+  <option value="all">All Types</option>
+  <option value="new">New Membership</option>
+  <option value="renewal">Renewal</option>
+</select>
             <select
               className="premium-select"
               value={dateRange}

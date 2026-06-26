@@ -750,6 +750,7 @@ import TrainerProfile from "./pages/admin/trainer/TrainerProfile";
 import TrainerPayments from "./pages/admin/trainer/TrainerPayments";
 import { Workout, Diet } from "./pages/static/StaticPages";
 import MassageChair from "./pages/admin/MassageChair";
+import Backup from "./pages/admin/Backup";
 // ── Lazy Admin Pages ─────────────────────────────────────
 const Login = lazy(() => import("./pages/Login"));
 
@@ -995,7 +996,7 @@ function AppRoutes() {
       <Route path="/login" element={user ? <RootRedirect /> : <Login />} />
 
       <Route path="/" element={<RootRedirect />} />
-
+<Route path="/backup" element={<Backup />} />
       {/* Admin */}
       <Route
         path="/dashboard"

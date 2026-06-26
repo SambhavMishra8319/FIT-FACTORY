@@ -4,10 +4,10 @@ import toast from "react-hot-toast";
 import { getMembershipStatus } from "../../utils/membershipStatus";
 import {
   subscribeMembersSnapshot,
+  subscribePaymentsSnapshot,
   deleteMember,
   addAttendance,
 } from "../../firebase/service";
-
 const normalizeAmount = (val) => {
   if (!val) return 0;
   if (typeof val === "number") return val;
@@ -70,6 +70,7 @@ const getDaysExpired = (expiryDate) => {
 
 export default function Members() {
   const [members, setMembers] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
@@ -79,32 +80,63 @@ export default function Members() {
 const [filterPlan, setFilterPlan] = useState("all");
 const [paymentFilter, setPaymentFilter] = useState("all");
   const navigate = useNavigate();
+useEffect(() => {
+  const unsubMembers = subscribeMembersSnapshot((data) => {
+    const updated = data
+      .map((m) => ({
+        ...m,
+        status: m.expiryDate ? getMembershipStatus(m.expiryDate) : "pending",
+      }))
+      .sort((a, b) => {
+        const order = {
+          active: 1,
+          expiring: 2,
+          expired: 3,
+          pending: 4,
+        };
 
-  useEffect(() => {
-    const unsub = subscribeMembersSnapshot((data) => {
-      const updated = data
-        .map((m) => ({
-          ...m,
-          status: m.expiryDate ? getMembershipStatus(m.expiryDate) : "pending",
-        }))
-        .sort((a, b) => {
-          const order = {
-            active: 1,
-            expiring: 2,
-            expired: 3,
-            pending: 4,
-          };
+        return order[a.status] - order[b.status];
+      });
 
-          return order[a.status] - order[b.status];
-        });
+    setMembers(updated);
+    setLoading(false);
+    setTimeout(() => setVisible(true), 60);
+  });
 
-      setMembers(updated);
-      setLoading(false);
-      setTimeout(() => setVisible(true), 60);
-    });
+  const unsubPayments = subscribePaymentsSnapshot((data) => {
+    setPayments(Array.isArray(data) ? data : []);
+  });
 
-    return () => unsub();
-  }, []);
+  return () => {
+    unsubMembers();
+    unsubPayments();
+  };
+}, []);
+  // useEffect(() => {
+  //   const unsub = subscribeMembersSnapshot((data) => {
+  //     const updated = data
+  //       .map((m) => ({
+  //         ...m,
+  //         status: m.expiryDate ? getMembershipStatus(m.expiryDate) : "pending",
+  //       }))
+  //       .sort((a, b) => {
+  //         const order = {
+  //           active: 1,
+  //           expiring: 2,
+  //           expired: 3,
+  //           pending: 4,
+  //         };
+
+  //         return order[a.status] - order[b.status];
+  //       });
+
+  //     setMembers(updated);
+  //     setLoading(false);
+  //     setTimeout(() => setVisible(true), 60);
+  //   });
+
+  //   return () => unsub();
+  // }, []);
 
   // const filtered = members.filter((m) => {
   //   const q = search.toLowerCase();
@@ -194,7 +226,10 @@ const filtered = members.filter((m) => {
     expired: members.filter((m) => m.status === "expired").length,
     pending: members.filter((m) => m.status === "pending").length,
     // revenue: members.reduce((s, m) => s + normalizeAmount(m.amountPaid), 0),
-    revenue: members.reduce((s, m) => s + normalizeAmount(m.amountPaid), 0),
+    // revenue: members.reduce((s, m) => s + normalizeAmount(m.amountPaid), 0),
+    revenue: payments
+  .filter((p) => p.type !== "trainer")
+  .reduce((s, p) => s + normalizeAmount(p.amount), 0),
     balanceDue: members.reduce((s, m) => s + getBalanceDue(m), 0),
   };
 
