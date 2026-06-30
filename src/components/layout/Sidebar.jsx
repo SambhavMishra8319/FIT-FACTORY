@@ -141,11 +141,11 @@ const navItems = [
         label: "Equipment Guide",
       },
 
-      {
-  to: "/biometric",
-  icon: <Fingerprint size={18} />,
-  label: "Biometric",
-},
+//       {
+//   to: "/biometric",
+//   icon: <Fingerprint size={18} />,
+//   label: "Biometric",
+// },
 
 {
   to: "/backup",

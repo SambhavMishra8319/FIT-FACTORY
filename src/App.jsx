@@ -774,12 +774,12 @@ const MemberMassage = lazy(() => import("./pages/member/MemberMassage"));
 const Equipment = lazy(
   () => import("./pages/shared/EquipmentGuide"), // OR move later
 );
-const Biometric = lazy(
-  () =>
-    import(
-      "./pages/admin/Biometric"
-    )
-);
+// const Biometric = lazy(
+//   () =>
+//     import(
+//       "./pages/admin/Biometric"
+//     )
+// );
 const Analytics = lazy(() => import("./pages/admin/Analytics"));
 // const TrainerAnalytics = lazy(
 //   () => import("./pages/admin/trainer/TrainerAnalytics"),
