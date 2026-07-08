@@ -21,3 +21,39 @@
   border-color: var(--gold);
   font-weight: 700;
 }
+.mini-stat {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 9px 8px;
+  text-align: center;
+}
+
+.mini-stat span {
+  display: block;
+  font-size: 9px;
+  color: var(--muted2);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.mini-stat strong {
+  font-size: 12px;
+  color: var(--gold);
+  font-family: var(--font-display);
+}
+
+.workout-tab {
+  position: relative;
+}
+
+.workout-tab small {
+  margin-left: 5px;
+  background: var(--gold);
+  color: var(--black);
+  border-radius: 999px;
+  padding: 1px 6px;
+  font-size: 9px;
+  font-weight: 800;
+}
