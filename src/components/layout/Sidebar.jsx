@@ -135,23 +135,17 @@ const navItems = [
         label: "Notifications",
       },
 
+      //       {
+      //   to: "/biometric",
+      //   icon: <Fingerprint size={18} />,
+      //   label: "Biometric",
+      // },
+
       {
-        to: "/equipments",
-        icon: <ShieldCheck size={18} />,
-        label: "Equipment Guide",
+        to: "/backup",
+        icon: <HardDriveDownload size={18} />,
+        label: "Backup",
       },
-
-//       {
-//   to: "/biometric",
-//   icon: <Fingerprint size={18} />,
-//   label: "Biometric",
-// },
-
-{
-  to: "/backup",
-  icon: <HardDriveDownload size={18} />,
-  label: "Backup",
-},
     ],
   },
 
@@ -175,7 +169,11 @@ const navItems = [
         icon: <TrendingUp size={18} />,
         label: "My Progress",
       },
-
+      {
+        to: "/equipments",
+        icon: <ShieldCheck size={18} />,
+        label: "Equipment Guide",
+      },
       {
         to: "/leaderboard",
         icon: <Trophy size={18} />,
