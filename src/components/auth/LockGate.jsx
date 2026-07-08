@@ -8,6 +8,7 @@ const FEATURE_LABELS = {
   diet: "Diet Plans",
   bca: "BCA Analysis",
   steam: "Steam Bath Booking",
+  massage: "Massage Chair Booking",
   progress: "Progress Tracking",
   leaderboard: "Leaderboard",
 };
@@ -17,11 +18,68 @@ const CONTACT_PHONE = "+91 8319802425";
 /* ─────────────────────────────────────────────
    PLANS
 ───────────────────────────────────────────── */
+// const PLANS = [
+//   {
+//     key: "monthly",
+//     name: "Monthly",
+//     price: "₹1,500",
+//     duration: "1 Month",
+//     color: "#c9a227",
+//     popular: false,
+//     features: [
+//       "Full Workout Plans",
+//       "Indian Diet Plans",
+//       "BCA Tracking",
+//       "Steam Bath Booking",
+//       "Progress & Streaks",
+//     ],
+//   },
+//   {
+//     key: "quarterly",
+//     name: "Quarterly",
+//     price: "₹3,500",
+//     duration: "3 Months",
+//     color: "#f5c842",
+//     popular: true,
+//     features: [
+//       "Everything in Monthly",
+//       "Save ₹1,000",
+//       "Priority Steam Slots",
+//       "Leaderboard Access",
+//     ],
+//   },
+//   {
+//     key: "6month",
+//     name: "6 Months",
+//     price: "₹7,000",
+//     duration: "6 Months",
+//     color: "#fcd95b",
+//     popular: false,
+//     features: [
+//       "Everything in Quarterly",
+//       "Save ₹2,000",
+//       "Free BCA Every Month",
+//     ],
+//   },
+//   {
+//     key: "annual",
+//     name: "Annual",
+//     price: "₹12,000",
+//     duration: "12 Months",
+//     color: "#f5c842",
+//     popular: false,
+//     features: [
+//       "Everything Included",
+//       "Save ₹6,000",
+//       "VIP Steam Access",
+//     ],
+//   },
+// ];
 const PLANS = [
   {
-    key: "monthly",
-    name: "Monthly",
-    price: "₹1,500",
+    key: "1month",
+    name: "1 Month",
+    price: "₹1,499",
     duration: "1 Month",
     color: "#c9a227",
     popular: false,
@@ -29,52 +87,68 @@ const PLANS = [
       "Full Workout Plans",
       "Indian Diet Plans",
       "BCA Tracking",
-      "Steam Bath Booking",
-      "Progress & Streaks",
+      "Steam Bath Access",
+      "Progress Tracking",
     ],
   },
   {
-    key: "quarterly",
-    name: "Quarterly",
-    price: "₹3,500",
+    key: "3months",
+    name: "3 Months",
+    price: "₹3,999",
     duration: "3 Months",
     color: "#f5c842",
     popular: true,
     features: [
-      "Everything in Monthly",
-      "Save ₹1,000",
-      "Priority Steam Slots",
+      "Everything in 1 Month",
+      "Better value plan",
       "Leaderboard Access",
+      "Steam Bath Access",
+      "Progress & Streaks",
     ],
   },
   {
-    key: "6month",
+    key: "6months",
     name: "6 Months",
-    price: "₹7,000",
+    price: "₹7,999",
     duration: "6 Months",
     color: "#fcd95b",
     popular: false,
     features: [
-      "Everything in Quarterly",
-      "Save ₹2,000",
-      "Free BCA Every Month",
+      "Everything in 3 Months",
+      "Long-term transformation",
+      "BCA Progress Tracking",
+      "Priority support",
     ],
   },
   {
-    key: "annual",
-    name: "Annual",
-    price: "₹12,000",
+    key: "12months",
+    name: "12 Months",
+    price: "₹14,999",
     duration: "12 Months",
     color: "#f5c842",
     popular: false,
     features: [
       "Everything Included",
-      "Save ₹6,000",
-      "VIP Steam Access",
+      "Best yearly value",
+      "Full member benefits",
+      "Workout, diet, BCA, steam",
+    ],
+  },
+  {
+    key: "elitevip",
+    name: "Elite VIP",
+    price: "₹19,999",
+    duration: "Premium Plan",
+    color: "#fff1a8",
+    popular: false,
+    features: [
+      "All premium features",
+      "VIP member experience",
+      "BCA + steam + massage support",
+      "Priority trainer guidance",
     ],
   },
 ];
-
 /* ─────────────────────────────────────────────
    MEMBERSHIP BANNER
 ───────────────────────────────────────────── */
@@ -113,7 +187,7 @@ export function MembershipBanner({ membership }) {
           🆓 FREE ACCOUNT
         </div>
         <div style={{ fontSize: 13, color: "var(--text2)", lineHeight: 1.5 }}>
-          You're browsing F2 Fit Factory.{" "}
+          Your account is active, but membership is not assigned yet.{" "}
           <strong style={{ color: "var(--gold)" }}>
             Purchase a membership
           </strong>{" "}
@@ -183,7 +257,7 @@ function LockOverlay({ feature }) {
       style={{
         position: "absolute",
         inset: 0,
-        zIndex: 999,
+        zIndex: 20,
         pointerEvents: "all",
         background: "rgba(8,8,8,0.75)",
         backdropFilter: "blur(3px)",
@@ -244,19 +318,45 @@ function LockOverlay({ feature }) {
 /* ─────────────────────────────────────────────
    LOCK GATE
 ───────────────────────────────────────────── */
+// export function LockGate({ feature, children, membership }) {
+//   if (!membership) return null;
+
+//   if (membership?.canAccess?.(feature)) return children;
+
+//   return (
+//     <div style={{ position: "relative", minHeight: "60vh" }}>
+//       <div
+//         style={{
+//           filter: "blur(5px)",
+//           pointerEvents: "none",
+//           userSelect: "none",
+//           opacity: 0.5,
+//           overflow: "hidden",
+//           maxHeight: "70vh",
+//         }}
+//       >
+//         {children}
+//       </div>
+
+//       <LockOverlay feature={feature} />
+//     </div>
+//   );
+// }
 export function LockGate({ feature, children, membership }) {
   if (!membership) return null;
 
-  if (membership?.canAccess?.(feature)) return children;
+  if (membership?.canAccess?.(feature)) {
+    return children;
+  }
 
   return (
     <div style={{ position: "relative", minHeight: "60vh" }}>
       <div
         style={{
-          filter: "blur(5px)",
+          filter: "blur(4px)",
           pointerEvents: "none",
           userSelect: "none",
-          opacity: 0.5,
+          opacity: 0.45,
           overflow: "hidden",
           maxHeight: "70vh",
         }}
@@ -268,7 +368,6 @@ export function LockGate({ feature, children, membership }) {
     </div>
   );
 }
-
 /* ─────────────────────────────────────────────
    SECTION LOCK
 ───────────────────────────────────────────── */

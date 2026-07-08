@@ -14,103 +14,68 @@ import {
   Trophy,
   Armchair,
   ShieldCheck,
+  IdCard,
+  Bell,
 } from "lucide-react";
 
 function MemberNavLinks({ onClose }) {
-  // const memberNav = [
-  //   {
-  //     to: "/member/dashboard",
-  //     icon: "⚡",
-  //     label: "Dashboard",
-  //   },
-  //   {
-  //     to: "/member/bca",
-  //     icon: "📊",
-  //     label: "BCA Analysis",
-  //   },
-  //   {
-  //     to: "/member/workout",
-  //     icon: "🏋️",
-  //     label: "Workout Plans",
-  //   },
-  //   {
-  //     to: "/member/diet",
-  //     icon: "🥗",
-  //     label: "Diet Plans",
-  //   },
-  //   {
-  //     to: "/member/steam",
-  //     icon: "🌫️",
-  //     label: "Steam Bath",
-  //   },
-  //   {
-  //     to: "/member/massage",
-  //     icon: <Armchair size={16} />,
-  //     label: "Massage Chair",
-  //   },
-  //   {
-  //     to: "/member/progress",
-  //     icon: "📈",
-  //     label: "My Progress",
-  //   },
-  //   {
-  //     to: "/member/leaderboard",
-  //     icon: "🏆",
-  //     label: "Leaderboard",
-  //   },
-  //   {
-  //     to: "/member/equipment",
-  //     icon: "🏋️",
-  //     label: "Equipment Guide",
-  //   },
-  // ];
-const memberNav = [
-  {
-    to: "/member/dashboard",
-    icon: <LayoutDashboard size={18} />,
-    label: "Dashboard",
-  },
-  {
-    to: "/member/bca",
-    icon: <Activity size={18} />,
-    label: "BCA Analysis",
-  },
-  {
-    to: "/member/workout",
-    icon: <Dumbbell size={18} />,
-    label: "Workout Plans",
-  },
-  {
-    to: "/member/diet",
-    icon: <Salad size={18} />,
-    label: "Diet Plans",
-  },
-  {
-    to: "/member/steam",
-    icon: <Wind size={18} />,
-    label: "Steam Bath",
-  },
-  {
-    to: "/member/massage",
-    icon: <Armchair size={18} />,
-    label: "Massage Chair",
-  },
-  {
-    to: "/member/progress",
-    icon: <TrendingUp size={18} />,
-    label: "My Progress",
-  },
-  {
-    to: "/member/leaderboard",
-    icon: <Trophy size={18} />,
-    label: "Leaderboard",
-  },
-  {
-    to: "/member/equipment",
-    icon: <ShieldCheck size={18} />,
-    label: "Equipment Guide",
-  },
-];
+  const memberNav = [
+    {
+      to: "/member/dashboard",
+      icon: <LayoutDashboard size={18} />,
+      label: "Dashboard",
+    },
+    {
+      to: "/member/bca",
+      icon: <Activity size={18} />,
+      label: "BCA Analysis",
+    },
+    {
+      to: "/member/workout",
+      icon: <Dumbbell size={18} />,
+      label: "Workout Plans",
+    },
+    {
+      to: "/member/diet",
+      icon: <Salad size={18} />,
+      label: "Diet Plans",
+    },
+    {
+      to: "/member/steam",
+      icon: <Wind size={18} />,
+      label: "Steam Bath",
+    },
+    {
+      to: "/member/massage",
+      icon: <Armchair size={18} />,
+      label: "Massage Chair",
+    },
+    {
+      to: "/member/progress",
+      icon: <TrendingUp size={18} />,
+      label: "My Progress",
+    },
+    {
+      to: "/member/leaderboard",
+      icon: <Trophy size={18} />,
+      label: "Leaderboard",
+    },
+    {
+      to: "/member/card",
+      icon: <IdCard size={18} />,
+      label: "My Card",
+    },
+    {
+      to: "/member/notifications",
+      icon: <Bell size={18} />,
+      label: "Notifications",
+    },
+    {
+      to: "/member/equipment",
+      icon: <ShieldCheck size={18} />,
+      label: "Equipment Guide",
+    },
+  ];
   return (
     <nav className="nav">
       <div className="nav-section-label">Member</div>
@@ -267,61 +232,36 @@ export function MemberBottomNav() {
   // const bottomTabs = [
   //   {
   //     to: "/member/diet",
-  //     icon: "🥗",
+  //     icon: <Salad size={20} />,
   //     label: "Diet",
   //   },
   //   {
   //     to: "/member/workout",
-  //     icon: "🏋️",
+  //     icon: <Dumbbell size={20} />,
   //     label: "Workout",
   //   },
   //   {
   //     to: "/member/dashboard",
-  //     icon: "⚡",
+  //     icon: <LayoutDashboard size={20} />,
   //     label: "Home",
   //   },
   //   {
   //     to: "/member/bca",
-  //     icon: "📊",
+  //     icon: <Activity size={20} />,
   //     label: "BCA",
   //   },
   //   {
-  //     to: "/member/steam",
-  //     icon: "🌫️",
-  //     label: "Steam",
-  //   },
-  //   {
   //     to: "/member/massage",
-  //     icon: <Armchair size={18} />,
+  //     icon: <Armchair size={20} />,
   //     label: "Massage",
   //   },
   // ];
-const bottomTabs = [
-  {
-    to: "/member/diet",
-    icon: <Salad size={20} />,
-    label: "Diet",
-  },
-  {
-    to: "/member/workout",
-    icon: <Dumbbell size={20} />,
-    label: "Workout",
-  },
-  {
-    to: "/member/dashboard",
-    icon: <LayoutDashboard size={20} />,
-    label: "Home",
-  },
-  {
-    to: "/member/bca",
-    icon: <Activity size={20} />,
-    label: "BCA",
-  },
-  {
-    to: "/member/massage",
-    icon: <Armchair size={20} />,
-    label: "Massage",
-  },
+  const bottomTabs = [
+  { to: "/member/diet", icon: <Salad size={20} />, label: "Diet" },
+  { to: "/member/workout", icon: <Dumbbell size={20} />, label: "Workout" },
+  { to: "/member/dashboard", icon: <LayoutDashboard size={20} />, label: "Home" },
+  { to: "/member/bca", icon: <Activity size={20} />, label: "BCA" },
+  { to: "/member/card", icon: <IdCard size={20} />, label: "Card" },
 ];
   return (
     <nav className="bottom-nav">

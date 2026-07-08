@@ -169,11 +169,11 @@ const navItems = [
         icon: <TrendingUp size={18} />,
         label: "My Progress",
       },
-      {
-        to: "/equipments",
-        icon: <ShieldCheck size={18} />,
-        label: "Equipment Guide",
-      },
+      // {
+      //   to: "/equipments",
+      //   icon: <ShieldCheck size={18} />,
+      //   label: "Equipment Guide",
+      // },
       {
         to: "/leaderboard",
         icon: <Trophy size={18} />,

@@ -1,48 +1,58 @@
-// // components/member/QuickActions.jsx
+
+// import { useNavigate } from "react-router-dom";
 
 // export default function QuickActions({
-//   onRenew,
-//   onAddBCA,
-//   onAttendance,
-//   onWorkout,
+//   memberId,
 // }) {
+//   const navigate = useNavigate();
+
 //   return (
-//     <div className="card mb-20">
+//     <div className="card">
 //       <div className="card-title">
 //         Quick Actions
 //       </div>
 
-//       <div
-//         style={{
-//           display: "flex",
-//           gap: 10,
-//           flexWrap: "wrap",
-//         }}
-//       >
+//       <div className="quick-actions-grid">
 //         <button
 //           className="btn btn-primary"
-//           onClick={onRenew}
+//           onClick={() =>
+//             navigate(
+//               `/members/${memberId}/renew`
+//             )
+//           }
 //         >
-//           Renew
+//           Renew Membership
 //         </button>
 
 //         <button
 //           className="btn btn-outline"
-//           onClick={onAddBCA}
+//           onClick={() =>
+//             navigate(
+//               `/members/${memberId}/bca`
+//             )
+//           }
 //         >
 //           Add BCA
 //         </button>
 
 //         <button
 //           className="btn btn-outline"
-//           onClick={onAttendance}
+//           onClick={() =>
+//             navigate(
+//               `/attendance`
+//             )
+//           }
 //         >
 //           Mark Attendance
 //         </button>
 
 //         <button
 //           className="btn btn-outline"
-//           onClick={onWorkout}
+//           onClick={() =>
+//             navigate(
+//               `/assign-workout/${memberId}`
+//             )
+//           }
 //         >
 //           Assign Workout
 //         </button>
@@ -52,60 +62,40 @@
 // }
 import { useNavigate } from "react-router-dom";
 
-export default function QuickActions({
-  memberId,
-}) {
+export default function QuickActions() {
   const navigate = useNavigate();
 
   return (
     <div className="card">
-      <div className="card-title">
-        Quick Actions
-      </div>
+      <div className="card-title">Quick Actions</div>
 
       <div className="quick-actions-grid">
         <button
           className="btn btn-primary"
-          onClick={() =>
-            navigate(
-              `/members/${memberId}/renew`
-            )
-          }
+          onClick={() => navigate("/member/card")}
         >
-          Renew Membership
+          My Membership Card
         </button>
 
         <button
           className="btn btn-outline"
-          onClick={() =>
-            navigate(
-              `/members/${memberId}/bca`
-            )
-          }
+          onClick={() => navigate("/member/bca")}
         >
-          Add BCA
+          View BCA
         </button>
 
         <button
           className="btn btn-outline"
-          onClick={() =>
-            navigate(
-              `/attendance`
-            )
-          }
+          onClick={() => navigate("/member/workout")}
         >
-          Mark Attendance
+          Start Workout
         </button>
 
         <button
           className="btn btn-outline"
-          onClick={() =>
-            navigate(
-              `/assign-workout/${memberId}`
-            )
-          }
+          onClick={() => navigate("/member/steam")}
         >
-          Assign Workout
+          Book Steam
         </button>
       </div>
     </div>
